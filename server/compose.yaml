@@ -1,0 +1,22 @@
+# 로컬 개발용 MySQL
+# bootRun 하면 spring-boot-docker-compose가 이 파일을 읽어 자동으로 띄우고 연결 정보를 주입한다.
+# 값은 로컬 전용이다. 서버(EC2) 비밀번호는 .env로 따로 관리한다.
+services:
+  mysql:
+    image: 'mysql:8.4'
+    environment:
+      - 'MYSQL_DATABASE=driverule'
+      - 'MYSQL_USER=driverule'
+      - 'MYSQL_PASSWORD=driverule'
+      - 'MYSQL_ROOT_PASSWORD=root'
+      - 'TZ=Asia/Seoul'
+    command:
+      - '--character-set-server=utf8mb4'
+      - '--collation-server=utf8mb4_0900_ai_ci'
+    ports:
+      - '3306:3306'
+    volumes:
+      - 'mysql-data:/var/lib/mysql'
+
+volumes:
+  mysql-data:

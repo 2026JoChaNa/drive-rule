@@ -1,0 +1,43 @@
+### 비밀값 (절대 커밋하지 않는다) ###
+.env
+*.env
+!.env.example
+*.pem
+*.key
+*.jks
+*.keystore
+local.properties
+
+### Gradle ###
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### IDE ###
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.vscode/
+.classpath
+.project
+.settings/
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### Android ###
+captures/
+.externalNativeBuild/
+.cxx/
+*.aab
+# 제출용 APK는 apk/ 폴더에서만 추적한다
+*.apk
+!apk/*.apk
+
+### OS ###
+.DS_Store
+Thumbs.db

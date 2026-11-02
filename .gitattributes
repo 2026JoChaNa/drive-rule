@@ -1,0 +1,7 @@
+# 줄바꿈 고정: Windows에서 체크아웃해도 gradlew가 깨지지 않게 한다
+* text=auto
+**/gradlew text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
+*.jar binary
+*.apk binary

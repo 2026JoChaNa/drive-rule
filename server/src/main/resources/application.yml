@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: drive-rule-server
+  # 로컬: compose.yaml의 MySQL 연결 정보를 docker-compose 지원이 자동 주입한다.
+  # 서버: 환경변수 DB_URL, DB_USERNAME, DB_PASSWORD로 지정한다.
+  datasource:
+    url: ${DB_URL:}
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate   # 테이블은 Flyway가 만들고, Hibernate는 엔티티와 맞는지만 검사한다
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Seoul
+  flyway:
+    locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
