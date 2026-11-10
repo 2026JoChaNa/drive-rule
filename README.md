@@ -33,6 +33,12 @@ cd server
 - 확인: http://localhost:8080/actuator/health 가 `{"status":"UP"}`이면 정상이다.
 - DB를 처음부터 다시 만들 때: `docker compose down -v` (server 폴더에서)
 
+### API 문서
+
+- Swagger UI: http://localhost:8080/swagger-ui.html
+- OpenAPI JSON: http://localhost:8080/v3/api-docs (YAML: `/v3/api-docs.yaml`)
+- 끄기: 환경변수 `API_DOCS_ENABLED=false`
+
 ### 서버 테스트
 
 ```powershell
@@ -41,6 +47,11 @@ cd server
 ```
 
 Testcontainers가 MySQL 8.4 컨테이너를 띄워 테스트한다. Docker Desktop이 실행 중이어야 한다.
+
+### CI
+
+- `.github/workflows/server-ci.yml`: `server/` 가 바뀐 PR과 `main` 푸시에서 `./gradlew test` 를 돌린다.
+- 실패하면 테스트 리포트가 Actions 아티팩트(`server-test-reports`)로 올라간다.
 
 ## 테스트 환경
 
