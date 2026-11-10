@@ -18,6 +18,18 @@ spring:
   flyway:
     locations: classpath:db/migration
 
+# API 문서 (springdoc)
+#   Swagger UI : /swagger-ui.html
+#   JSON       : /v3/api-docs        (YAML: /v3/api-docs.yaml)
+# 배포 환경에서 끄려면 API_DOCS_ENABLED=false
+springdoc:
+  api-docs:
+    enabled: ${API_DOCS_ENABLED:true}
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: ${API_DOCS_ENABLED:true}
+    path: /swagger-ui.html
+
 management:
   endpoints:
     web:
