@@ -5,6 +5,7 @@
 1. `main` 에 서버 코드가 들어오면 `server-ci` 가 테스트
 2. 성공하면 `server-cd` 가 jar → Docker 이미지 → Docker Hub 푸시
    - 태그: `<DOCKERHUB_USERNAME>/drive-rule-server:sha-<커밋 7자리>` + `latest`
+   - 계정명이 secret 이라 Actions 로그에는 `***/drive-rule-server:…` 로 가려져 보인다
 3. EC2 에 SSH 로 접속해 `compose.prod.yaml` 갱신 → 새 이미지로 재시작 → `/actuator/health` 가 `UP` 이면 완료
    - 150초 안에 `UP` 이 안 되면 실패 처리하고 앱 로그를 출력 (자동 롤백은 없음)
 
@@ -16,7 +17,7 @@ Settings → Secrets and variables → Actions
 
 | 종류 | 이름 | 값 |
 |---|---|---|
-| Variable | `DOCKERHUB_USERNAME` | Docker Hub 계정명 |
+| Secret | `DOCKERHUB_USERNAME` | Docker Hub 계정명 |
 | Secret | `DOCKERHUB_TOKEN` | Docker Hub → Account settings → Personal access tokens (Read & Write) |
 | Secret | `EC2_HOST` | EC2 퍼블릭 IP 또는 도메인 |
 | Secret | `EC2_USER` | SSH 사용자 (Ubuntu AMI 면 `ubuntu`) |

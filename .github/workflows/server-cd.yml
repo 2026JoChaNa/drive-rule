@@ -4,8 +4,9 @@ name: server-cd
 # 수동 배포: Actions → server-cd → Run workflow (main 기준)
 #
 # 필요한 설정 (Settings → Secrets and variables → Actions, 또는 production 환경)
-#   Variables : DOCKERHUB_USERNAME
-#   Secrets   : DOCKERHUB_TOKEN, EC2_HOST, EC2_USER, EC2_SSH_KEY
+#   Secrets : DOCKERHUB_USERNAME, DOCKERHUB_TOKEN, EC2_HOST, EC2_USER, EC2_SSH_KEY
+# 계정명이 secret 이라 job 간에는 태그만 넘기고 이미지 이름은 각 job 에서 조립한다
+# (GitHub 은 secret 이 섞인 job output 을 버린다)
 # 자세한 내용: docs/deploy.md
 on:
   workflow_run:
@@ -32,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     outputs:
-      image: ${{ steps.meta.outputs.image }}
+      tag: ${{ steps.meta.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,14 +54,13 @@ jobs:
       - name: Image tag
         id: meta
         run: |
-          SHA=$(git rev-parse --short=7 HEAD)
-          echo "image=${{ vars.DOCKERHUB_USERNAME }}/${IMAGE_NAME}:sha-${SHA}" >> "$GITHUB_OUTPUT"
+          echo "tag=sha-$(git rev-parse --short=7 HEAD)" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@v3
 
       - uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - uses: docker/build-push-action@v6
@@ -69,8 +69,8 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ${{ steps.meta.outputs.image }}
-            ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -94,12 +94,13 @@ jobs:
 
       - name: Upload compose file
         run: |
+          ssh -i ~/.ssh/ec2 "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" 'mkdir -p ~/drive-rule'
           scp -i ~/.ssh/ec2 server/deploy/compose.prod.yaml \
             "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/drive-rule/compose.prod.yaml"
 
       - name: Deploy
         env:
-          IMAGE: ${{ needs.build.outputs.image }}
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.tag }}
         run: |
           ssh -i ~/.ssh/ec2 "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" IMAGE="$IMAGE" bash -s <<'REMOTE'
           set -euo pipefail
