@@ -98,6 +98,14 @@ jobs:
           scp -i ~/.ssh/ec2 server/deploy/compose.prod.yaml \
             "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/drive-rule/compose.prod.yaml"
 
+      # 비공개 이미지도 받을 수 있게 EC2 에서 Docker Hub 에 로그인 (토큰은 stdin 으로만 전달)
+      - name: Docker Hub login on EC2
+        env:
+          DH_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          DH_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          printf '%s' "$DH_TOKEN" | ssh -i ~/.ssh/ec2 "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}"             "docker login -u '$DH_USER' --password-stdin"
+
       - name: Deploy
         env:
           IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.tag }}
