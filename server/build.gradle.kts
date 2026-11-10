@@ -42,3 +42,11 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+// Docker 이미지에 넣을 실행 jar 를 build/libs/app.jar 하나로 고정한다 (plain jar 미생성)
+tasks.named<Jar>("jar") {
+	enabled = false
+}
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+	archiveFileName.set("app.jar")
+}
