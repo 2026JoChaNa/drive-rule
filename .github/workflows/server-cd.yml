@@ -92,11 +92,12 @@ jobs:
           chmod 600 ~/.ssh/ec2
           ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Upload compose file
+      - name: Upload deploy files
         run: |
           ssh -i ~/.ssh/ec2 "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" 'mkdir -p ~/drive-rule'
-          scp -i ~/.ssh/ec2 server/deploy/compose.prod.yaml \
-            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/drive-rule/compose.prod.yaml"
+          scp -i ~/.ssh/ec2 server/deploy/compose.prod.yaml server/deploy/dc.sh \
+            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/drive-rule/"
+          ssh -i ~/.ssh/ec2 "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" 'chmod +x ~/drive-rule/dc.sh'
 
       # 비공개 이미지도 받을 수 있게 EC2 에서 Docker Hub 에 로그인 (토큰은 stdin 으로만 전달)
       - name: Docker Hub login on EC2
@@ -104,7 +105,8 @@ jobs:
           DH_USER: ${{ secrets.DOCKERHUB_USERNAME }}
           DH_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          printf '%s' "$DH_TOKEN" | ssh -i ~/.ssh/ec2 "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}"             "docker login -u '$DH_USER' --password-stdin"
+          printf '%s' "$DH_TOKEN" | ssh -i ~/.ssh/ec2 "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" \
+            "docker login -u '$DH_USER' --password-stdin"
 
       - name: Deploy
         env:
@@ -114,9 +116,10 @@ jobs:
           set -euo pipefail
           cd ~/drive-rule
           test -f .env || { echo "~/drive-rule/.env 가 없다 (docs/deploy.md 참고)"; exit 1; }
-          export IMAGE
-          docker compose -f compose.prod.yaml pull app
-          docker compose -f compose.prod.yaml up -d
+          # 수동 조작(./dc.sh)이 같은 이미지를 쓰도록 배포 태그를 기록
+          printf '%s\n' "$IMAGE" > .image
+          ./dc.sh pull app
+          ./dc.sh up -d
           PORT=$(grep -E '^APP_PORT=' .env | cut -d= -f2 || true); PORT=${PORT:-8080}
           for i in $(seq 1 30); do
             if curl -fsS "http://localhost:${PORT}/actuator/health" | grep -q '"status":"UP"'; then
@@ -127,6 +130,6 @@ jobs:
             sleep 5
           done
           echo "헬스체크 실패 — 최근 로그:"
-          docker compose -f compose.prod.yaml logs --tail 100 app
+          ./dc.sh logs --tail 100 app
           exit 1
           REMOTE

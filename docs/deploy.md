@@ -27,9 +27,26 @@ Settings → Secrets and variables → Actions
 - Docker Hub 저장소 `drive-rule-server` 는 비공개로 만들어 둔다 (첫 푸시 때 자동 생성되면 공개일 수 있음)
 - EC2 의 Docker Hub 로그인은 배포 워크플로가 매번 secret 으로 한다 (수동 로그인 불필요)
 
-## EC2 준비 (최초 1회) — Amazon Linux 2023 · x86_64
+## EC2 준비 — Amazon Linux 2023 · x86_64
 
-현재 서버(13.124.175.42)는 2026-11-11 에 아래 상태로 준비되어 있다: Docker 25 · compose v5.7.0 · 스왑 2GB · `~/drive-rule/.env`
+현재 서버(13.124.175.42)는 2026-11-11 에 아래 상태로 준비되어 있다: Docker 25 · compose v5.7.0 · 스왑 2GB · EBS 16GB · `~/drive-rule/.env`
+
+## 운영 중 조작 (EC2 의 `~/drive-rule`)
+
+배포 워크플로가 마지막 배포 이미지 태그를 `.image` 에 남긴다. compose 를 직접 부르지 말고 `dc.sh` 를 쓴다.
+
+```bash
+cd ~/drive-rule
+./dc.sh ps                      # 상태
+./dc.sh logs -f --tail 200 app  # 앱 로그
+./dc.sh restart app             # 재시작
+docker stats --no-stream        # 메모리 (한도: 앱 768MB, MySQL 512MB)
+```
+
+- 이전 버전으로 되돌리기: Actions → `server-cd` → 되돌릴 커밋의 실행 → Re-run (그 커밋 이미지로 다시 배포)
+- 디스크: VS Code Remote-SSH 로 접속하면 업데이트마다 `~/.vscode-server/cli/servers` 에 버전이 쌓인다 (버전당 약 650MB). 가끔 최신 1개만 남기고 지운다
+
+## EC2 처음부터 다시 준비할 때
 
 ```bash
 # Docker (AL2023 기본 저장소) + 자동 시작 + 그룹 (재접속 후 적용)
