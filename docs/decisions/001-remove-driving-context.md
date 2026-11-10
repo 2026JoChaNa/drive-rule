@@ -2,7 +2,7 @@
 
 - 날짜: 2026-11-11
 - 상태: 결정 (MVP 범위)
-- 관련: `docs/diagrams/erd.data.mjs` — `driver_profile.driving_context`, `rule_card.audience` 삭제
+- 관련: `docs/db/erd.data.mjs` — `driver_profile.driving_context`, `rule_card.audience` 삭제
 
 ## 배경
 

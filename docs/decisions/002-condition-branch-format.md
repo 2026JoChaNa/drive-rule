@@ -2,7 +2,7 @@
 
 - 날짜: 2026-11-11
 - 상태: 결정 (MVP 범위)
-- 관련: `docs/diagrams/erd.data.mjs` — `rule_card.decision_json` (MySQL `JSON`), `cached_card.decision_json` (Room `TEXT`)
+- 관련: `docs/db/erd.data.mjs` — `rule_card.decision_json` (MySQL `JSON`), `cached_card.decision_json` (Room `TEXT`)
 
 ## 배경
 

@@ -2,7 +2,7 @@
 
 - 날짜: 2026-11-11
 - 상태: 결정 (MVP 범위) — **출시(2027.3 가정) 전 재설계 필요**
-- 관련: `docs/diagrams/erd.data.mjs` — `card_stat_daily` 삭제, 앱 → 서버 이동 없음
+- 관련: `docs/db/erd.data.mjs` — `card_stat_daily` 삭제, 앱 → 서버 이동 없음
 
 ## 배경
 

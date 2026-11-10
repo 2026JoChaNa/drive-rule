@@ -2,7 +2,7 @@
 // DRIVE RULE ERD 재생성기 (drive-rule-erd 스킬 규칙을 코드로 옮긴 것)
 //
 //   node .claude/skills/drive-rule-erd/gen-erd.mjs [data.mjs] [out.drawio]
-//   기본값: docs/diagrams/erd.data.mjs → docs/diagrams/ERD.drawio
+//   기본값: docs/db/erd.data.mjs → docs/db/ERD.drawio
 //
 // 하는 일: 데이터 검증 → 높이·밴드 y 계산 → 앵커 분산 → lane 배정 → XML 직렬화
 //         → 자가검증(겹침 · 앵커 중복 · 엣지 관통 · 포개짐) → Flyway drift 경고
@@ -12,8 +12,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const dataPath = path.resolve(process.argv[2] ?? 'docs/diagrams/erd.data.mjs');
-const outPath = path.resolve(process.argv[3] ?? 'docs/diagrams/ERD.drawio');
+const dataPath = path.resolve(process.argv[2] ?? 'docs/db/erd.data.mjs');
+const outPath = path.resolve(process.argv[3] ?? 'docs/db/ERD.drawio');
 const data = (await import(pathToFileURL(dataPath).href)).default;
 
 // ---------------------------------------------------------------- 상수 (§2.2)

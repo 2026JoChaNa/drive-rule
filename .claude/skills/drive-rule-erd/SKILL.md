@@ -3,8 +3,8 @@ name: drive-rule-erd
 description: |
   DRIVE RULE 의 ERD(drawio)를 그리거나 갱신할 때 쓴다 — "ERD 그려줘", "ERD 업데이트", "ERD 갱신",
   "엔티티 관계도", "테이블 설계 그려", "스키마 ERD", "ERD.drawio" 등. 서버 DB(MySQL, Flyway)와
-  차량 앱 DB(Room) 두 구역을 한 장에 그린다. 테이블 정의는 docs/diagrams/erd.data.mjs 에 데이터로 쓰고,
-  같은 폴더의 gen-erd.mjs 로 docs/diagrams/ERD.drawio 를 생성한다(손으로 XML 을 찍지 않는다).
+  차량 앱 DB(Room) 두 구역을 한 장에 그린다. 테이블 정의는 docs/db/erd.data.mjs 에 데이터로 쓰고,
+  같은 폴더의 gen-erd.mjs 로 docs/db/ERD.drawio 를 생성한다(손으로 XML 을 찍지 않는다).
   엔티티는 절대 겹치지 않게, 관계선 머리·몸통은 절대 포개지지 않게, 좌표는 산식으로 계산한다.
   격자·엣지 원칙은 [[drawio-ia]] 와 같다.
 ---
@@ -15,9 +15,9 @@ ERD 는 **데이터 파일 → 생성기 → drawio** 로만 만든다.
 
 | 파일 | 역할 |
 |---|---|
-| `docs/diagrams/erd.data.mjs` | 테이블·컬럼·관계·데이터 이동을 적는 **유일한 편집 대상** |
+| `docs/db/erd.data.mjs` | 테이블·컬럼·관계·데이터 이동을 적는 **유일한 편집 대상** |
 | `.claude/skills/drive-rule-erd/gen-erd.mjs` | 높이·밴드·앵커·lane 계산 → XML → 자가검증 → Flyway drift 경고 |
-| `docs/diagrams/ERD.drawio` | 생성 산출물. **직접 고치지 않는다** (다음 생성 때 덮어씀) |
+| `docs/db/ERD.drawio` | 생성 산출물. **직접 고치지 않는다** (다음 생성 때 덮어씀) |
 
 ```bash
 node .claude/skills/drive-rule-erd/gen-erd.mjs            # 기본 경로
@@ -251,7 +251,7 @@ source = 부모(PK), target = 자식(FK). 복합 PK 의 각 컬럼은 `PK, FK` �
 생성 후 수동 grep (생성기를 고쳤을 때 회귀 확인용):
 
 ```bash
-f=docs/diagrams/ERD.drawio
+f=docs/db/ERD.drawio
 # 격자 — mxPoint/mxGeometry/mxRectangle 안의 좌표만 (vertex="1" 오탐 제외)
 grep -oE '<mx(Point|Geometry|Rectangle)[^>]*' $f | grep -oE '(^| )(x|y)="[0-9.]+"' | grep -vE '0"$'
 # 관계 엣지에 exit/entry 누락 (범례 LG_ 제외)
