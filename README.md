@@ -53,6 +53,11 @@ Testcontainers가 MySQL 8.4 컨테이너를 띄워 테스트한다. Docker Deskt
 - `.github/workflows/server-ci.yml`: `server/` 가 바뀐 PR과 `main` 푸시에서 `./gradlew test` 를 돌린다.
 - 실패하면 테스트 리포트가 Actions 아티팩트(`server-test-reports`)로 올라간다.
 
+### CD
+
+- `.github/workflows/server-cd.yml`: `main` 에서 CI 가 성공하면 Docker 이미지를 Docker Hub 에 올리고 EC2 에 배포한다.
+- GitHub secrets, EC2 준비: [`docs/deploy.md`](docs/deploy.md)
+
 ## 테스트 환경
 
 - Pleos Connect Emulator v2.1.0 (Android 14, API 34)

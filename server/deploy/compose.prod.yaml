@@ -1,0 +1,43 @@
+# EC2 운영 compose — 서버 앱 + MySQL
+#
+# EC2 의 ~/drive-rule/ 에 이 파일과 .env 를 둔다 (.env 는 server/.env.example 을 복사해 채움).
+# 이미지 태그는 배포 워크플로가 IMAGE 환경변수로 넘긴다:
+#   IMAGE=<dockerhub>/drive-rule-server:sha-xxxxxxx docker compose -f compose.prod.yaml up -d
+#
+# 로컬 개발용 server/compose.yaml 과는 별개다 (그쪽은 bootRun 이 읽는 MySQL 전용).
+
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: driverule
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      TZ: Asia/Seoul
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+    # 외부에 포트를 열지 않는다 — app 만 내부 네트워크로 접속
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  app:
+    image: ${IMAGE:?IMAGE 환경변수로 배포할 이미지 태그를 넘겨야 한다}
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8080}:8080"
+
+volumes:
+  mysql-data:
