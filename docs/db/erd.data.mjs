@@ -1,6 +1,8 @@
 // DRIVE RULE ERD 데이터 — 이 파일만 고치고 생성기로 ERD.drawio 를 만든다.
 //   node .claude/skills/drive-rule-erd/gen-erd.mjs
-// 현재 단계: 설계 모드 (기준 = Notion 🚦 기획 v5, 2026-11-10). 구현 이후에는 Flyway SQL / Room Entity 가 기준.
+// 현재 단계: 설계 모드 (기준 = Notion 🚦 기획 v5, 2026-11-10 + 화면 대조 v5.2 요청 1~5, 2026-11-11 — 결정 005).
+//   구현 이후에는 Flyway SQL / Room Entity 가 기준.
+//   검토 중(미반영): topic 대표 카드(결정 006 초안) · favorite_place 삭제(결정 007 초안, 11/18 NaviHelper 검증 대기)
 // MVP 최소안 (2026-11-11): 기획의 기능이 실제로 쓰는 컬럼만 둔다.
 //   - 조건 분기는 JSON 1칸, 보호구역 목록·배포 정보는 DB 없이 CDN 파일(manifest)로
 //   - 적용 대상(audience)·운전 상황(driving_context)은 기획에 정의가 없어 제외 — 게시 카드는 모든 일반 운전자 대상
@@ -10,6 +12,7 @@
 //   - 복합 UNIQUE: card_review(card_id, card_version, reviewer_id) · notice_log(profile_id, card_id, stage)
 //                  · destination_briefing(profile_id, dest_cell, card_id)
 //   - ENUM 값 정의 (Java enum 이 기준): rule_card.card_type · rule_card.status(004 참고) · review_request.status
+//                  · review_request.request_type(QUESTION / ERROR_REPORT, 005 참고)
 //                  · law_revision.triage_status · card_review.decision
 //   - 카드 수명주기·회수 규칙: docs/decisions/004-card-lifecycle.md
 
@@ -52,7 +55,10 @@ export default {
 
     { id: 'review_request', kr: '검수 요청 대기열', zone: 'server', band: 2, col: 0, columns: [
       pk('요청ID'),
-      c('question_text', '질문 원문', 'VARCHAR(500)'),
+      fk('card_id', '카드ID', { nn: false }),
+      opt('card_version', '신고 버전', 'INT'),
+      c('request_type', '요청 유형', 'ENUM'),
+      opt('question_text', '질문 원문', 'VARCHAR(500)'),
       c('status', '상태', 'ENUM'),
       c('created_at', '생성일시', 'DATETIME'),
     ] },
@@ -62,10 +68,13 @@ export default {
       c('card_type', '카드 유형', 'ENUM'),
       c('topic', '주제', 'VARCHAR(40)', 'UQ'),
       c('title', '제목', 'VARCHAR(100)'),
-      c('action_text', '행동 안내', 'VARCHAR(300)'),
+      opt('dont_text', '하지 않을 행동', 'VARCHAR(300)'),
+      c('do_text', '할 행동', 'VARCHAR(300)'),
+      opt('scene_key', '상황 그림 키', 'VARCHAR(40)'),
       c('tts_text', '읽어 주기 문장', 'VARCHAR(500)'),
       c('legal_basis', '근거 조문', 'VARCHAR(200)'),
       c('law_excerpt', '법령 원문', 'TEXT'),
+      opt('penalty_text', '처벌', 'VARCHAR(300)'),
       opt('effective_on', '시행일', 'DATE'),
       opt('exceptions', '예외', 'TEXT'),
       opt('decision_json', '조건·분기', 'JSON'),
@@ -93,14 +102,19 @@ export default {
     ] },
     { id: 'cached_card', kr: '검수 카드 사본', zone: 'app', band: 1, col: 1, columns: [
       { kr: '카드ID', name: 'card_id', type: 'INTEGER', cons: 'PK' },
+      opt('revision_id', '개정ID', 'INTEGER'),
       c('version', '버전', 'INTEGER'),
       c('card_type', '카드 유형', 'TEXT'),
       opt('topic', '주제', 'TEXT'),
       c('title', '제목', 'TEXT'),
-      c('action_text', '행동 안내', 'TEXT'),
+      opt('dont_text', '하지 않을 행동', 'TEXT'),
+      c('do_text', '할 행동', 'TEXT'),
+      opt('scene_key', '상황 그림 키', 'TEXT'),
       c('tts_text', '읽어 주기 문장', 'TEXT'),
       c('legal_basis', '근거 조문', 'TEXT'),
       c('law_excerpt', '법령 원문', 'TEXT'),
+      opt('penalty_text', '처벌', 'TEXT'),
+      opt('law_no', '공포 번호', 'TEXT'),
       opt('promulgated_on', '공포일', 'TEXT'),
       opt('effective_on', '시행일', 'TEXT'),
       opt('exceptions', '예외', 'TEXT'),
@@ -146,6 +160,7 @@ export default {
       pk('질문ID', 'INTEGER'),
       fk('profile_id', '프로필ID', { type: 'INTEGER' }),
       c('topic', '주제', 'TEXT'),
+      c('question_text', '질문 원문', 'TEXT'),
       c('created_at', '생성일시', 'INTEGER'),
     ] },
   ],
@@ -154,6 +169,7 @@ export default {
     // 서버
     { from: 'law_revision', to: 'rule_card', fk: 'revision_id', card: '0..1:0..N' },
     { from: 'rule_card', to: 'card_review', fk: 'card_id', card: '1:0..N' },
+    { from: 'rule_card', to: 'review_request', fk: 'card_id', card: '0..1:0..N' },
     { from: 'reviewer', to: 'card_review', fk: 'reviewer_id', card: '1:0..N' },
     // 앱
     { from: 'cached_card', to: 'card_confirmation', fk: 'card_id', card: '1:0..N' },
@@ -184,7 +200,7 @@ export default {
     ],
     footer: [
       '새 데이터가 운전자를 특정하거나 위치를 담으면 → 차량 DB',
-      '예외: 주차 중 자유 질문은 매칭을 위해 문장만 서버로 보낸다 (식별자 없음)',
+      '예외: 주차 중 자유 질문 문장, 카드 오류 신고(카드ID·버전)만 서버로 보낸다 (식별자 없음)',
     ],
   },
 };
