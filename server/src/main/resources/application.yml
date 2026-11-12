@@ -30,6 +30,13 @@ springdoc:
     enabled: ${API_DOCS_ENABLED:true}
     path: /swagger-ui.html
 
+# 응답 압축 — 보호구역 좌표 파일(약 31만 바이트 → 약 8만 바이트, 결정 010). 해시는 압축 전 바이트 기준
+server:
+  compression:
+    enabled: true
+    mime-types: application/json,application/problem+json
+    min-response-size: 2KB
+
 management:
   endpoints:
     web:
