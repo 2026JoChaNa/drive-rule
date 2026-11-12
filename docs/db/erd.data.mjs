@@ -1,24 +1,29 @@
 // DRIVE RULE ERD 데이터 — 이 파일만 고치고 생성기로 ERD.drawio 를 만든다.
 //   node .claude/skills/drive-rule-erd/gen-erd.mjs
-// 현재 단계: 설계 모드 (기준 = Notion 🚦 기획 v5, 2026-11-10 + 화면 대조 v5.2 요청·기획 회신, 2026-11-11 — 결정 005·006).
-//   구현 이후에는 Flyway SQL / Room Entity 가 기준.
+// 현재 단계: 서버 구역 = 구현 이후 (기준 = server/.../db/migration/V1__init_server_schema.sql, 결정 009 반영 2026-11-12)
+//            앱 구역   = 설계 모드 (기준 = Notion 🚦 기획 v6 + 결정 005·006·009. Room Entity 가 생기면 그쪽이 기준)
 //   검토 중(미반영): favorite_place 삭제(결정 007 초안, 11/18 NaviHelper 검증 대기)
-// 카드 유형별 문장 위치 (005)
-//   - 단문 카드: dont_text · do_text · scene_key (두 장면)
-//   - 조건 분기형: 분기마다 행동 문장 1개 + 장면 1개 → decision_json.branches[].text / scene (002). 카드 칸은 비움
+// 카드 유형별 문장 위치 (005 · 009)
+//   - 단문 카드: 안내 문장 하나(tts_text). 두 장면(dont_text · do_text)은 둘 다 있거나 둘 다 없음
+//   - 조건 분기형: decision_json 형식 2 — 소표 tables[] 의 행마다 문장·장면 (009 B). 카드 칸은 비움
 //   - 저장 전 검증기가 card_type 별 필수 칸을 확인한다 (DB NN 아님)
+// 카드 종류 · 대상 · 이벤트 (009 A·C·H): change_kind(법령 개정/운영 변경) · audience(일반/일부 운전자) · event_tag(이벤트 4종, 없으면 Gleo 전용)
+//   - 운영 변경 카드는 source_org 필수, 법령 개정과 잇지 않음
 // topic 은 Gleo 대표 카드에만 붙인다 (UQ, 006). 회수 시 topic 을 비운다
 // MVP 최소안 (2026-11-11): 기획의 기능이 실제로 쓰는 컬럼만 둔다.
 //   - 조건 분기는 JSON 1칸, 보호구역 목록·배포 정보는 DB 없이 CDN 파일(manifest)로
-//   - 적용 대상(audience)·운전 상황(driving_context)은 기획에 정의가 없어 제외 — 게시 카드는 모든 일반 운전자 대상
+//   - 운전 상황(driving_context)은 제외 (001). audience 는 운전자 입력이 아니라 카드의 '목록 노출' 구분으로 다시 둠 (009 C)
 //   - 시기별 재알림은 PT 빌드 밖 — 출시 1단계 범위(카드 27장 중 4장, 첫 발송 2027 하반기). 출시 전 별도 일정으로 설계 (005)
 //
 // Flyway / Room 작성 시 함께 처리 (ERD 에 표기되지 않는 것)
 //   - 복합 UNIQUE: card_review(card_id, card_version, reviewer_id) · notice_log(profile_id, card_id, stage)
 //                  · destination_briefing(profile_id, dest_cell, card_id)
 //   - ENUM 값 정의 (Java enum 이 기준): rule_card.card_type · rule_card.status(004 참고) · review_request.status
-//                  · review_request.request_type(QUESTION / ERROR_REPORT, 005 참고)
+//                  · review_request.request_type(ERROR_REPORT / ANSWER_HOLD, 009 E)
+//                  · rule_card.change_kind · rule_card.audience · rule_card.event_tag (009)
 //                  · law_revision.triage_status · card_review.decision
+//   - 앱 notice_log.stage 값 2개: 공포 · 시행 후 (기획 v6 1-2, 005 의 3단계를 대체 — 009 D)
+//   - 조건 키·값은 DB 가 아니라 공통 조건 목록(RuleCondition) — Gleo App Schema 와 1:1 (009 B-2)
 //   - 카드 수명주기·회수 규칙: docs/decisions/004-card-lifecycle.md
 
 const pk = (kr, type = 'BIGINT') => ({ kr, name: 'id', type, cons: 'PK' });
@@ -51,7 +56,7 @@ export default {
       c('source_key', '원문 키', 'VARCHAR(40)'),
       c('promulgated_on', '공포일', 'DATE'),
       c('triage_status', '분류 상태', 'ENUM'),
-      c('created_at', '생성일시', 'DATETIME'),
+      c('created_at', '생성일시', 'DATETIME(6)'),
     ] },
     { id: 'reviewer', kr: '검수자', zone: 'server', band: 1, col: 2, columns: [
       pk('검수자ID'),
@@ -63,14 +68,19 @@ export default {
       fk('card_id', '카드ID', { nn: false }),
       opt('card_version', '신고 버전', 'INT'),
       c('request_type', '요청 유형', 'ENUM'),
-      opt('question_text', '질문 원문', 'VARCHAR(500)'),
+      opt('topic', '주제', 'VARCHAR(40)'),
+      opt('conditions_json', '답한 조건', 'JSON'),
       c('status', '상태', 'ENUM'),
-      c('created_at', '생성일시', 'DATETIME'),
+      c('created_at', '생성일시', 'DATETIME(6)'),
     ] },
     { id: 'rule_card', kr: '검수 카드', zone: 'server', band: 2, col: 1, columns: [
       pk('카드ID'),
       fk('revision_id', '개정ID', { nn: false }),
       c('card_type', '카드 유형', 'ENUM'),
+      c('change_kind', '카드 종류', 'ENUM'),
+      c('audience', '대상', 'ENUM'),
+      opt('event_tag', '이벤트', 'ENUM'),
+      opt('source_org', '출처 기관', 'VARCHAR(100)'),
       c('topic', '주제', 'VARCHAR(40)', 'UQ'),
       c('title', '제목', 'VARCHAR(100)'),
       opt('dont_text', '하지 않을 행동', 'VARCHAR(300)'),
@@ -85,9 +95,9 @@ export default {
       opt('decision_json', '조건·분기', 'JSON'),
       c('status', '상태', 'ENUM'),
       c('version', '버전', 'INT'),
-      opt('verified_at', '마지막 확인', 'DATETIME'),
-      c('created_at', '생성일시', 'DATETIME'),
-      c('updated_at', '수정일시', 'DATETIME'),
+      opt('verified_at', '마지막 확인', 'DATETIME(6)'),
+      c('created_at', '생성일시', 'DATETIME(6)'),
+      c('updated_at', '수정일시', 'DATETIME(6)'),
     ] },
     { id: 'card_review', kr: '교차 검수', zone: 'server', band: 2, col: 2, columns: [
       pk('검수ID'),
@@ -95,7 +105,7 @@ export default {
       fk('reviewer_id', '검수자ID'),
       c('card_version', '검수 버전', 'INT'),
       c('decision', '판정', 'ENUM'),
-      c('reviewed_at', '검수일시', 'DATETIME'),
+      c('reviewed_at', '검수일시', 'DATETIME(6)'),
     ] },
 
     // ===================== 차량 앱 =====================
@@ -109,6 +119,10 @@ export default {
       { kr: '카드ID', name: 'card_id', type: 'INTEGER', cons: 'PK' },
       c('version', '버전', 'INTEGER'),
       c('card_type', '카드 유형', 'TEXT'),
+      c('change_kind', '카드 종류', 'TEXT'),
+      c('audience', '대상', 'TEXT'),
+      opt('event_tag', '이벤트', 'TEXT'),
+      opt('source_org', '출처 기관', 'TEXT'),
       opt('topic', '주제', 'TEXT'),
       c('title', '제목', 'TEXT'),
       opt('dont_text', '하지 않을 행동', 'TEXT'),
@@ -187,7 +201,7 @@ export default {
   ],
 
   flows: [
-    { from: 'rule_card', to: 'cached_card', label: '게시본·회수 동기화 (1일 1회)' },
+    { from: 'rule_card', to: 'cached_card', label: '게시본·회수 동기화 (1일 1회 + 시동 시)' },
   ],
 
   note: {
@@ -199,13 +213,13 @@ export default {
       ] },
       { heading: '차량 = 운전자가 쓰면서 생기는 것 (차 밖으로 안 보냄)', items: [
         '예: 누가 어떤 카드를 확인했나, 어디로 가나 — 운전자를 특정하는 개인정보',
-        '서버 카드도 사본을 둔다 — 인터넷이 끊겨도, 주행 중 Gleo 질문에도 바로 답하려고',
+        '서버 카드도 사본을 둔다 — Gleo 질문은 이 사본으로 답한다 (서버에 묻지 않음, 009 F)',
         '보호구역 목록은 서버 DB 없이 CDN 파일로 받는다 (해시 검증)',
       ] },
     ],
     footer: [
       '새 데이터가 운전자를 특정하거나 위치를 담으면 → 차량 DB',
-      '예외: 주차 중 자유 질문 문장, 카드 오류 신고(카드ID·버전)만 서버로 보낸다 (식별자 없음)',
+      '예외: 오류 신고(카드ID·버전), 답변 보류(주제·조건)만 서버로 보낸다 (식별자·질문 원문 없음)',
     ],
   },
 };

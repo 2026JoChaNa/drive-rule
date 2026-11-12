@@ -39,6 +39,20 @@ cd server
 - OpenAPI JSON: http://localhost:8080/v3/api-docs (YAML: `/v3/api-docs.yaml`)
 - 끄기: 환경변수 `API_DOCS_ENABLED=false`
 
+### API 요약
+
+설계: [`docs/decisions/009-core-features-v6-alignment.md`](docs/decisions/009-core-features-v6-alignment.md) (008 일부 대체)
+
+| 쓰는 곳 | 경로 | 인증 |
+|---|---|---|
+| 차량 앱 | `GET /api/v1/cards/sync` · `POST /api/v1/cards/{id}/error-reports` · `POST /api/v1/answer-holds` | 없음 (식별자 없이 보냄) |
+| 검수 CMS | `/api/v1/admin/**` (법령 개정 · 검수자 · 카드 · 검수 요청 대기열) | 헤더 `X-Admin-Key` = 환경변수 `ADMIN_API_KEY` |
+
+- Gleo 질문(바뀐 규칙 · 조건별 답변)은 서버로 오지 않는다 — 앱이 동기화한 사본으로 답한다
+- 조건별 답 고르기 규칙은 서버·앱 공용 명세: [`spec/rule-matching/`](spec/rule-matching/README.md) (테스트 케이스 `cases.json` 을 양쪽이 돌린다)
+- `ADMIN_API_KEY` 가 비어 있으면 CMS API 는 모두 401 이다. 로컬에서 쓰려면 `$env:ADMIN_API_KEY="local"` 후 `bootRun`
+- 시연 카드 넣기 (DRAFT): `BASE_URL=http://localhost:8080 ADMIN_API_KEY=local node server/seed/seed.mjs`
+
 ### 서버 테스트
 
 ```powershell

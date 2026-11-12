@@ -1,15 +1,17 @@
 name: server-ci
 
-# 서버 코드가 바뀐 PR / main 푸시에서만 테스트를 돌린다.
+# 서버 코드나 공용 명세(spec/)가 바뀐 PR / main 푸시에서만 테스트를 돌린다.
 on:
   pull_request:
     paths:
       - 'server/**'
+      - 'spec/**'   # 서버·앱 공용 테스트 케이스 (RuleMatcherSpecTest)
       - '.github/workflows/server-ci.yml'
   push:
     branches: [main]
     paths:
       - 'server/**'
+      - 'spec/**'   # 서버·앱 공용 테스트 케이스 (RuleMatcherSpecTest)
       - '.github/workflows/server-ci.yml'
 
 permissions:
