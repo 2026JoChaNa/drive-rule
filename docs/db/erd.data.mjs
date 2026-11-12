@@ -1,12 +1,17 @@
 // DRIVE RULE ERD 데이터 — 이 파일만 고치고 생성기로 ERD.drawio 를 만든다.
 //   node .claude/skills/drive-rule-erd/gen-erd.mjs
-// 현재 단계: 설계 모드 (기준 = Notion 🚦 기획 v5, 2026-11-10 + 화면 대조 v5.2 요청 1~5, 2026-11-11 — 결정 005).
+// 현재 단계: 설계 모드 (기준 = Notion 🚦 기획 v5, 2026-11-10 + 화면 대조 v5.2 요청·기획 회신, 2026-11-11 — 결정 005·006).
 //   구현 이후에는 Flyway SQL / Room Entity 가 기준.
-//   검토 중(미반영): topic 대표 카드(결정 006 초안) · favorite_place 삭제(결정 007 초안, 11/18 NaviHelper 검증 대기)
+//   검토 중(미반영): favorite_place 삭제(결정 007 초안, 11/18 NaviHelper 검증 대기)
+// 카드 유형별 문장 위치 (005)
+//   - 단문 카드: dont_text · do_text · scene_key (두 장면)
+//   - 조건 분기형: 분기마다 행동 문장 1개 + 장면 1개 → decision_json.branches[].text / scene (002). 카드 칸은 비움
+//   - 저장 전 검증기가 card_type 별 필수 칸을 확인한다 (DB NN 아님)
+// topic 은 Gleo 대표 카드에만 붙인다 (UQ, 006). 회수 시 topic 을 비운다
 // MVP 최소안 (2026-11-11): 기획의 기능이 실제로 쓰는 컬럼만 둔다.
 //   - 조건 분기는 JSON 1칸, 보호구역 목록·배포 정보는 DB 없이 CDN 파일(manifest)로
 //   - 적용 대상(audience)·운전 상황(driving_context)은 기획에 정의가 없어 제외 — 게시 카드는 모든 일반 운전자 대상
-//   - 시기별 재알림(2027 하반기)은 MVP 밖이라 재알림 시기 데이터 없음
+//   - 시기별 재알림은 PT 빌드 밖 — 출시 1단계 범위(카드 27장 중 4장, 첫 발송 2027 하반기). 출시 전 별도 일정으로 설계 (005)
 //
 // Flyway / Room 작성 시 함께 처리 (ERD 에 표기되지 않는 것)
 //   - 복합 UNIQUE: card_review(card_id, card_version, reviewer_id) · notice_log(profile_id, card_id, stage)
@@ -69,7 +74,7 @@ export default {
       c('topic', '주제', 'VARCHAR(40)', 'UQ'),
       c('title', '제목', 'VARCHAR(100)'),
       opt('dont_text', '하지 않을 행동', 'VARCHAR(300)'),
-      c('do_text', '할 행동', 'VARCHAR(300)'),
+      opt('do_text', '할 행동', 'VARCHAR(300)'),
       opt('scene_key', '상황 그림 키', 'VARCHAR(40)'),
       c('tts_text', '읽어 주기 문장', 'VARCHAR(500)'),
       c('legal_basis', '근거 조문', 'VARCHAR(200)'),
@@ -102,18 +107,18 @@ export default {
     ] },
     { id: 'cached_card', kr: '검수 카드 사본', zone: 'app', band: 1, col: 1, columns: [
       { kr: '카드ID', name: 'card_id', type: 'INTEGER', cons: 'PK' },
-      opt('revision_id', '개정ID', 'INTEGER'),
       c('version', '버전', 'INTEGER'),
       c('card_type', '카드 유형', 'TEXT'),
       opt('topic', '주제', 'TEXT'),
       c('title', '제목', 'TEXT'),
       opt('dont_text', '하지 않을 행동', 'TEXT'),
-      c('do_text', '할 행동', 'TEXT'),
+      opt('do_text', '할 행동', 'TEXT'),
       opt('scene_key', '상황 그림 키', 'TEXT'),
       c('tts_text', '읽어 주기 문장', 'TEXT'),
       c('legal_basis', '근거 조문', 'TEXT'),
       c('law_excerpt', '법령 원문', 'TEXT'),
       opt('penalty_text', '처벌', 'TEXT'),
+      opt('law_name', '법령명', 'TEXT'),
       opt('law_no', '공포 번호', 'TEXT'),
       opt('promulgated_on', '공포일', 'TEXT'),
       opt('effective_on', '시행일', 'TEXT'),

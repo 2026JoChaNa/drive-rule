@@ -564,7 +564,7 @@
             <mxRectangle width="90" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_rule_card_r6_c3" value="NN" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_rule_card_r6">
+        <mxCell id="T_rule_card_r6_c3" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_rule_card_r6">
           <mxGeometry x="350" width="50" height="30" as="geometry">
             <mxRectangle width="50" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1133,12 +1133,12 @@
         <mxCell id="T_cached_card_r1" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="T_cached_card">
           <mxGeometry y="60" width="400" height="30" as="geometry"/>
         </mxCell>
-        <mxCell id="T_cached_card_r1_c0" value="개정ID" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r1">
+        <mxCell id="T_cached_card_r1_c0" value="버전" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r1">
           <mxGeometry x="0" width="100" height="30" as="geometry">
             <mxRectangle width="100" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r1_c1" value="revision_id" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r1">
+        <mxCell id="T_cached_card_r1_c1" value="version" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r1">
           <mxGeometry x="100" width="160" height="30" as="geometry">
             <mxRectangle width="160" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1148,7 +1148,7 @@
             <mxRectangle width="90" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r1_c3" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r1">
+        <mxCell id="T_cached_card_r1_c3" value="NN" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r1">
           <mxGeometry x="350" width="50" height="30" as="geometry">
             <mxRectangle width="50" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1156,17 +1156,17 @@
         <mxCell id="T_cached_card_r2" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="T_cached_card">
           <mxGeometry y="90" width="400" height="30" as="geometry"/>
         </mxCell>
-        <mxCell id="T_cached_card_r2_c0" value="버전" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r2">
+        <mxCell id="T_cached_card_r2_c0" value="카드 유형" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r2">
           <mxGeometry x="0" width="100" height="30" as="geometry">
             <mxRectangle width="100" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r2_c1" value="version" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r2">
+        <mxCell id="T_cached_card_r2_c1" value="card_type" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r2">
           <mxGeometry x="100" width="160" height="30" as="geometry">
             <mxRectangle width="160" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r2_c2" value="INTEGER" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r2">
+        <mxCell id="T_cached_card_r2_c2" value="TEXT" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r2">
           <mxGeometry x="260" width="90" height="30" as="geometry">
             <mxRectangle width="90" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1179,12 +1179,12 @@
         <mxCell id="T_cached_card_r3" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="T_cached_card">
           <mxGeometry y="120" width="400" height="30" as="geometry"/>
         </mxCell>
-        <mxCell id="T_cached_card_r3_c0" value="카드 유형" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r3">
+        <mxCell id="T_cached_card_r3_c0" value="주제" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r3">
           <mxGeometry x="0" width="100" height="30" as="geometry">
             <mxRectangle width="100" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r3_c1" value="card_type" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r3">
+        <mxCell id="T_cached_card_r3_c1" value="topic" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r3">
           <mxGeometry x="100" width="160" height="30" as="geometry">
             <mxRectangle width="160" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1194,7 +1194,7 @@
             <mxRectangle width="90" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r3_c3" value="NN" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r3">
+        <mxCell id="T_cached_card_r3_c3" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r3">
           <mxGeometry x="350" width="50" height="30" as="geometry">
             <mxRectangle width="50" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1202,12 +1202,12 @@
         <mxCell id="T_cached_card_r4" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="T_cached_card">
           <mxGeometry y="150" width="400" height="30" as="geometry"/>
         </mxCell>
-        <mxCell id="T_cached_card_r4_c0" value="주제" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r4">
+        <mxCell id="T_cached_card_r4_c0" value="제목" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r4">
           <mxGeometry x="0" width="100" height="30" as="geometry">
             <mxRectangle width="100" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r4_c1" value="topic" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r4">
+        <mxCell id="T_cached_card_r4_c1" value="title" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r4">
           <mxGeometry x="100" width="160" height="30" as="geometry">
             <mxRectangle width="160" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1217,7 +1217,7 @@
             <mxRectangle width="90" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r4_c3" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r4">
+        <mxCell id="T_cached_card_r4_c3" value="NN" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r4">
           <mxGeometry x="350" width="50" height="30" as="geometry">
             <mxRectangle width="50" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1225,12 +1225,12 @@
         <mxCell id="T_cached_card_r5" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="T_cached_card">
           <mxGeometry y="180" width="400" height="30" as="geometry"/>
         </mxCell>
-        <mxCell id="T_cached_card_r5_c0" value="제목" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r5">
+        <mxCell id="T_cached_card_r5_c0" value="하지 않을 행동" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r5">
           <mxGeometry x="0" width="100" height="30" as="geometry">
             <mxRectangle width="100" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r5_c1" value="title" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r5">
+        <mxCell id="T_cached_card_r5_c1" value="dont_text" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r5">
           <mxGeometry x="100" width="160" height="30" as="geometry">
             <mxRectangle width="160" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1240,7 +1240,7 @@
             <mxRectangle width="90" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r5_c3" value="NN" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r5">
+        <mxCell id="T_cached_card_r5_c3" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r5">
           <mxGeometry x="350" width="50" height="30" as="geometry">
             <mxRectangle width="50" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1248,12 +1248,12 @@
         <mxCell id="T_cached_card_r6" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="T_cached_card">
           <mxGeometry y="210" width="400" height="30" as="geometry"/>
         </mxCell>
-        <mxCell id="T_cached_card_r6_c0" value="하지 않을 행동" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r6">
+        <mxCell id="T_cached_card_r6_c0" value="할 행동" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r6">
           <mxGeometry x="0" width="100" height="30" as="geometry">
             <mxRectangle width="100" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r6_c1" value="dont_text" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r6">
+        <mxCell id="T_cached_card_r6_c1" value="do_text" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r6">
           <mxGeometry x="100" width="160" height="30" as="geometry">
             <mxRectangle width="160" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1271,12 +1271,12 @@
         <mxCell id="T_cached_card_r7" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="T_cached_card">
           <mxGeometry y="240" width="400" height="30" as="geometry"/>
         </mxCell>
-        <mxCell id="T_cached_card_r7_c0" value="할 행동" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r7">
+        <mxCell id="T_cached_card_r7_c0" value="상황 그림 키" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r7">
           <mxGeometry x="0" width="100" height="30" as="geometry">
             <mxRectangle width="100" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r7_c1" value="do_text" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r7">
+        <mxCell id="T_cached_card_r7_c1" value="scene_key" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r7">
           <mxGeometry x="100" width="160" height="30" as="geometry">
             <mxRectangle width="160" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1286,7 +1286,7 @@
             <mxRectangle width="90" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r7_c3" value="NN" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r7">
+        <mxCell id="T_cached_card_r7_c3" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r7">
           <mxGeometry x="350" width="50" height="30" as="geometry">
             <mxRectangle width="50" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1294,12 +1294,12 @@
         <mxCell id="T_cached_card_r8" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="T_cached_card">
           <mxGeometry y="270" width="400" height="30" as="geometry"/>
         </mxCell>
-        <mxCell id="T_cached_card_r8_c0" value="상황 그림 키" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r8">
+        <mxCell id="T_cached_card_r8_c0" value="읽어 주기 문장" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r8">
           <mxGeometry x="0" width="100" height="30" as="geometry">
             <mxRectangle width="100" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r8_c1" value="scene_key" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r8">
+        <mxCell id="T_cached_card_r8_c1" value="tts_text" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r8">
           <mxGeometry x="100" width="160" height="30" as="geometry">
             <mxRectangle width="160" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1309,7 +1309,7 @@
             <mxRectangle width="90" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r8_c3" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r8">
+        <mxCell id="T_cached_card_r8_c3" value="NN" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r8">
           <mxGeometry x="350" width="50" height="30" as="geometry">
             <mxRectangle width="50" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1317,12 +1317,12 @@
         <mxCell id="T_cached_card_r9" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="T_cached_card">
           <mxGeometry y="300" width="400" height="30" as="geometry"/>
         </mxCell>
-        <mxCell id="T_cached_card_r9_c0" value="읽어 주기 문장" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r9">
+        <mxCell id="T_cached_card_r9_c0" value="근거 조문" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r9">
           <mxGeometry x="0" width="100" height="30" as="geometry">
             <mxRectangle width="100" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r9_c1" value="tts_text" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r9">
+        <mxCell id="T_cached_card_r9_c1" value="legal_basis" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r9">
           <mxGeometry x="100" width="160" height="30" as="geometry">
             <mxRectangle width="160" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1340,12 +1340,12 @@
         <mxCell id="T_cached_card_r10" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="T_cached_card">
           <mxGeometry y="330" width="400" height="30" as="geometry"/>
         </mxCell>
-        <mxCell id="T_cached_card_r10_c0" value="근거 조문" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r10">
+        <mxCell id="T_cached_card_r10_c0" value="법령 원문" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r10">
           <mxGeometry x="0" width="100" height="30" as="geometry">
             <mxRectangle width="100" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r10_c1" value="legal_basis" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r10">
+        <mxCell id="T_cached_card_r10_c1" value="law_excerpt" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r10">
           <mxGeometry x="100" width="160" height="30" as="geometry">
             <mxRectangle width="160" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1363,12 +1363,12 @@
         <mxCell id="T_cached_card_r11" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="T_cached_card">
           <mxGeometry y="360" width="400" height="30" as="geometry"/>
         </mxCell>
-        <mxCell id="T_cached_card_r11_c0" value="법령 원문" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r11">
+        <mxCell id="T_cached_card_r11_c0" value="처벌" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r11">
           <mxGeometry x="0" width="100" height="30" as="geometry">
             <mxRectangle width="100" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r11_c1" value="law_excerpt" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r11">
+        <mxCell id="T_cached_card_r11_c1" value="penalty_text" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r11">
           <mxGeometry x="100" width="160" height="30" as="geometry">
             <mxRectangle width="160" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1378,7 +1378,7 @@
             <mxRectangle width="90" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r11_c3" value="NN" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r11">
+        <mxCell id="T_cached_card_r11_c3" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r11">
           <mxGeometry x="350" width="50" height="30" as="geometry">
             <mxRectangle width="50" height="30" as="alternateBounds"/>
           </mxGeometry>
@@ -1386,12 +1386,12 @@
         <mxCell id="T_cached_card_r12" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="T_cached_card">
           <mxGeometry y="390" width="400" height="30" as="geometry"/>
         </mxCell>
-        <mxCell id="T_cached_card_r12_c0" value="처벌" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r12">
+        <mxCell id="T_cached_card_r12_c0" value="법령명" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=center;fontStyle=0;" vertex="1" parent="T_cached_card_r12">
           <mxGeometry x="0" width="100" height="30" as="geometry">
             <mxRectangle width="100" height="30" as="alternateBounds"/>
           </mxGeometry>
         </mxCell>
-        <mxCell id="T_cached_card_r12_c1" value="penalty_text" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r12">
+        <mxCell id="T_cached_card_r12_c1" value="law_name" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;whiteSpace=wrap;html=1;fontSize=12;align=left;spacingLeft=6;fontStyle=0;" vertex="1" parent="T_cached_card_r12">
           <mxGeometry x="100" width="160" height="30" as="geometry">
             <mxRectangle width="160" height="30" as="alternateBounds"/>
           </mxGeometry>
