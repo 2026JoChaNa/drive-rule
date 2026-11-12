@@ -1,6 +1,14 @@
 # DRIVE RULE Android
 
-Kotlin·Jetpack Compose 기반의 차량 앱 개발용 MVVM 기본 구조다. Android Studio에서는 이 `android/` 폴더만 연다. 서버와 Gradle 빌드를 공유하지 않는다.
+Kotlin·Jetpack Compose 기반의 차량 앱 개발용 MVVM/UDF 기본 구조다. Android Studio에서는 이 `android/` 폴더만 연다. 서버와 Gradle 빌드를 공유하지 않는다.
+
+## 코드와 문서 위치
+
+- `android/`: 앱 코드, 빌드 설정, Android 개발 README와 Codex 지침.
+- `docs/android/`: 구조 설계, 디자인·SDK 검증 기록, 참고 자료.
+- `docs/android/decisions/`: Android 전용 결정 기록.
+
+위 경로는 저장소 루트 기준이다. 이 README를 Android 개발 안내의 진입점으로 유지한다. 공유 루트 README의 통합 작성은 프로젝트 마지막 단계에 진행한다. 기존 공유 결정·ERD는 참고하고, GitHub Actions workflow는 지정 위치인 `.github/workflows/`에 유지한다.
 
 ## 현재 구현 범위
 
@@ -16,9 +24,12 @@ Kotlin·Jetpack Compose 기반의 차량 앱 개발용 MVVM 기본 구조다. An
 
 1. [Codex 작업 지침](AGENTS.md)
 2. [개발 컨벤션](CODEX_CONVENTIONS.md)
-3. [MVVM 구조와 확장 위치](../docs/android/architecture.md)
+3. [화면·주행 안내·플랫폼의 구조와 실행 수명](../docs/android/architecture.md)
 4. [Pleos·Figma·GitHub 출처 확인 기록](../docs/android/source-check-2026-11-12.md)
 5. [디자인 가이드 준수 점검과 남은 UI 검증](../docs/android/design-compliance-2026-11-12.md)
+6. [결정 008: 화면과 주행 안내의 책임·수명 분리](../docs/android/decisions/008-android-guidance-architecture.md)
+
+이름 등록·출발 전 화면은 MVVM/UDF로 구현한다. 향후 주행 안내는 `domain/event`·`domain/guidance`의 순수 판단, `app/guidance`의 실행 조정, `core/platform`의 SDK adapter로 나눈다. 새 `app/guidance`와 `core/platform/presentation`은 역할 README만 있으며 coordinator·출력 기능 구현 전이다.
 
 현재 화면은 MVVM 상태 연결용 기본 UI다. 일부 안전·테마 기반은 반영했지만 Figma 구현과 Pleos 디자인 검수를 완료한 상태는 아니다.
 

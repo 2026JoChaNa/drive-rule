@@ -2,6 +2,14 @@
 
 작업 시작 시 [CODEX_CONVENTIONS.md](CODEX_CONVENTIONS.md)를 읽는다. SDK·디자인 관련 작업은 [출처 및 검증 기록](../docs/android/source-check-2026-11-12.md)도 확인한다.
 
+## 작업 범위
+
+- 이 지침은 `android/` 하위 Android 작업용이다. 공유 저장소 루트에 Android 전용 `AGENTS.md`를 만들지 않는다.
+- 앱 코드·빌드·개발 README는 `android/`, 설계·검증·참고 자료는 `docs/android/`에서 관리한다. 경로는 저장소 루트 기준이다.
+- Android 전용 결정은 `docs/android/decisions/`에 기록한다. 기존 공유 `docs/decisions/001`~`007`과 ERD는 읽고 존중하되 Android 작업만으로 변경하지 않는다.
+- 루트 `README.md`의 통합 작성은 프로젝트 마지막 단계로 남긴다. 일상적인 Android 작업으로 루트 README나 서버 문서를 갱신하지 않는다.
+- 이미 구성한 `.github/workflows/android-ci.yml`은 GitHub Actions가 요구하는 위치에 유지한다. 두 작업 폴더 밖의 변경은 해당 필요가 있는 작업으로 별도 구분한다.
+
 ## 필수 기준
 
 1. 1차 범위는 운전자 이름, 출발 전 안내, 상황 이벤트에 앞선 음성·자동 종료 카드 안내다. Gleo 대화 기능은 별도 요청 전 구현하지 않는다.
@@ -15,6 +23,7 @@
 9. 미지원·권한 거부·오래된 신호는 `Unknown/Unavailable`로 처리한다. 주행 상황이나 법 위반을 추측으로 확정하지 않는다.
 10. `docs/decisions/001`~`005`와 현재 ERD를 존중한다. 006·007, 이벤트 매핑, cooldown, 카드 표시 시간, API DTO는 확정 여부를 표시한다.
 11. UI 작업은 상세 컨벤션 9절과 [디자인 점검 기록](../docs/android/design-compliance-2026-11-12.md)을 따른다. 기본 Material 화면·빌드 성공을 Pleos 디자인 준수 완료로 보고하지 않는다. 글자 물리 크기, 대비, 주·야간, 1/2 window와 UX 제한 전환을 확인한다.
+12. [결정 008](../docs/android/decisions/008-android-guidance-architecture.md)과 [구조 문서](../docs/android/architecture.md)를 따른다. `domain/guidance`는 순수 정책·상태 전이, `app/guidance`는 실행 수명·타이머·출력 조정이다. UI 수집으로 TTS/카드를 시작하지 않는다. 단순 기능에 공통 MVI·UseCase·새 모듈을 강제하지 않는다.
 
 ## 구현 후 검증
 

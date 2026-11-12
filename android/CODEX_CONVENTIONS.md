@@ -1,6 +1,6 @@
 # DRIVE RULE Android 개발 컨벤션
 
-작성일: 2026-11-12 · 적용 위치: `android/` · 상태: 개발 시작 기준 v1
+작성일: 2026-11-12 · 적용 위치: `android/` · 상태: 개발 시작 기준 v1.1 (프로젝트 구조 구체화)
 
 이 문서는 사용자 최신 요청과 저장소의 채택된 결정을 연결한다. **확정 요구**, **이번에 정한 개발 기준**, **검증 대기**를 구분한다. 근거와 접근 결과는 [출처 및 검증 기록](../docs/android/source-check-2026-11-12.md)에 있다.
 
@@ -23,6 +23,8 @@ DRIVE RULE은 검수한 교통 법령 정보를 운전 상황에 맞춰 미리 �
 
 ## 2. 문서 우선순위와 현재 상태
 
+작업 파일은 기본적으로 `android/`와 `docs/android/` 안에 둔다. 개발 README는 `android/README.md`, Android 전용 구조 결정은 `docs/android/decisions/`에서 관리한다. 공유 루트 README의 통합 작성은 마지막 단계로 남기며, 루트 Android 전용 AGENTS는 사용하지 않는다. 기존 공유 결정·ERD·서버 문서는 참고하며 공통 계약 변경이 필요한 작업은 별도로 구분한다. 이미 구성한 GitHub Actions workflow는 플랫폼이 요구하는 `.github/workflows/`에 유지한다.
+
 프로젝트 요구사항 해석은 최신 사용자 명시 요청 → 채택된 결정 문서 → 현재 구현·계약 → 기획/디자인 → 참고 자료 순으로 대조한다. 이 순서는 시스템·개발자 지침이나 플랫폼 제약을 덮어쓰지 않는다. 충돌은 관련 결정 문서에 근거를 남겨 해결한다.
 
 - 2026-11-12에 독립 Gradle 프로젝트와 MVVM 기본 구조를 추가했다. 현재 범위와 빌드 방법은 [README](README.md), 의존성 방향은 [구조 문서](../docs/android/architecture.md)를 따른다. 업무 기능과 Pleos adapter는 아직 구현 전이다.
@@ -30,6 +32,7 @@ DRIVE RULE은 검수한 교통 법령 정보를 운전 상황에 맞춰 미리 �
 - 설계 기준은 [erd.data.mjs](../docs/db/erd.data.mjs)다. 구현 후 Room Entity/Flyway SQL과 함께 유지한다. 생성물 `ERD.drawio`를 직접 수정하지 않는다.
 - [001](../docs/decisions/001-remove-driving-context.md)~[005](../docs/decisions/005-screen-check-v5-2.md)는 채택된 결정이다. [006](../docs/decisions/006-topic-primary-card.md), [007](../docs/decisions/007-remove-favorite-place.md)은 초안이다.
 - `topic` UNIQUE 해제, `is_primary`/`topic_group` 도입, `favorite_place` 삭제를 확정 사항으로 구현하지 않는다.
+- [008](../docs/android/decisions/008-android-guidance-architecture.md)은 Android 구조 결정이다. 기존 제품/데이터 결정을 바꾸지 않으며 실제 주행 안내 엔진·SDK host는 아직 구현 전이다.
 
 ## 3. Android 기술 및 코드 규칙 — 신규 개발 기준
 
@@ -46,18 +49,22 @@ DRIVE RULE은 검수한 교통 법령 정보를 운전 상황에 맞춰 미리 �
 
 이 표는 기존 구현 조사 결과가 아니라 이번에 채택하는 기본 구조다. Compose와 Pleos 요구사항이 충돌하면 공식 API에 필요한 부분만 View 연동으로 분리한다. 처음에는 `:app` 하나로 시작하고 실제 경계가 생겼을 때 모듈을 나눈다.
 
+**프로젝트에 맞춘 분리:** 화면은 MVVM/UDF, 이벤트·안내 판단은 순수 Kotlin, 실행 수명·타이머·음성/카드 호출은 `app/guidance` coordinator, 실제 SDK 접근은 `core/platform` adapter가 맡는다. coordinator는 domain 인터페이스에 의존하고 화면 ViewModel의 scope에 속하지 않는다. 구체 실행 host는 플랫폼 검증 후 정한다. 이름 등록 같은 단순 화면은 명시적 함수로 처리하며 범용 MVI 프레임워크·BaseViewModel·전역 event bus·형식적인 UseCase를 추가하지 않는다. 의존성, 상태 전이와 구현 순서는 [구조 문서](../docs/android/architecture.md)에 있다.
+
 현재 기본 패키지 구조(비어 있는 기능은 역할 README로 위치를 보존):
 
 ```text
 app/src/main/java/com/jochana/driverule/
   app/              앱 조립, AppContainer
+  app/guidance/     향후 안내 coordinator, 실행 수명·타이머·출력 조정
   domain/repository/ repository 인터페이스
   domain/vehicle/    차량 UX 상태 인터페이스
   core/model/       도메인 모델, 단위, 결과 타입
   core/data/        repository 구현, Room, API DTO와 mapper
   core/platform/   Pleos·AAOS·TTS·표시 surface adapter
   domain/event/    신호 정규화, 이벤트 판정, 중복·우선순위 정책
-  domain/guidance/ 카드 선택과 안내 coordinator
+  domain/guidance/ 순수 카드 선택·정책·상태 전이, 안내/출력 port
+  core/platform/presentation/ 향후 공식 카드 표시 adapter
   feature/profile/
   feature/predeparture/
   feature/driving/
@@ -114,7 +121,10 @@ Pleos/AAOS/Fake 신호 → 정규화·유효성 → 이벤트 후보
 
 ### 안내 상태와 자동 종료
 
-`Idle → Eligible → Presenting → Closed`를 기본으로 두고 각 단계에서 `Suppressed/Cancelled`로 빠질 수 있게 한다. 카드와 음성은 같은 `guidanceId`에 속하지만 종료 상태는 따로 관리한다.
+`Idle → Eligible → Starting → Presenting → Closed`를 기본으로 두고 시작 전 제외와 시작 후 취소/실패를 구분한다. 카드와 음성은 같은 `guidanceId`에 속하지만 상태는 따로 관리한다. 요청 수락과 실제 시작/완료를 구분한다. 순수 상태 전이는 `domain/guidance`, 직렬화된 상태 변경과 실행은 `app/guidance`가 맡는다.
+
+- 화면 재구독으로 안내를 재생하지 않는다. callback/타이머는 안내 ID와 실행 세대를 대조하고, 취소 후 늦게 열린 출력은 실제 자원까지 정리한다.
+- 프로세스 복구 시 이전 음성·카드·타이머를 자동 재개하지 않는다. 최소 로컬 중복 기록과 신선한 신호를 바탕으로 재평가한다. DB 기록과 SDK 출력 사이의 정확히 한 번 실행은 보장하지 않는다.
 
 - 타이머 소유자는 coordinator 하나이며 recomposition으로 다시 시작하지 않는다. Figma A-1 주차 상세는 **음성 종료 후 8초**, 근거 열람 시 닫힘 중단으로 설계되어 있다. 주행 카드의 기준점·길이는 미정이다. `FromPresentation`과 `AfterSpeech`를 구분하고 표시 전 경과 시간으로 카드를 소진하지 않는다. TTS 실패/음소거에도 무한 표시되지 않도록 별도 표시 상한을 둔다.
 - 표시 허용/음성 허용을 따로 평가한다. 카드가 실패했을 때 음성만 허용할지는 플랫폼 승인 범위와 제품 정책에 따른다.
@@ -146,7 +156,7 @@ Pleos/AAOS/Fake 신호 → 정규화·유효성 → 이벤트 후보
 | 버전 | 카드 ID와 버전을 함께 추적한다. 명시적 서버 계약 없이 낮은 버전으로 덮어쓰거나 회수 카드를 되살리지 않는다. |
 | 검수 | 문구 변경은 재검수 대상. 법령 내용·금액·시행일을 생성형 모델의 추정으로 보완하지 않는다. |
 
-`decision_json`은 [결정 002](../docs/decisions/002-condition-branch-format.md)의 검수된 조건별 응답용이며 차량 이벤트 trigger DSL이 아니다. `schema:1`, enum 선택지, `UNIQUE`, 조건 최대 3개를 따른다. 모든 선택지 조합에 정확히 한 분기가 맞는지 검증한다. 조건 수와 총 조합 수를 따로 계산하고 기존 결정의 검수 부담 상한 8조합을 유지한다. 선택지 증가로 상한을 넘겨야 한다면 먼저 002를 개정한다. 미지원 schema·겹침·누락이면 해당 카드의 분기 안내를 보류한다.
+`decision_json`은 [결정 002](../docs/decisions/002-condition-branch-format.md)의 검수된 조건별 응답용이며 차량 이벤트 trigger DSL이 아니다. `schema:1`, enum 선택지, `UNIQUE`, 조건 최대 3개를 따른다. 모든 선택지 조합에 정확히 한 분기가 맞는지 검증한다. 조건 수와 총 조합 수를 따로 계산하고 기존 결정의 검수 부담 상한 8조합을 유지한다. 선택지 증가로 상한을 넘겨야 한다면 Android 구현 범위에서 임의 변경하지 않고 공유 계약 변경 작업에서 먼저 002를 개정한다. 미지원 schema·겹침·누락이면 해당 카드의 분기 안내를 보류한다.
 
 이벤트-카드 매핑 필드는 현재 ERD에 없다. 서버 계약이 생길 때까지 app-local typed mapping 또는 fixture로 경계를 검증하고 이를 운영 서버 기능으로 소개하지 않는다. `topic`, `card_type`, `stage`를 임의의 이벤트 코드로 재사용하지 않는다.
 
@@ -227,4 +237,4 @@ Android 검증은 `.github/workflows/android-ci.yml`에서 lint·JVM 테스트·
 
 출시 전 결정 항목: 앱 카테고리와 선제 음성 허용, 카드 표시 표면, 필요한 서비스/권한, 첫 지원 이벤트, 이벤트-카드 매핑, 각 신호 유효 시간, cooldown/표시 시간/주행 상한, trip 경계, 법령 캐시 유효 기간, 프로필/이력 보관·삭제 정책. 구현 가능한 부분을 진행하되 미확정 값을 제품 사실로 숨기지 않는다.
 
-새 결정은 `docs/decisions/`에 날짜·상태·이유·영향을 적는다. 작업 완료 보고는 변경/검증/미검증 사항을 구분한다. GitHub 인증이나 Figma 접근 확인을 앱 빌드·기기 검증 성공으로 대신하지 않는다.
+새 Android 전용 결정은 `docs/android/decisions/`에 날짜·상태·이유·영향을 적는다. 기존 공유 `docs/decisions/`는 공통 계약의 참고 원본으로 유지한다. 작업 완료 보고는 변경/검증/미검증 사항을 구분한다. GitHub 인증이나 Figma 접근 확인을 앱 빌드·기기 검증 성공으로 대신하지 않는다.

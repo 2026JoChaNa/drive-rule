@@ -118,4 +118,4 @@
 - [Android 아키텍처 권장사항](https://developer.android.com/topic/architecture/recommendations): ViewModel, 상태 기반 UI, 단방향 흐름의 근거.
 - [Room](https://developer.android.com/training/data-storage/room): 구조화된 로컬 데이터 저장.
 - [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager): 지연 가능한 지속 작업. 실시간 이벤트 엔진과 분리.
-- [Codex AGENTS.md 공식 문서](https://learn.chatgpt.com/docs/agent-configuration/agents-md): 루트 작업 진입 지침과 Android 상세 지침을 나누고 상세 문서 링크를 연결한 근거.
+- [Codex AGENTS.md 공식 문서](https://learn.chatgpt.com/docs/agent-configuration/agents-md): 디렉터리별 지침과 상세 문서 링크 구성에 참고. 초기에는 루트 지침도 만들었으나 사용자 요청에 따라 삭제했고, 현재 Android 지침은 `android/AGENTS.md`에만 둔다. Android 개발 자료는 `android/`와 `docs/android/`에서 관리한다.
