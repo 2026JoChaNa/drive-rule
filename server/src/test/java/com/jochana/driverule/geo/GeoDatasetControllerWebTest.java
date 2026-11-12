@@ -29,7 +29,7 @@ class GeoDatasetControllerWebTest {
 
 		mvc.perform(get("/api/v1/geo/school-zones"))
 				.andExpect(status().isOk())
-				.andExpect(header().string("ETag", "\"" + sha + "\""))
+				.andExpect(header().string("ETag", dataset.manifestEtag()))
 				.andExpect(header().string("Cache-Control", "no-cache"))
 				.andExpect(jsonPath("$.dataset").value("school-zones"))
 				.andExpect(jsonPath("$.schema").value(1))
@@ -40,9 +40,13 @@ class GeoDatasetControllerWebTest {
 
 	@Test
 	void unchangedManifestIs304() throws Exception {
+		mvc.perform(get("/api/v1/geo/school-zones").header("If-None-Match", dataset.manifestEtag()))
+				.andExpect(status().isNotModified())
+				.andExpect(header().string("Cache-Control", "no-cache"));
+
 		mvc.perform(get("/api/v1/geo/school-zones")
 				.header("If-None-Match", "\"" + dataset.manifest().sha256() + "\""))
-				.andExpect(status().isNotModified());
+				.andExpect(status().isOk()); // 파일 해시는 manifest ETag 가 아니다
 	}
 
 	@Test
@@ -53,6 +57,7 @@ class GeoDatasetControllerWebTest {
 				.andExpect(status().isOk())
 				.andExpect(header().string("Content-Type", "application/json"))
 				.andExpect(header().string("Cache-Control", "max-age=31536000, public, immutable"))
+				.andExpect(header().doesNotExist("ETag")) // 강한 ETag 가 있으면 Tomcat 이 압축하지 않는다
 				.andReturn().getResponse().getContentAsByteArray();
 
 		assertThat(SchoolZoneDataset.sha256(body)).as("앱이 계산할 해시").isEqualTo(m.sha256());

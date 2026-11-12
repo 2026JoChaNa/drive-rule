@@ -24,6 +24,7 @@ const LAT = [33.0, 38.7];
 const LON = [124.5, 132.0];
 const DECIMALS = 5; // 약 1m
 const MAX_SHRINK = 0.10;
+const LINE = Symbol('원본 줄');
 const MAX_BAD_ROWS = 0.01; // 좌표가 잘못된 행이 이보다 많으면 멈춘다
 
 // 원본 칸 이름 (포털 내부 코드 / 화면 CSV 의 한글 머리글)
@@ -60,11 +61,19 @@ async function fetchPortal() {
     const q = new URLSearchParams({ publicDataPk: PUBLIC_DATA_PK, svcTableNm: table, perPage, page, totalCount: total });
     cols.forEach((c) => q.append('colNmList', c));
     const chunk = await getJson(`${PORTAL}/download/standard.json?${q}`);
+    if (!Array.isArray(chunk)) {
+      throw new Error(`포털 ${page}쪽 응답이 행 배열이 아닙니다: ${JSON.stringify(chunk).slice(0, 200)}`);
+    }
     rows.push(...chunk);
     console.error(`  받음 ${rows.length} / ${total}`);
   }
   if (rows.length !== total) {
     throw new Error(`포털이 ${total}건이라고 했는데 ${rows.length}건을 받았습니다 — 다시 받으세요`);
+  }
+  // 쪽 나눔이 흔들리면 앞 쪽 행이 다시 오고 다른 행이 빠진다. 건수는 맞아도 좌표 합치기가 그 구멍을 가린다
+  const distinct = new Set(rows.map((r) => JSON.stringify(r))).size;
+  if (distinct !== total) {
+    throw new Error(`같은 행이 ${total - distinct}건 겹쳐 왔습니다 — 쪽 나눔이 흔들렸을 수 있으니 다시 받으세요`);
   }
   return rows;
 }
@@ -76,7 +85,7 @@ async function getJson(url) {
 }
 
 function readInput(path) {
-  const text = readFileSync(path, 'utf8').replace(/^﻿/, '');
+  const text = decode(readFileSync(path)).replace(/^﻿/, '');
   if (text.trimStart().startsWith('[')) return JSON.parse(text);
   if (text.trimStart().startsWith('{')) {
     const obj = JSON.parse(text);
@@ -85,6 +94,16 @@ function readInput(path) {
     return arr;
   }
   return parseCsv(text);
+}
+
+// 포털 CSV 는 UTF-8 일 수도, 엑셀용 CP949(EUC-KR) 일 수도 있다
+function decode(buf) {
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(buf);
+  }
+  catch {
+    return new TextDecoder('euc-kr').decode(buf);
+  }
 }
 
 function parseCsv(text) {
@@ -108,7 +127,9 @@ function parseCsv(text) {
   row.push(cell);
   if (row.some((c) => c !== '')) rows.push(row);
   const [head, ...body] = rows;
-  return body.map((r) => Object.fromEntries(head.map((h, i) => [h.trim(), r[i]])));
+  // 원본 줄 번호를 남긴다 (머리글이 1줄) — 오류 보고가 원본 파일의 그 줄을 가리키게
+  return body.map((r, i) => Object.defineProperty(Object.fromEntries(head.map((h, j) => [h.trim(), r[j]])),
+    LINE, { value: i + 2 }));
 }
 
 function field(row, name) {
@@ -139,7 +160,7 @@ export function build(rows) {
     const lon = Number(String(field(r, 'lon')).trim());
     if (!Number.isFinite(lat) || !Number.isFinite(lon)
         || lat < LAT[0] || lat > LAT[1] || lon < LON[0] || lon > LON[1]) {
-      errors.push(`${i + 1}행: 좌표 (${field(r, 'lat')}, ${field(r, 'lon')}) 가 국내 범위 밖이거나 숫자가 아닙니다`);
+      errors.push(`${r[LINE] ? `${r[LINE]}줄` : `${i + 1}번째 행`}: 좌표 (${field(r, 'lat')}, ${field(r, 'lon')}) 가 국내 범위 밖이거나 숫자가 아닙니다`);
       return;
     }
     const p = [round(lat), round(lon)];
@@ -197,7 +218,9 @@ async function main() {
   console.error(`기준일 ${data.referenceDate} → ${args.out}`);
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// Windows 는 드라이브 문자 대소문자가 다를 수 있다 — 아무것도 안 하고 성공으로 끝나지 않게
+const same = (a, b) => (process.platform === 'win32' ? a.toLowerCase() === b.toLowerCase() : a === b);
+if (process.argv[1] && same(resolve(process.argv[1]), fileURLToPath(import.meta.url))) {
   main().catch((e) => {
     console.error(`실패: ${e.message}`);
     process.exit(1);

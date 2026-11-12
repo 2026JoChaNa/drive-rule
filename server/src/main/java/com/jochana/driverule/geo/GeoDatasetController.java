@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.WebRequest;
 
 @Tag(name = "앱 · 공공 좌표")
 @RestController
@@ -25,20 +24,26 @@ public class GeoDatasetController {
 		this.schoolZones = schoolZones;
 	}
 
+	/**
+	 * ETag 는 manifest 자체의 해시다 — 파일이 그대로여도 url 이 바뀌면(CDN 이전) 앱이 새 manifest 를 받는다.
+	 * If-None-Match 가 맞으면 Spring 이 304 로 바꾸고 Cache-Control 도 그대로 붙인다.
+	 */
 	@Operation(summary = "어린이보호구역 좌표 manifest",
 			description = "카드 동기화 때 함께 부른다. ETag 를 저장해 If-None-Match 로 보내면 바뀌지 않았을 때 304."
 					+ " sha256 이 저장한 값과 다르면 url(이 주소 기준으로 풀기)에서 파일을 받아 SHA-256 을 직접 확인한 뒤"
 					+ " 차량 사본을 통째로 바꾼다. 확인에 실패하면 옛 사본을 계속 쓴다 (결정 010)")
 	@GetMapping
-	public ResponseEntity<Manifest> manifest(WebRequest request) {
-		Manifest manifest = schoolZones.manifest();
-		String etag = "\"" + manifest.sha256() + "\"";
-		if (request.checkNotModified(etag)) {
-			return null; // 304 — Spring 이 헤더와 상태를 이미 썼다
-		}
-		return ResponseEntity.ok().cacheControl(CacheControl.noCache()).eTag(etag).body(manifest);
+	public ResponseEntity<Manifest> manifest() {
+		return ResponseEntity.ok()
+				.cacheControl(CacheControl.noCache())
+				.eTag(schoolZones.manifestEtag())
+				.body(schoolZones.manifest());
 	}
 
+	/**
+	 * ETag 를 두지 않는다 — 경로가 이미 내용 주소이고, Tomcat 은 강한 ETag 가 있는 응답을 압축하지 않는다
+	 * (CompressionConfig.useCompression). 압축이 이 응답 때문에 켠 것이다.
+	 */
 	@Operation(summary = "어린이보호구역 좌표 파일",
 			description = "manifest 의 url. 경로의 해시와 내용이 묶여 있어 오래 캐시해도 된다. 지금 내보내는 해시가 아니면 404")
 	@GetMapping(value = "/{sha256}.json", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -49,9 +54,8 @@ public class GeoDatasetController {
 		}
 		return ResponseEntity.ok()
 				.cacheControl(CacheControl.maxAge(Duration.ofDays(365)).cachePublic().immutable())
-				.eTag("\"" + sha256 + "\"")
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(schoolZones.bytes());
+				.body(schoolZones.content());
 	}
 
 }

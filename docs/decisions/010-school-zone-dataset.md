@@ -68,8 +68,8 @@ FusedLocation 근접 알림(반경 370m)으로 진입을 잡는다고 정했다.
 
 | | 경로 | 캐시 |
 |---|---|---|
-| manifest | `GET /api/v1/geo/school-zones` | `no-cache` + `ETag` (304 지원) |
-| 파일 | `GET /api/v1/geo/school-zones/{sha256}.json` | `max-age=1년, immutable` |
+| manifest | `GET /api/v1/geo/school-zones` | `no-cache` + `ETag` = **manifest 자체의 해시** (304 지원) |
+| 파일 | `GET /api/v1/geo/school-zones/{sha256}.json` | `max-age=1년, immutable`, **ETag 없음** |
 
 ```json
 { "dataset": "school-zones", "schema": 1, "referenceDate": "2026-10-27", "count": 12152,
@@ -78,6 +78,8 @@ FusedLocation 근접 알림(반경 370m)으로 진입을 잡는다고 정했다.
 ```
 
 - 서버는 **부팅 때** 파일을 읽어 형식 · 건수 · 범위를 검사하고 해시를 계산한다. 파일이 잘못되면 서버가 뜨지 않는다 — 잘못된 좌표를 내보내는 것보다 배포 실패가 낫다
+- manifest ETag 를 파일 해시로 두지 않는다 — 파일이 그대로여도 `url`(CDN 이전)이나 항목이 바뀌면 앱이 새 manifest 를 받아야 한다
+- 파일에는 ETag 를 두지 않는다. 경로가 이미 내용 주소라 필요 없고, **Tomcat 은 강한 ETag 가 붙은 응답을 압축하지 않는다** (`CompressionConfig.useCompression`, 코드 리뷰에서 확인)
 - 파일 경로에 해시를 넣었다. 다른 해시로 부르면 404 → 오래된 manifest 를 든 앱이 새 파일을 옛 해시로 검증하는 일이 없다
 - `url` 은 상대 경로일 수도, 절대 URL 일 수도 있다. 앱은 manifest 주소 기준으로 풀어서 쓴다 (RFC 3986). 나중에 CDN 으로 옮기면 `url` 만 바뀐다
 - 응답 압축(gzip)을 켠다 — JSON 약 31만 바이트가 전송 때 약 8만 바이트로 준다. 해시는 압축 전 바이트 기준
