@@ -5,3 +5,5 @@
 *.bat text eol=crlf
 *.jar binary
 *.apk binary
+# 보호구역 좌표 파일: 해시가 바이트 기준이라 어느 OS 에서 받아도 같은 바이트여야 한다 (결정 010)
+server/src/main/resources/geo/*.json text eol=lf
