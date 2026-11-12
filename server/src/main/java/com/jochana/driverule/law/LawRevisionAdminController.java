@@ -29,10 +29,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class LawRevisionAdminController {
 
 	private final LawRevisionRepository repository;
+	private final LawRevisionCollector collector;
+	private final LawSyncProperties syncProps;
 	private final Clock clock;
 
-	public LawRevisionAdminController(LawRevisionRepository repository, Clock clock) {
+	public LawRevisionAdminController(LawRevisionRepository repository, LawRevisionCollector collector,
+			LawSyncProperties syncProps, Clock clock) {
 		this.repository = repository;
+		this.collector = collector;
+		this.syncProps = syncProps;
 		this.clock = clock;
 	}
 
@@ -46,12 +51,21 @@ public class LawRevisionAdminController {
 	public record TriageRequest(@NotNull TriageStatus triageStatus) {
 	}
 
+	/** @param sourceUrl 수집기가 넣은 행이면 국가법령정보센터 원문 화면, 손 등록 행이면 null (결정 011) */
 	public record LawRevisionResponse(Long id, String lawName, String lawNo, String sourceKey,
-			LocalDate promulgatedOn, TriageStatus triageStatus, LocalDateTime createdAt) {
+			LocalDate promulgatedOn, TriageStatus triageStatus, LocalDateTime createdAt, String sourceUrl) {
 
 		static LawRevisionResponse of(LawRevision r) {
 			return new LawRevisionResponse(r.getId(), r.getLawName(), r.getLawNo(), r.getSourceKey(),
-					r.getPromulgatedOn(), r.getTriageStatus(), r.getCreatedAt());
+					r.getPromulgatedOn(), r.getTriageStatus(), r.getCreatedAt(), sourceUrl(r.getSourceKey()));
+		}
+
+		static String sourceUrl(String sourceKey) {
+			if (sourceKey == null || !sourceKey.startsWith(LawRevisionCollector.SOURCE_PREFIX)) {
+				return null;
+			}
+			String serial = sourceKey.substring(LawRevisionCollector.SOURCE_PREFIX.length());
+			return serial.matches("\\d+") ? "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=" + serial : null;
 		}
 	}
 
@@ -86,6 +100,19 @@ public class LawRevisionAdminController {
 				.orElseThrow(() -> ApiException.notFound("LAW_REVISION_NOT_FOUND", "법령 개정이 없습니다: " + id));
 		revision.changeTriageStatus(req.triageStatus());
 		return LawRevisionResponse.of(revision);
+	}
+
+
+	@Operation(summary = "법령 개정 지금 수집",
+			description = "국가법령정보 Open API 로 감시 법령의 최근 공포분을 받아 없는 개정만 PENDING 으로 넣는다 (결정 011). "
+					+ "평소에는 매일 06:30 에 자동으로 돈다. LAW_API_OC 가 없으면 503 LAW_API_NOT_CONFIGURED")
+	@PostMapping("/sync")
+	public LawRevisionCollector.SyncReport sync() {
+		if (!syncProps.configured()) {
+			throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE, "LAW_API_NOT_CONFIGURED",
+					"LAW_API_OC 가 설정되지 않아 법령 개정을 수집할 수 없습니다");
+		}
+		return collector.sync();
 	}
 
 }
