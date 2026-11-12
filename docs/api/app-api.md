@@ -10,14 +10,14 @@
 
 ## 0. 먼저 알아 둘 것
 
-### 서버 주소와 HTTPS — ⚠️ 아직 앱에서 못 부름
+### 서버 주소 — HTTP
 
 | 환경 | 주소 |
 |---|---|
 | 운영 (EC2) | `http://13.124.175.42:8080` |
 | 로컬 | `http://localhost:8080` (`server/` 에서 `bootRun`) |
 
-지금 운영은 **HTTP 평문**입니다. 앱 매니페스트는 `android:usesCleartextTraffic="false"`(Android 9+ 기본값과 같음)라 이 주소를 부르면 막힙니다. 서버에 도메인과 TLS를 붙이는 작업이 남아 있습니다(아래 9장). 그전에 개발용으로 붙이려면 debug 빌드에만 이 IP를 network security config로 허용하세요. release 빌드에는 넣지 마세요.
+운영은 **HTTP** 입니다 (HTTPS 는 당분간 붙이지 않기로 함, 2026-11-12). Android 9+ 는 평문 HTTP 를 기본으로 막고, 앱 매니페스트도 `android:usesCleartextTraffic="false"` 입니다. 서버를 부르려면 network security config 에서 **이 서버 주소만** 평문을 허용하세요 (`<domain-config cleartextTrafficPermitted="true">`). 앱 전체를 여는 `usesCleartextTraffic="true"` 는 쓰지 마세요.
 
 주소는 빌드 설정(`BuildConfig` 등)으로 빼 두세요. 도메인이 생기면 주소가 바뀝니다.
 
@@ -267,7 +267,6 @@ Gleo 질문에 답할 카드가 차 사본에 없을 때(대표 카드 없음 ·
 
 | 항목 | 영향 |
 |---|---|
-| **HTTPS (도메인 + TLS)** | 붙기 전에는 release 빌드에서 서버를 부를 수 없음 |
 | 익명 API 요청 제한 | 신고 두 개는 인증이 없어 반복 요청에 열려 있음 |
 | 공통 조건 목록 확정 | 기획 회신 후 확정. 키가 바뀌면 이 문서 1장 표도 바뀜 |
 | 고속도로 노선 · 횡단보도 좌표 | 카드 A · I 판정용. 2장과 같은 모양(`/api/v1/geo/{dataset}`)으로 추가 예정 |
