@@ -43,6 +43,8 @@ cd server
 
 설계: [`docs/decisions/009-core-features-v6-alignment.md`](docs/decisions/009-core-features-v6-alignment.md) (008 일부 대체)
 
+차량 앱 개발자용 사용 문서: [`docs/api/app-api.md`](docs/api/app-api.md)
+
 | 쓰는 곳 | 경로 | 인증 |
 |---|---|---|
 | 차량 앱 | `GET /api/v1/cards/sync` · `GET /api/v1/geo/school-zones` (보호구역 좌표 manifest, 010) · `POST /api/v1/cards/{id}/error-reports` · `POST /api/v1/answer-holds` | 없음 (식별자 없이 보냄) |

@@ -30,10 +30,12 @@ public interface RuleCardRepository extends JpaRepository<RuleCard, Long> {
 	List<RuleCard> findAllWithRevisionByStatusUpdatedSince(@Param("status") CardStatus status,
 			@Param("since") LocalDateTime since);
 
-	@Query("select c.id from RuleCard c where c.status = :status order by c.id")
+	// 회수 ID 는 한 번이라도 게시된 카드만 — 차에 없는 카드의 ID(작업 중 카드)를 내보내지 않는다
+	@Query("select c.id from RuleCard c where c.status = :status and c.verifiedAt is not null order by c.id")
 	List<Long> findIdsByStatus(@Param("status") CardStatus status);
 
-	@Query("select c.id from RuleCard c where c.status = :status and c.updatedAt >= :since order by c.id")
+	@Query("select c.id from RuleCard c where c.status = :status and c.verifiedAt is not null"
+			+ " and c.updatedAt >= :since order by c.id")
 	List<Long> findIdsByStatusUpdatedSince(@Param("status") CardStatus status, @Param("since") LocalDateTime since);
 
 }

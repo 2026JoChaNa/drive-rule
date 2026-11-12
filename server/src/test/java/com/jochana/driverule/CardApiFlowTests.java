@@ -2,6 +2,7 @@ package com.jochana.driverule;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -92,6 +93,7 @@ class CardApiFlowTests {
 				.andExpect(jsonPath(card + ".lawNo").value(hasItem("제99001호")))
 				.andExpect(jsonPath(card + ".promulgatedOn").value(hasItem("2026-10-13")))
 				.andExpect(jsonPath(card + ".audience").value(hasItem("GENERAL")))
+				.andExpect(jsonPath(card + ".verifiedAt").value(hasItem(matchesPattern(".*T.*\\+09:00$"))))
 				.andExpect(jsonPath(card + ".decision.tables[1].conditions[0]").value(hasItem("ped_signal")))
 				.andReturn().getResponse().getContentAsString();
 		String syncToken = JsonPath.read(firstSync, "$.syncToken");
@@ -141,6 +143,15 @@ class CardApiFlowTests {
 		admin(put("/api/v1/admin/cards/" + cardId), rightTurn)
 				.andExpect(status().isConflict())
 				.andExpect(jsonPath("$.code").value("INVALID_CARD_STATE"));
+	}
+
+	@Test
+	void retiredDraftNeverReachesTheApp() throws Exception {
+		long id = idOf(admin(post("/api/v1/admin/cards"), seedCard("H")).andExpect(status().isCreated()));
+		admin(post("/api/v1/admin/cards/" + id + "/retire"), "").andExpect(jsonPath("$.status").value("RETIRED"));
+
+		mvc.perform(get("/api/v1/cards/sync"))
+				.andExpect(jsonPath("$.retiredCardIds", not(hasItem((int) id))));
 	}
 
 	@Test

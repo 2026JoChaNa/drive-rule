@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -60,12 +61,15 @@ public class CardSyncService {
 			List<ConditionDef> conditions) {
 	}
 
-	/** 앱 cached_card 1행에 해당한다. */
+	/**
+	 * 앱 cached_card 1행에 해당한다. {@code verifiedAt} 은 시차를 붙여 보낸다 (예: 2026-11-12T09:00:00+09:00) —
+	 * 앱이 epoch 로 바꿀 때 시간대를 짐작하지 않게.
+	 */
 	public record SyncedCard(Long cardId, int version, CardType cardType, ChangeKind changeKind, Audience audience,
 			EventTag eventTag, String sourceOrg, String topic, String title, String dontText, String doText,
 			String sceneKey, String ttsText, String legalBasis, String lawExcerpt, String penaltyText, String lawName,
 			String lawNo, LocalDate promulgatedOn, LocalDate effectiveOn, String exceptions, DecisionTable decision,
-			LocalDateTime verifiedAt) {
+			OffsetDateTime verifiedAt) {
 	}
 
 	public record ConditionDef(String key, String question, List<RuleCondition.Option> options) {
@@ -118,7 +122,8 @@ public class CardSyncService {
 				r == null ? null : r.getLawName(),
 				r == null ? null : r.getLawNo(),
 				r == null ? null : r.getPromulgatedOn(),
-				c.getEffectiveOn(), c.getExceptions(), decisionJson.read(c.getDecisionJson()), c.getVerifiedAt());
+				c.getEffectiveOn(), c.getExceptions(), decisionJson.read(c.getDecisionJson()),
+				c.getVerifiedAt().atZone(clock.getZone()).toOffsetDateTime());
 	}
 
 }
