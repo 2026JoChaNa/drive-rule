@@ -11,13 +11,13 @@ import com.jochana.driverule.review.ReviewerRepository;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 카드 수명주기 (결정 004 · 006, 세부 규칙은 결정 008).
+ * 카드 수명주기의 진행 — 잠금 · 조회 · 저장과, 카드 밖 데이터가 필요한 확인을 맡는다.
+ * 카드 혼자 판단하는 규칙(상태별 허용 동작 · 버전 · 게시 · 주제 잠금)은 {@link RuleCard} 에 있다.
  *
  * <pre>
  * DRAFT ──submit──▶ IN_REVIEW ──승인 2건──▶ PUBLISHED
@@ -26,16 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
  * (RETIRED 외 어느 상태에서든) ──retire──▶ RETIRED (끝)
  * </pre>
  *
- * <ul>
- * <li>버전 = 검수받은 내용 묶음의 번호. 이미 검수 기록이 있는 버전을 다시 검수에 올리면 +1 한다</li>
- * <li>수정하면 어느 상태든 DRAFT 로 돌아간다 — 앱은 마지막으로 받은 게시본을 계속 쓴다</li>
- * <li>회수하면 topic 을 비운다 — 다른 카드를 대표로 지정할 수 있게</li>
- * </ul>
+ * 여기서 확인하는 것 (카드 밖 데이터): 카드 내용 규칙({@link CardValidator}) · 주제 중복 · 법령 개정 분류 ·
+ * 검수자 존재 · 같은 검수자 중복 · 이 버전의 검수 기록과 승인 수.
+ * 상태를 바꾸는 작업은 카드 행을 잠근 뒤 한다 — 동시에 두 승인이 들어와도 게시를 놓치지 않게.
  */
 @Service
 public class CardService {
-
-	static final int REQUIRED_APPROVALS = 2;
 
 	private final RuleCardRepository cards;
 	private final LawRevisionRepository revisions;
@@ -58,47 +54,30 @@ public class CardService {
 	public RuleCard create(CardContent raw) {
 		CardContent content = validated(raw);
 		ensureTopicFree(content.topic(), null);
-		RuleCard card = new RuleCard(now());
-		card.applyContent(content, findRevision(content.revisionId()), decisionJson.write(content.decision()));
-		return cards.save(card);
+		return cards.save(RuleCard.draft(content, findRevision(content.revisionId()),
+				decisionJson.write(content.decision()), now()));
 	}
 
 	@Transactional
 	public RuleCard update(Long id, CardContent raw) {
 		RuleCard card = lock(id);
-		ensureNotRetired(card);
 		CardContent content = validated(raw);
-		// 수정하면 DRAFT 가 되어 동기화되지 않는다 — 게시된 적 있는 카드의 주제를 여기서 바꾸면 차 사본에 옛 주제가 남는다
-		if (card.getVerifiedAt() != null && !Objects.equals(card.getTopic(), content.topic())) {
-			throw ApiException.conflict("TOPIC_CHANGE_NOT_SYNCED",
-					"게시된 적 있는 카드의 주제는 카드가 게시 중일 때 대표 주제 지정으로만 바꿀 수 있습니다");
-		}
 		ensureTopicFree(content.topic(), card.getId());
-		card.applyContent(content, findRevision(content.revisionId()), decisionJson.write(content.decision()));
-		card.changeStatus(CardStatus.DRAFT, now());
+		card.edit(content, findRevision(content.revisionId()), decisionJson.write(content.decision()), now());
 		return card;
 	}
 
 	@Transactional
 	public RuleCard submitForReview(Long id) {
 		RuleCard card = lock(id);
-		if (card.getStatus() != CardStatus.DRAFT) {
-			throw invalidState(card, "검수 요청은 DRAFT 카드만 할 수 있습니다");
-		}
-		// 같은 버전 번호에 이전 검수 기록이 있으면 새 내용 묶음으로 본다 — card_review UQ(card, version, reviewer)
-		if (reviews.existsByCardIdAndCardVersion(card.getId(), card.getVersion())) {
-			card.bumpVersion();
-		}
-		card.changeStatus(CardStatus.IN_REVIEW, now());
+		card.submitForReview(reviews.existsByCardIdAndCardVersion(card.getId(), card.getVersion()), now());
 		return card;
 	}
 
 	@Transactional
 	public RuleCard review(Long id, Long reviewerId, ReviewDecision decision) {
 		RuleCard card = lock(id);
-		if (card.getStatus() != CardStatus.IN_REVIEW) {
-			throw invalidState(card, "IN_REVIEW 카드만 검수할 수 있습니다");
-		}
+		card.ensureReviewable();
 		if (!reviewers.existsById(reviewerId)) {
 			throw ApiException.notFound("REVIEWER_NOT_FOUND", "검수자가 없습니다: " + reviewerId);
 		}
@@ -107,45 +86,27 @@ public class CardService {
 		}
 		LocalDateTime now = now();
 		reviews.save(new CardReview(card.getId(), reviewerId, card.getVersion(), decision, now));
-
-		if (decision == ReviewDecision.REJECT) {
-			card.changeStatus(CardStatus.DRAFT, now);
-		}
-		else if (reviews.countByCardIdAndCardVersionAndDecision(card.getId(), card.getVersion(),
-				ReviewDecision.APPROVE) >= REQUIRED_APPROVALS) {
-			card.markVerified(now);
-			card.changeStatus(CardStatus.PUBLISHED, now);
-		}
+		long approvals = decision == ReviewDecision.APPROVE
+				? reviews.countByCardIdAndCardVersionAndDecision(card.getId(), card.getVersion(), ReviewDecision.APPROVE)
+				: 0;
+		card.applyReview(decision, approvals, now);
 		return card;
 	}
 
 	@Transactional
 	public RuleCard retire(Long id) {
 		RuleCard card = lock(id);
-		ensureNotRetired(card);
-		LocalDateTime now = now();
-		card.changeTopic(null, now);
-		card.changeStatus(CardStatus.RETIRED, now);
+		card.retire(now());
 		return card;
 	}
 
-	/**
-	 * 대표 카드 지정·해제 (006). 문장이 바뀌지 않으므로 재검수 없이 바꾼다.
-	 * 게시된 적 있는 카드는 지금 게시 중일 때만 바꾼다 — 수정 · 검수 중이면 바뀐 주제가 차에 가지 않아,
-	 * 차 사본에 같은 주제의 카드가 둘 생길 수 있다.
-	 */
+	/** 대표 카드 지정 · 해제 (006). 규칙은 {@link RuleCard#assignTopic}. */
 	@Transactional
 	public RuleCard assignTopic(Long id, String rawTopic) {
 		RuleCard card = lock(id);
-		ensureNotRetired(card);
-		String topic = rawTopic == null || rawTopic.isBlank() ? null : rawTopic.strip();
-		if (card.getVerifiedAt() != null && card.getStatus() != CardStatus.PUBLISHED
-				&& !Objects.equals(card.getTopic(), topic)) {
-			throw ApiException.conflict("TOPIC_CHANGE_NOT_SYNCED",
-					"수정 · 검수 중인 카드의 주제는 바꿀 수 없습니다 — 게시 후 바꾸거나 회수하세요");
-		}
+		String topic = RuleCard.normalizeTopic(rawTopic);
 		ensureTopicFree(topic, card.getId());
-		card.changeTopic(topic, now());
+		card.assignTopic(topic, now());
 		return card;
 	}
 
@@ -202,16 +163,6 @@ public class CardService {
 
 	private RuleCard lock(Long id) {
 		return cards.findForUpdate(id).orElseThrow(() -> cardNotFound(id));
-	}
-
-	private static void ensureNotRetired(RuleCard card) {
-		if (card.getStatus() == CardStatus.RETIRED) {
-			throw invalidState(card, "회수된 카드는 바꿀 수 없습니다");
-		}
-	}
-
-	private static ApiException invalidState(RuleCard card, String message) {
-		return ApiException.conflict("INVALID_CARD_STATE", message + " (현재 " + card.getStatus() + ")");
 	}
 
 	public static ApiException cardNotFound(Long id) {
