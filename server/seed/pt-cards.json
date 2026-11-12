@@ -1,0 +1,114 @@
+{
+  "_note": "2차 PT 시연 카드 (기획 v6 1-4 A·B·H·I + 2-4 우회전). 문장·처벌은 v6 '검수 전 초안' 그대로. 법령 원문·조문 번호처럼 v6 에 없는 값은 '확인 필요'로 두었다 — 검수에서 채운다. 모두 DRAFT 로 들어간다.",
+  "lawRevisions": [
+    {
+      "lawName": "도로교통법 일부개정",
+      "lawNo": "제22067호",
+      "sourceKey": "MANUAL-22067",
+      "promulgatedOn": "2026-10-13"
+    }
+  ],
+  "cards": [
+    {
+      "_demo": "A",
+      "revisionLawNo": "제22067호",
+      "cardType": "SHORT",
+      "changeKind": "LAW",
+      "audience": "GENERAL",
+      "eventTag": "PARKING_HIGHWAY",
+      "title": "고속도로 정차·주차 무인단속",
+      "ttsText": "2027년 4월 14일부터 고속도로 정차·주차 위반은 무인 장비로 단속돼 과태료가 부과됩니다.",
+      "legalBasis": "도로교통법 (법률 제22067호) — 조문 확인 필요",
+      "lawExcerpt": "(법령 원문 입력 필요 — 국가법령정보센터 원문과 대조)",
+      "effectiveOn": "2027-04-14"
+    },
+    {
+      "_demo": "B",
+      "cardType": "SHORT",
+      "changeKind": "LAW",
+      "audience": "GENERAL",
+      "eventTag": "PARKING_DESTINATION",
+      "title": "어린이보호구역 주정차 금지",
+      "ttsText": "목적지 근처는 어린이보호구역이라 주정차가 금지됩니다. 승용차 과태료는 12만 원입니다.",
+      "legalBasis": "도로교통법 — 조문 확인 필요 (2021.10.21 시행)",
+      "lawExcerpt": "(법령 원문 입력 필요 — 국가법령정보센터 원문과 대조)",
+      "penaltyText": "승용차 과태료 12만 원 (08~20시, 일반도로의 3배)",
+      "effectiveOn": "2021-10-21"
+    },
+    {
+      "_demo": "H",
+      "cardType": "SHORT",
+      "changeKind": "LAW",
+      "audience": "GENERAL",
+      "eventTag": "SCHOOL_ZONE_ENTRY",
+      "title": "보호구역 신호등 없는 횡단보도 일시정지",
+      "ttsText": "어린이보호구역입니다. 신호등 없는 횡단보도 앞에서는 사람이 없어도 먼저 멈춥니다.",
+      "legalBasis": "도로교통법 제27조",
+      "lawExcerpt": "(법령 원문 입력 필요 — 국가법령정보센터 원문과 대조)",
+      "penaltyText": "승용차 범칙금 6만 원 · 벌점 10점 (보호구역 20점 보도 있음 — 확인 필요)",
+      "effectiveOn": "2022-07-12"
+    },
+    {
+      "_demo": "I",
+      "cardType": "SHORT",
+      "changeKind": "LAW",
+      "audience": "GENERAL",
+      "eventTag": "RIGHT_TURN_CROSSWALK",
+      "title": "우회전 후 횡단보도 일시정지",
+      "ttsText": "우회전 뒤 횡단보도에 사람이 건너거나 건너려 하면 먼저 멈춥니다.",
+      "legalBasis": "도로교통법 제27조 제1항",
+      "lawExcerpt": "(법령 원문 입력 필요 — 국가법령정보센터 원문과 대조)",
+      "penaltyText": "승용차 범칙금 6만 원 · 벌점 10점",
+      "effectiveOn": "2022-07-12"
+    },
+    {
+      "_demo": "Gleo 2-4 (결정 009 B — 3행 조건 · 보행 신호 적색 행은 기획 확인 대기)",
+      "cardType": "CONDITIONAL",
+      "changeKind": "LAW",
+      "audience": "GENERAL",
+      "topic": "right_turn",
+      "title": "우회전할 때 멈추는 곳",
+      "ttsText": "우회전할 때는 신호와 보행자에 따라 멈추는 곳이 다릅니다.",
+      "legalBasis": "도로교통법 제27조 제1항 · 시행규칙 (2023.1.22 시행)",
+      "lawExcerpt": "(법령 원문 입력 필요 — 국가법령정보센터 원문과 대조)",
+      "penaltyText": "승용차 기준 신호위반 범칙금 6만 원 · 벌점 15점, 보행자 보호의무 위반 범칙금 6만 원 · 벌점 10점",
+      "decision": {
+        "schema": 2,
+        "tables": [
+          {
+            "key": "approach",
+            "title": "교차로 진입 전",
+            "conditions": ["turn_light", "front_signal"],
+            "rows": [
+              { "when": { "turn_light": "yes" },
+                "text": "녹색 화살표가 켜졌을 때만 우회전합니다",
+                "tts": "녹색 화살표가 켜졌을 때만 우회전합니다. 안 지키면 신호위반입니다." },
+              { "when": { "turn_light": "no", "front_signal": "red" },
+                "text": "정지선 앞에서 먼저 멈춘 뒤 천천히 우회전합니다",
+                "tts": "보행자가 없어도 정지선 앞에서 먼저 멈춘 뒤 천천히 우회전합니다." },
+              { "when": { "turn_light": "no", "front_signal": "green" },
+                "text": "천천히 우회전합니다",
+                "tts": "천천히 우회전할 수 있습니다. 돌아서 만나는 횡단보도에 사람이 있으면 멈춥니다." }
+            ]
+          },
+          {
+            "key": "crosswalk",
+            "title": "돌아선 뒤 횡단보도",
+            "conditions": ["ped_signal", "pedestrian"],
+            "rows": [
+              { "when": { "ped_signal": "green", "pedestrian": "yes" },
+                "text": "횡단보도 앞에서 멈춥니다",
+                "tts": "횡단보도를 건너고 있거나 건너려는 사람이 있으면 횡단보도 앞에서 멈춥니다." },
+              { "when": { "ped_signal": "green", "pedestrian": "no" },
+                "text": "주위를 살피고 천천히 지나갑니다",
+                "tts": "건너는 사람이 없으면 주위를 살피고 천천히 지나갈 수 있습니다." },
+              { "when": { "ped_signal": "red" },
+                "text": "(검수 문장 필요 — 기획 확인)",
+                "tts": "(검수 문장 필요 — 기획 확인)" }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

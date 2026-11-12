@@ -35,3 +35,9 @@ management:
     web:
       exposure:
         include: health,info
+
+# 검수 CMS API(/api/v1/admin/**) 키 — 요청 헤더 X-Admin-Key 와 비교한다.
+# 비어 있으면 관리자 API 전체가 401 이다 (앱용 API 는 영향 없음).
+driverule:
+  admin:
+    api-key: ${ADMIN_API_KEY:}
