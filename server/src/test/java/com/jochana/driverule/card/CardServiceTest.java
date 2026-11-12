@@ -72,15 +72,11 @@ class CardServiceTest {
 
 	/** 저장소에 있는 카드 — 상태 · 버전 · 주제 · 게시 이력을 지정한다. */
 	RuleCard stored(long id, CardStatus status, int version, String topic, boolean publishedBefore) {
-		RuleCard card = new RuleCard(T0);
-		card.applyContent(content(topic).normalized(), null, null);
-		for (int v = 1; v < version; v++) {
-			card.bumpVersion();
-		}
-		if (publishedBefore) {
-			card.markVerified(T0);
-		}
-		card.changeStatus(status, T0);
+		// 상태는 수명주기 메서드로만 바뀌므로, 저장소에서 읽어 온 상태를 흉내 내려고 필드를 직접 채운다
+		RuleCard card = RuleCard.draft(content(topic).normalized(), null, null, T0);
+		ReflectionTestUtils.setField(card, "version", version);
+		ReflectionTestUtils.setField(card, "verifiedAt", publishedBefore ? T0 : null);
+		ReflectionTestUtils.setField(card, "status", status);
 		ReflectionTestUtils.setField(card, "id", id);
 		when(cards.findForUpdate(id)).thenReturn(Optional.of(card));
 		when(cards.findById(id)).thenReturn(Optional.of(card));
