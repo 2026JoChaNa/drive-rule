@@ -18,7 +18,7 @@ drive-rule/
 ## 실행 방법
 
 ### 앱
-(android 프로젝트 생성 후 작성)
+개발 전 [Android Codex 지침](android/AGENTS.md), [개발 컨벤션](android/CODEX_CONVENTIONS.md), [Pleos·Figma·GitHub 확인 결과](docs/android/source-check-2026-11-12.md)를 읽는다. 프로젝트 구조와 빌드 명령은 [Android README](android/README.md)에 있다.
 
 ### 서버 (로컬)
 
