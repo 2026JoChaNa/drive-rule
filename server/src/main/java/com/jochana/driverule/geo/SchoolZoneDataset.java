@@ -83,7 +83,7 @@ public class SchoolZoneDataset {
 				"count(" + root.path("count") + ") 와 zones 수(" + zones.size() + ")가 다릅니다");
 		JsonNode referenceDate = root.path("referenceDate");
 		require(referenceDate.isMissingNode() || referenceDate.isNull()
-				|| (referenceDate.isString() && referenceDate.asString().matches("\d{4}-\d{2}-\d{2}")),
+				|| (referenceDate.isString() && referenceDate.asString().matches("\\d{4}-\\d{2}-\\d{2}")),
 				"referenceDate 가 YYYY-MM-DD 가 아닙니다");
 		for (int i = 0; i < zones.size(); i++) {
 			JsonNode z = zones.get(i);
