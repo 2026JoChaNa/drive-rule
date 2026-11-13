@@ -54,6 +54,7 @@ cd server
 - 조건별 답 고르기 규칙은 서버·앱 공용 명세: [`spec/rule-matching/`](spec/rule-matching/README.md) (테스트 케이스 `cases.json` 을 양쪽이 돌린다)
 - `ADMIN_API_KEY` 가 비어 있으면 CMS API 는 모두 401 이다. 로컬에서 쓰려면 `$env:ADMIN_API_KEY="local"` 후 `bootRun`
 - 시연 카드 넣기 (DRAFT): `BASE_URL=http://localhost:8080 ADMIN_API_KEY=local node server/seed/seed.mjs`
+- 법령 개정 자동 수집: 매일 06:30 국가법령정보 Open API 로 도로교통법 · 시행령 · 시행규칙의 최근 90일 공포분을 받아 없는 개정만 **분류 대기(PENDING)** 로 넣는다. 카드는 만들지 않는다. 지금 돌리기 `POST /api/v1/admin/law-revisions/sync`. 환경변수 `LAW_API_OC` 가 비어 있으면 꺼진다 (수동 실행은 503). 인증값 신청 때 서버 IP 등록 필요 ([011](docs/decisions/011-law-revision-collector.md))
 - 보호구역 좌표 갱신 (반기마다): `node server/geo/build-school-zones.mjs` → `server/src/main/resources/geo/school-zones.json` 을 PR 로 올린다. 서버는 부팅 때 파일을 검사하고, 잘못되면 뜨지 않는다 ([010](docs/decisions/010-school-zone-dataset.md))
 
 ### 서버 테스트
