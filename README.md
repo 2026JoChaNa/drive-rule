@@ -45,6 +45,8 @@ cd server
 
 사용 설명서: 차량 앱 [`docs/api/app-api.md`](docs/api/app-api.md) · 검수 CMS(검수자 · 운영자) [`docs/api/admin-api.md`](docs/api/admin-api.md)
 
+도메인별 흐름도: [`docs/flows/`](docs/flows/README.md) (drawio, 페이지 8장)
+
 | 쓰는 곳 | 경로 | 인증 |
 |---|---|---|
 | 차량 앱 | `GET /api/v1/cards/sync` · `GET /api/v1/geo/school-zones` (보호구역 좌표 manifest, 010) · `POST /api/v1/cards/{id}/error-reports` · `POST /api/v1/answer-holds` | 없음 (식별자 없이 보냄) |
