@@ -10,7 +10,8 @@
           "rows": [
             { "when": { "right_turn_traffic_light": "yes" }, "text": "approach.light_yes", "tts": "approach.light_yes" },
             { "when": { "right_turn_traffic_light": "no", "front_traffic_light": "red" }, "text": "approach.no_red", "tts": "approach.no_red" },
-            { "when": { "right_turn_traffic_light": "no", "front_traffic_light": "green" }, "text": "approach.no_green", "tts": "approach.no_green" }
+            { "when": { "right_turn_traffic_light": "no", "front_traffic_light": "green" }, "text": "approach.no_green", "tts": "approach.no_green" },
+            { "when": { "right_turn_traffic_light": "no", "front_traffic_light": "yellow" }, "text": "approach.no_yellow", "tts": "approach.no_yellow" }
           ]
         },
         {
@@ -20,6 +21,8 @@
           "rows": [
             { "when": { "crosswalk_light": "green", "pedestrian_present": "yes" }, "text": "crosswalk.green_yes", "tts": "crosswalk.green_yes" },
             { "when": { "crosswalk_light": "green", "pedestrian_present": "no" }, "text": "crosswalk.green_no", "tts": "crosswalk.green_no" },
+            { "when": { "crosswalk_light": "green_flashing", "pedestrian_present": "yes" }, "text": "crosswalk.green_yes", "tts": "crosswalk.green_yes" },
+            { "when": { "crosswalk_light": "green_flashing", "pedestrian_present": "no" }, "text": "crosswalk.green_no", "tts": "crosswalk.green_no" },
             { "when": { "crosswalk_light": "red" }, "text": "crosswalk.red", "tts": "crosswalk.red" }
           ]
         }
@@ -35,6 +38,7 @@
           "rows": [
             { "when": { "crosswalk_light": "green", "pedestrian_present": "yes" }, "text": "stop", "tts": "stop" },
             { "when": { "crosswalk_light": "green", "pedestrian_present": "no" }, "text": "same", "tts": "same" },
+            { "when": { "crosswalk_light": "green_flashing" }, "text": "same", "tts": "same" },
             { "when": { "crosswalk_light": "red" }, "text": "same", "tts": "same" }
           ]
         }
@@ -61,10 +65,22 @@
       "expect": { "status": "ANSWER", "texts": ["crosswalk.green_yes"] }
     },
     {
-      "name": "'잘 모르겠어요'(전방 신호 모름) → 남은 두 행을 함께",
+      "name": "'잘 모르겠어요'(전방 신호 모름) → 남은 세 행(빨강 · 초록 · 노랑)이라 전방 신호를 묻는다",
       "decision": "right_turn",
       "given": { "right_turn_traffic_light": "no" },
-      "expect": { "status": "ANSWER", "texts": ["approach.no_red", "approach.no_green"] }
+      "expect": { "status": "ASK", "ask": "front_traffic_light" }
+    },
+    {
+      "name": "전방 노란불 · 우회전 신호등 없음 → 노란불 행",
+      "decision": "right_turn",
+      "given": { "right_turn_traffic_light": "no", "front_traffic_light": "yellow" },
+      "expect": { "status": "ANSWER", "texts": ["approach.no_yellow"] }
+    },
+    {
+      "name": "보행 신호 녹색 점멸만 → 녹색과 같은 두 문장",
+      "decision": "right_turn",
+      "given": { "crosswalk_light": "green_flashing" },
+      "expect": { "status": "ANSWER", "texts": ["crosswalk.green_yes", "crosswalk.green_no"] }
     },
     {
       "name": "when 에 없는 조건은 상관없음 — 신호등 있음 행도 후보",

@@ -95,7 +95,7 @@
       "effectiveOn": "2022-07-12"
     },
     {
-      "_demo": "Gleo 2-4 (결정 009 B — 3행 조건 · 보행 신호 적색 행은 기획 확인 대기)",
+      "_demo": "Gleo 2-4 (결정 009 B · 012 확인표 3 · 4 — 노란불 · 녹색 점멸 · 보행 적색 행은 개발 초안, 별표 2 원문 대조 필요)",
       "cardType": "CONDITIONAL",
       "changeKind": "LAW",
       "audience": "GENERAL",
@@ -138,6 +138,14 @@
                 },
                 "text": "천천히 우회전합니다",
                 "tts": "천천히 우회전할 수 있습니다. 돌아서 만나는 횡단보도에 사람이 있으면 멈춥니다."
+              },
+              {
+                "when": {
+                  "right_turn_traffic_light": "no",
+                  "front_traffic_light": "yellow"
+                },
+                "text": "정지선 앞에서 멈춥니다. 이미 교차로에 들어섰다면 보행자를 방해하지 않게 우회전합니다",
+                "tts": "노란불이면 정지선 앞에서 멈춥니다. 이미 교차로에 들어섰다면 보행자를 방해하지 않게 천천히 우회전합니다."
               }
             ]
           },
@@ -167,10 +175,26 @@
               },
               {
                 "when": {
+                  "crosswalk_light": "green_flashing",
+                  "pedestrian_present": "yes"
+                },
+                "text": "횡단보도 앞에서 멈춥니다",
+                "tts": "횡단보도를 건너고 있거나 건너려는 사람이 있으면 횡단보도 앞에서 멈춥니다."
+              },
+              {
+                "when": {
+                  "crosswalk_light": "green_flashing",
+                  "pedestrian_present": "no"
+                },
+                "text": "주위를 살피고 천천히 지나갑니다",
+                "tts": "건너는 사람이 없으면 주위를 살피고 천천히 지나갈 수 있습니다."
+              },
+              {
+                "when": {
                   "crosswalk_light": "red"
                 },
-                "text": "(검수 문장 필요 — 기획 확인)",
-                "tts": "(검수 문장 필요 — 기획 확인)"
+                "text": "건너는 사람이 있으면 횡단보도 앞에서 멈춥니다",
+                "tts": "보행 신호가 빨간불이어도 건너는 사람이 있으면 횡단보도 앞에서 멈춥니다."
               }
             ]
           }

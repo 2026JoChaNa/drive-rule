@@ -1,8 +1,8 @@
-# Gleo App Schema 초안
+# Gleo App Schema
 
-[`schema.json`](schema.json) 은 차량 앱이 `assets/schema.json` 으로 넣어 Pleos 심사를 받는 파일의 **초안**이다. 결정 [012](../../docs/decisions/012-gleo-app-schema-draft.md).
+[`schema.json`](schema.json) 은 차량 앱이 `assets/schema.json` 으로 넣어 Pleos 심사를 받는 파일이다. 결정 [012](../../docs/decisions/012-gleo-app-schema-draft.md).
 
-- 상태: 기획 확인표 회신 대기 — App Schema 제출(11/16 주) 전에 확정
+- 상태: 확정 (2026-11-13, 012 확인표 6개). 앱에 `assets/schema.json` 으로 복사를 요청한다
 - 고칠 때: 서버 `GleoAppSchemaTest` 가 가이드 형식 · 공통 조건 목록(`RuleCondition`) 일치 · 시드 topic 포함을 검사한다. 조건을 바꾸면 `RuleCondition` · [`../rule-matching/cases.json`](../rule-matching/cases.json) 도 한 PR 에서 함께 바꾼다
 - 작성 규칙: [Pleos App Schema 작성 가이드](https://document.pleos.ai/docs/pleos-only/app-integration-guide/guide/app-capability) — function 이름 대문자 · 밑줄, description 영어 1~2문장 · 예시 금지, 파라미터 type 하나 · enum 은 문자열
 

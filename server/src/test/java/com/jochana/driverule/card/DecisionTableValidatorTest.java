@@ -15,13 +15,16 @@ class DecisionTableValidatorTest {
 		return new SubTable("approach", "교차로 진입 전", List.of("right_turn_traffic_light", "front_traffic_light"), List.of(
 				new Row(Map.of("right_turn_traffic_light", "yes"), "녹색 화살표일 때만", "t1", "right_turn_light"),
 				new Row(Map.of("right_turn_traffic_light", "no", "front_traffic_light", "red"), "정지선에서 멈춘 뒤", "t2", null),
-				new Row(Map.of("right_turn_traffic_light", "no", "front_traffic_light", "green"), "천천히", "t3", null)));
+				new Row(Map.of("right_turn_traffic_light", "no", "front_traffic_light", "green"), "천천히", "t3", null),
+				new Row(Map.of("right_turn_traffic_light", "no", "front_traffic_light", "yellow"), "정지선 앞에서 멈춥니다", "t7", null)));
 	}
 
 	static SubTable crosswalk() {
 		return new SubTable("crosswalk", "돌아선 뒤 횡단보도", List.of("crosswalk_light", "pedestrian_present"), List.of(
 				new Row(Map.of("crosswalk_light", "green", "pedestrian_present", "yes"), "멈춥니다", "t4", null),
 				new Row(Map.of("crosswalk_light", "green", "pedestrian_present", "no"), "천천히 지나갑니다", "t5", null),
+				new Row(Map.of("crosswalk_light", "green_flashing", "pedestrian_present", "yes"), "멈춥니다", "t4", null),
+				new Row(Map.of("crosswalk_light", "green_flashing", "pedestrian_present", "no"), "천천히 지나갑니다", "t5", null),
 				new Row(Map.of("crosswalk_light", "red"), "보행 신호 적색", "t6", null)));
 	}
 
@@ -39,7 +42,7 @@ class DecisionTableValidatorTest {
 	void findsTheMissingRedPedestrianRowFromPlanV6() {
 		// 기획 v6 2-4 표에는 보행 신호 적색 행이 없다 → 완전성 검사가 찾아낸다
 		SubTable v6 = new SubTable("crosswalk", "돌아선 뒤 횡단보도", List.of("crosswalk_light", "pedestrian_present"),
-				crosswalk().rows().subList(0, 2));
+				crosswalk().rows().subList(0, 4));
 
 		assertThat(DecisionTableValidator.validate(new DecisionTable(2, List.of(approach(), v6))))
 				.hasSize(2)
@@ -82,7 +85,7 @@ class DecisionTableValidatorTest {
 				.anySatisfy(e -> assertThat(e).startsWith("decision.schema"))
 				.anySatisfy(e -> assertThat(e).contains("소표는 2개 이하"))
 				.anySatisfy(e -> assertThat(e).contains("소표당 조건은 3개 이하"))
-				.anySatisfy(e -> assertThat(e).contains("16가지"))
+				.anySatisfy(e -> assertThat(e).contains("36가지"))
 				.anySatisfy(e -> assertThat(e).contains("tables[2].key: 중복"));
 	}
 
