@@ -4,7 +4,17 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- 확인용(debug 전용): AAOS 차량 속성 읽기 권한 검증. release에는 포함하지 않는다. -->
+    <uses-permission android:name="android.car.permission.CAR_POWERTRAIN" />
+    <uses-permission android:name="android.car.permission.CAR_SPEED" />
     <application>
+        <uses-library android:name="android.car" android:required="false" />
+        <!-- adb am start로만 실행하는 무화면 확인 Activity. 런처에 노출하지 않는다. -->
+        <activity
+            android:name=".core.platform.carprobe.CarProbeActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <service
             android:name=".core.platform.background.SampleGuidanceService"
             android:exported="false"

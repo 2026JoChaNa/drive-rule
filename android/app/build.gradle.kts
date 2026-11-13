@@ -85,6 +85,8 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.room.testing)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    // 확인용(debug 전용) AAOS 차량 속성 probe: 기기의 android.car 공유 라이브러리를 컴파일 시에만 참조한다.
+    debugCompileOnly(files(android.sdkDirectory.resolve("platforms/android-34/optional/android.car.jar")))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)

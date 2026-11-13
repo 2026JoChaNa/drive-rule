@@ -86,3 +86,82 @@ adb shell cmd car_service get-property-value 0x11400400
 ## 결과 붙일 곳
 
 이 문서 아래에 명령별 출력을 그대로 붙여 주시거나, 메신저로 보내 주세요.
+
+## 결과
+
+2026-11-13 · 앱(프론트) 작성 · 브랜치 `chore/android-aaos-car-probe`
+
+**요약: 에뮬레이터 확인은 아직 하지 못했습니다.** 작업한 PC에 Pleos Connect Emulator v2.1.0이 설치되어 있지 않았습니다. 앱이 직접 읽어 보는 확인용 코드(debug 전용)는 만들어 두었습니다. 에뮬레이터가 있는 PC에서 아래 '다시 할 때' 순서로 돌리면 이 절을 채울 수 있습니다.
+
+### 1~5번 adb 명령 — 확인 못 함
+
+이유: 이 PC에서 확인한 환경은 다음과 같습니다. 그래서 1~5번 명령을 하나도 실행하지 못했고, 출력 원문도 없습니다.
+
+```text
+$ adb devices
+List of devices attached
+                                  ← 연결된 기기 없음
+
+$ emulator -list-avds
+ilgayo_test                       ← Android 35 google_apis 이미지. 자동차용 빌드가 아니고 Pleos 이미지도 아님
+
+C 드라이브 남은 공간 약 1.8GB     ← Pleos 에뮬레이터 이미지를 새로 설치하기 어려움
+```
+
+`ilgayo_test`는 자동차용 빌드가 아니어서 `car_service`가 없습니다. 이 AVD로 돌린 결과를 Pleos 결과로 쓸 수 없어서 대신 실행하지도 않았습니다.
+
+### 앱에서 읽기 — 코드만 준비, 실행 확인 못 함
+
+| 속성 | 번호 | 권한 | 결과 |
+|---|---|---|---|
+| `GEAR_SELECTION` | `0x11400400` | `CAR_POWERTRAIN` | 확인 못 함 (에뮬레이터 없음) |
+| `IGNITION_STATE` | `0x11400409` | `CAR_POWERTRAIN` | 확인 못 함 (에뮬레이터 없음) |
+| `PARKING_BRAKE_ON` | `0x11200402` | `CAR_POWERTRAIN` | 확인 못 함 (에뮬레이터 없음) |
+| `PERF_VEHICLE_SPEED` | `0x11600207` | `CAR_SPEED` | 확인 못 함 (에뮬레이터 없음) |
+| 기어 변경 콜백 (D → P 주입) | `0x11400400` | `CAR_POWERTRAIN` | 확인 못 함 (에뮬레이터 없음) |
+
+준비한 확인용 코드 — 제품 기능이 아니며 debug 빌드에만 들어갑니다.
+
+- `android/app/src/debug/java/com/jochana/driverule/core/platform/carprobe/CarProbeActivity.kt`
+  - 화면 내용이 없는 Activity입니다. adb `am start`로만 실행하고 런처에는 보이지 않습니다. 3분 뒤 스스로 닫힙니다
+  - 두 권한의 등급(normal / dangerous / signature)과 허용 여부를 남깁니다. 허용되지 않은 권한은 런타임으로 요청합니다
+  - 네 속성을 `CarPropertyManager`로 한 번씩 읽습니다. 결과는 `SUCCESS 값` / `PERMISSION_DENIED`(SecurityException) / `UNSUPPORTED`(IllegalArgumentException) / `ERROR 예외 이름` 중 하나로 남깁니다
+  - 기어 변경 콜백을 등록하고, 값이 바뀔 때마다 남깁니다
+  - 출력은 logcat 태그 `DriveRuleCarProbe`로만 나갑니다
+- `android/app/src/debug/AndroidManifest.xml` — `CAR_POWERTRAIN` · `CAR_SPEED` 권한, `android.car` 라이브러리(`required="false"`), 확인용 Activity
+- `android/app/build.gradle.kts` — `debugCompileOnly`로 SDK의 `platforms/android-34/optional/android.car.jar`를 참조합니다. release 컴파일 경로와 APK에는 들어가지 않습니다
+- 기존 화면 · ViewModel · 안내 구조(결정 008)와 release 소스는 고치지 않았습니다
+
+빌드 확인 (2026-11-13, JDK 17, 이 PC): `.\gradlew.bat :app:assembleDebug :app:assembleRelease :app:lintDebug :app:testDebugUnitTest` 성공. lint 오류 0건이고, 경고 46건 중 확인용 코드에서 나온 것은 없습니다. 컴파일 경고 2건은 `CarPropertyValue.status`가 deprecated라는 내용입니다. 확인용 클래스는 debug APK에만 있고, release APK의 dex와 병합 매니페스트에는 `CarProbeActivity` · `CAR_POWERTRAIN`이 없습니다. **에뮬레이터 설치 · 실행은 하지 않았습니다.**
+
+### 판단표 — 아직 정할 수 없음
+
+판단표 다섯 줄 중 어느 줄에 해당하는지 정하지 못했습니다. 판단에 필요한 2 · 3 · 5번 출력과 앱 읽기 결과가 없기 때문입니다. 이벤트 ② 판정 방식과 서버의 고속도로 좌표 준비 여부도 이 결과가 나올 때까지 보류합니다.
+
+### 다시 할 때 (에뮬레이터가 있는 PC)
+
+```powershell
+# 0) 연결 확인과 현재 사용자 (지금까지 Pleos 에뮬레이터는 사용자 10)
+adb devices
+adb shell am get-current-user
+
+# 1~5) 위 '실행할 명령'을 그대로 실행하고 출력을 이 절에 붙임
+
+# 6) 확인용 debug APK 설치 → 실행 → 로그 보기
+cd android
+.\gradlew.bat :app:installDebug
+adb logcat -c
+adb shell am start --user 10 -n com.jochana.driverule/.core.platform.carprobe.CarProbeActivity
+#    권한 요청 창이 뜨면 허용 · 거부를 고르고, 무엇을 골랐는지 함께 적음
+adb logcat -d -s DriveRuleCarProbe
+
+# 7) 3분 안에 기어 D → P 주입 후 콜백 확인
+adb shell cmd car_service inject-vhal-event 0x11400400 8
+adb shell cmd car_service inject-vhal-event 0x11400400 4
+adb logcat -d -s DriveRuleCarProbe | Select-String "GEAR callback"
+```
+
+### 주의
+
+- 결과가 나와도 **에뮬레이터 결과**입니다. 실제 Pleos 차는 차종 · 소프트웨어에 따라 권한 정책과 지원 속성이 다를 수 있습니다. 확정은 11/18 실차 확인에서 합니다
+- 확인용 코드는 결과를 기록한 뒤 지우거나, 실제 차량 신호 adapter(`core/platform`)를 만들 때 대체합니다
