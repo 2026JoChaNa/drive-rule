@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="card_evidence_action">근거</string>
+    <string name="card_sample_label">샘플 카드 · 검수된 법령 안내가 아닙니다</string>
+    <string name="card_tag_school_zone_entry">어린이보호구역 진입</string>
+    <string name="card_tag_parking">주정차</string>
+    <string name="card_tag_right_turn_crosswalk">우회전 후 횡단보도</string>
+    <string name="card_auto_close_description">잠시 뒤 자동으로 닫힙니다</string>
+    <string name="card_close">닫기</string>
+    <string name="evidence_title">근거</string>
+    <string name="evidence_law">법령</string>
+    <string name="evidence_dates">공포일·시행일</string>
+    <string name="evidence_penalty">처분</string>
+    <string name="evidence_law_source">법령 원문 보기</string>
+    <string name="evidence_report">오류 신고</string>
+    <string name="evidence_report_sending">보내는 중…</string>
+    <string name="evidence_report_sent">신고했어요</string>
+    <string name="evidence_report_retry">다시 신고</string>
+    <string name="evidence_report_unavailable">샘플 카드는 오류 신고를 보내지 않습니다</string>
+    <string name="evidence_report_failed">신고를 보내지 못했어요. 잠시 뒤 다시 시도해 주세요</string>
+    <string name="evidence_report_rejected">이 카드는 지금 신고할 수 없어요</string>
+    <string name="evidence_source_unavailable">원문 링크가 없는 카드입니다</string>
+</resources>

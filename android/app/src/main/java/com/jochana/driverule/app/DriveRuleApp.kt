@@ -1,5 +1,9 @@
 package com.jochana.driverule.app
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -41,6 +46,11 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.jochana.driverule.R
 import com.jochana.driverule.core.model.ThemeMode
 import com.jochana.driverule.core.model.VehicleUxState
+import com.jochana.driverule.domain.repository.CardErrorReportRepository
+import com.jochana.driverule.domain.repository.CardReportOutcome
+import com.jochana.driverule.feature.card.CardDetailPreview
+import com.jochana.driverule.feature.card.CardDetailScreen
+import com.jochana.driverule.feature.card.CardErrorReportViewModel
 import com.jochana.driverule.feature.home.HomePreviewEntry
 import com.jochana.driverule.feature.home.HomePreviewStatus
 import com.jochana.driverule.feature.home.HomeScreen
@@ -80,7 +90,7 @@ fun DriveRuleApp(
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             DriverFlowContent(state, model, appContainer.previewEntries,
                 Modifier.safeDrawingPadding().imePadding().fillMaxSize(), speechEngineFactory,
-                backgroundControls)
+                backgroundControls, appContainer.cardDetails, appContainer.cardErrorReportRepository)
         }
     }
 }
@@ -93,6 +103,8 @@ internal fun DriverFlowContent(
     modifier: Modifier = Modifier,
     speechEngineFactory: (() -> NameSpeechEngine)? = null,
     backgroundControls: @Composable () -> Unit = {},
+    cardDetails: Map<String, CardDetailPreview> = emptyMap(),
+    cardErrorReports: CardErrorReportRepository = CardErrorReportRepository { CardReportOutcome.RetryLater },
 ) {
     if (state.vehicleUxState != VehicleUxState.Unrestricted) {
         StatusScreen(stringResource(if (state.vehicleUxState == VehicleUxState.Restricted)
@@ -111,13 +123,15 @@ internal fun DriverFlowContent(
         return
     }
     // Conditional scope removes dialogs and input focus immediately when UX becomes restricted.
-    AllowedDriverContent(state, model, entries, modifier, speechEngineFactory, backgroundControls)
+    AllowedDriverContent(state, model, entries, modifier, speechEngineFactory, backgroundControls,
+        cardDetails, cardErrorReports)
 }
 
 @Composable
 private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowViewModel,
     entries: List<HomePreviewEntry>, modifier: Modifier, speechEngineFactory: (() -> NameSpeechEngine)?,
-    backgroundControls: @Composable () -> Unit) {
+    backgroundControls: @Composable () -> Unit, cardDetails: Map<String, CardDetailPreview>,
+    cardErrorReports: CardErrorReportRepository) {
     var showTheme by remember { mutableStateOf(false) }
     var showDrivers by remember { mutableStateOf(false) }
     var showGleo by remember { mutableStateOf(false) }
@@ -145,6 +159,10 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
                     onThemeClick = { showTheme = true }, themeLabel = themeLabel,
                     busy = state.saving, error = error, modifier = Modifier.weight(1f),
                 )
+            } else if (selectedEntry?.let { cardDetails[it.id] } != null) {
+                val card = requireNotNull(cardDetails[requireNotNull(selectedEntry).id])
+                CardDetailRoute(card, cardErrorReports, onClose = { selectedEntry = null },
+                    modifier = Modifier.weight(1f))
             } else {
                 if (error != null) Text(error, Modifier.padding(horizontal = 24.dp), color = MaterialTheme.colorScheme.error)
                 HomeScreen(active.name, entries,
@@ -195,9 +213,44 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
             if (showChanges) InfoDialog(stringResource(R.string.sample_changes_title),
                 entries.filter { it.status == HomePreviewStatus.Scheduled }.joinToString("\n") { it.title } +
                     "\n\n" + stringResource(R.string.sample_details_body)) { showChanges = false }
-            selectedEntry?.let { entry -> InfoDialog(entry.title, stringResource(R.string.sample_details_body)) { selectedEntry = null } }
+            selectedEntry?.takeIf { cardDetails[it.id] == null }?.let { entry ->
+                InfoDialog(entry.title, stringResource(R.string.sample_details_body)) { selectedEntry = null }
+            }
         }
     }
+}
+
+@Composable
+private fun CardDetailRoute(
+    card: CardDetailPreview,
+    repository: CardErrorReportRepository,
+    onClose: () -> Unit,
+    modifier: Modifier,
+) {
+    val context = LocalContext.current
+    val reportModel: CardErrorReportViewModel = viewModel(
+        key = "card-report-${card.id}",
+        factory = viewModelFactory {
+            initializer { CardErrorReportViewModel(card.evidence.reportTarget, repository) }
+        },
+    )
+    val reportState by reportModel.state.collectAsStateWithLifecycle()
+    CardDetailScreen(
+        card = card,
+        reportState = reportState,
+        onReport = reportModel::report,
+        onOpenSource = { url ->
+            try {
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            } catch (missing: ActivityNotFoundException) {
+                Log.w("DriveRuleCard", "No activity can open the law source", missing)
+            }
+        },
+        onClose = onClose,
+        // Only the debug fixtures exist today; a real published copy carries a report target.
+        sample = card.evidence.reportTarget == null,
+        modifier = modifier,
+    )
 }
 
 @Composable

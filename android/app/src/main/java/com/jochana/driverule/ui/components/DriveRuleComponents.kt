@@ -61,7 +61,13 @@ data class DriveRuleLayout(val scale: Float = 0.5f, val compact: Boolean = false
 val LocalDriveRuleLayout = staticCompositionLocalOf { DriveRuleLayout() }
 
 @Composable
-fun DriveRuleWindow(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+fun DriveRuleWindow(
+    modifier: Modifier = Modifier,
+    horizontalPadding: Float = 64f,
+    topPadding: Float = 32f,
+    bottomPadding: Float = 32f,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     val colors = LocalDriveRuleColors.current
     BoxWithConstraints(modifier.fillMaxSize()) {
         val layout = DriveRuleLayout(
@@ -77,14 +83,71 @@ fun DriveRuleWindow(modifier: Modifier = Modifier, content: @Composable ColumnSc
             ) {
                 Column(
                     modifier = Modifier.fillMaxSize().padding(
-                        horizontal = if (layout.compact) 20.dp else layout.space(64f),
-                        vertical = layout.space(32f),
+                        // A zero padding means the caller lays out edge-to-edge content (sheets).
+                        start = if (layout.compact && horizontalPadding > 0f) 20.dp else layout.space(horizontalPadding),
+                        end = if (layout.compact && horizontalPadding > 0f) 20.dp else layout.space(horizontalPadding),
+                        top = layout.space(topPadding),
+                        bottom = layout.space(bottomPadding),
                     ),
                     content = content,
                 )
             }
         }
     }
+}
+
+/** The blue app tile and name used at the top of every DRIVE RULE window. */
+@Composable
+fun DriveRuleBrand(modifier: Modifier = Modifier) {
+    val layout = LocalDriveRuleLayout.current
+    val colors = LocalDriveRuleColors.current
+    Row(
+        modifier.testTag("drive_rule_brand"),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(layout.space(20f)),
+    ) {
+        Box(
+            Modifier.size(layout.space(72f)).background(colors.accent, RoundedCornerShape(layout.space(20.571f))),
+            contentAlignment = Alignment.Center,
+        ) {
+            FigmaIcon("brand", layout.space(41.143f))
+        }
+        Text(
+            stringResource(R.string.ui_brand),
+            style = layout.text(36f, 18f, FontWeight.Bold),
+            color = colors.textPrimary,
+            maxLines = 1,
+        )
+    }
+}
+
+/**
+ * Larger original Figma exports (scene illustrations). The SVG keeps its own width, height and
+ * viewBox; the caller chooses the slot and how the export is fitted into it.
+ */
+@Composable
+fun FigmaImage(
+    name: String,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Fit,
+    alignment: Alignment = Alignment.Center,
+) {
+    val context = LocalContext.current
+    val mode = if (LocalDriveRuleColors.current.isDark) "dark" else "light"
+    val request = remember(context, name, mode) {
+        ImageRequest.Builder(context)
+            .data("file:///android_asset/figma/${name}_$mode.svg")
+            .decoderFactory(SvgDecoder.Factory())
+            .crossfade(false)
+            .build()
+    }
+    AsyncImage(
+        model = request,
+        contentDescription = null,
+        modifier = modifier,
+        contentScale = contentScale,
+        alignment = alignment,
+    )
 }
 
 /** These SVGs are original Figma exports. Their viewBox and root dimensions are unmodified. */
@@ -116,26 +179,7 @@ fun DriveRuleHeader(
     val layout = LocalDriveRuleLayout.current
     val colors = LocalDriveRuleColors.current
     Column(verticalArrangement = Arrangement.spacedBy(layout.space(16f))) {
-        val brand: @Composable () -> Unit = {
-            Row(
-                Modifier.testTag("drive_rule_brand"),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(layout.space(20f)),
-            ) {
-                Box(
-                    Modifier.size(layout.space(72f)).background(colors.accent, RoundedCornerShape(layout.space(20.571f))),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    FigmaIcon("brand", layout.space(41.143f))
-                }
-                Text(
-                    stringResource(R.string.ui_brand),
-                    style = layout.text(36f, 18f, FontWeight.Bold),
-                    color = colors.textPrimary,
-                    maxLines = 1,
-                )
-            }
-        }
+        val brand: @Composable () -> Unit = { DriveRuleBrand() }
         if (layout.compact) {
             brand()
             Row(
@@ -218,9 +262,15 @@ fun DriveRuleButton(
     enabled: Boolean = true,
     outlined: Boolean = false,
     primary: Boolean = false,
+    /** Figma header-button metrics (218 min width, 21.8 radius, 30.5 text) on a filled surface. */
+    dense: Boolean = false,
+    /** Overrides the Figma text size for buttons whose label differs from the shared metrics. */
+    textSize: Float? = null,
+    minHeight: Float = 117.333f,
 ) {
     val layout = LocalDriveRuleLayout.current
     val colors = LocalDriveRuleColors.current
+    val small = outlined || dense
     val background = when {
         outlined -> colors.background
         primary -> colors.filledButton
@@ -231,24 +281,24 @@ fun DriveRuleButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier
-            .then(if (outlined) Modifier.widthIn(min = layout.space(218.182f)) else Modifier)
-            .heightIn(min = layout.space(117.333f).coerceAtLeast(56.dp)),
-        shape = RoundedCornerShape(layout.space(if (outlined) 21.818f else 26.667f)),
+            .then(if (small) Modifier.widthIn(min = layout.space(218.182f)) else Modifier)
+            .heightIn(min = layout.space(minHeight).coerceAtLeast(56.dp)),
+        shape = RoundedCornerShape(layout.space(if (small) 21.818f else 26.667f)),
         color = if (enabled) background else colors.secondaryButton,
         contentColor = if (enabled) foreground else colors.textSecondary,
         border = if (outlined) BorderStroke(1.dp, colors.controlBorder) else null,
     ) {
         Row(
-            Modifier.padding(horizontal = layout.space(if (outlined) 39.273f else 48f), vertical = 10.dp),
+            Modifier.padding(horizontal = layout.space(if (small) 39.273f else 48f), vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(layout.space(if (outlined) 15.273f else 18.667f), Alignment.CenterHorizontally),
+            horizontalArrangement = Arrangement.spacedBy(layout.space(if (small) 15.273f else 18.667f), Alignment.CenterHorizontally),
         ) {
             if (icon != null) {
-                FigmaIcon(icon, layout.space(if (outlined) 34.909f else 42.667f).coerceAtLeast(20.dp))
+                FigmaIcon(icon, layout.space(if (small) 34.909f else 42.667f).coerceAtLeast(20.dp))
             }
             Text(
                 label,
-                style = layout.text(if (outlined) 30.545f else 37.333f, 16f, FontWeight.SemiBold),
+                style = layout.text(textSize ?: if (small) 30.545f else 37.333f, 16f, FontWeight.SemiBold),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )

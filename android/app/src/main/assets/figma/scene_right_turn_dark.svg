@@ -1,0 +1,150 @@
+<svg width="759" height="677" viewBox="0 0 759 677" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="759" height="677" fill="#F6F6F6"/>
+<g id="&#237;&#152;&#132;&#235;&#140;&#128;&#236;&#176;&#168; v6.0 &#194;&#183; 12.9&#236;&#157;&#184;&#236;&#185;&#152; &#194;&#183; &#236;&#157;&#180;&#235;&#178;&#164;&#237;&#138;&#184; &#236;&#149;&#136;&#235;&#130;&#180; A&#194;&#183;B&#194;&#183;H&#194;&#183;I (2026-11-11 23:59)">
+<path d="M-20343 -12451C-20343 -12452.1 -20342.1 -12453 -20341 -12453H5095C5096.11 -12453 5097 -12452.1 5097 -12451V23021C5097 23022.1 5096.11 23023 5095 23023H-20341C-20342.1 23023 -20343 23022.1 -20343 23021V-12451Z" fill="white"/>
+<path d="M-20341 -12453V-12452H5095V-12453V-12454H-20341V-12453ZM5097 -12451H5096V23021H5097H5098V-12451H5097ZM5095 23023V23022H-20341V23023V23024H5095V23023ZM-20343 23021H-20342V-12451H-20343H-20344V23021H-20343ZM-20341 23023V23022C-20341.6 23022 -20342 23021.6 -20342 23021H-20343H-20344C-20344 23022.7 -20342.7 23024 -20341 23024V23023ZM5097 23021H5096C5096 23021.6 5095.55 23022 5095 23022V23023V23024C5096.66 23024 5098 23022.7 5098 23021H5097ZM5095 -12453V-12452C5095.55 -12452 5096 -12451.5 5096 -12451H5097H5098C5098 -12452.6 5096.66 -12454 5095 -12454V-12453ZM-20341 -12453V-12454C-20342.7 -12454 -20344 -12452.6 -20344 -12451H-20343H-20342C-20342 -12451.5 -20341.6 -12452 -20341 -12452V-12453Z" fill="black" fill-opacity="0.1"/>
+<g id="I-1 &#236;&#185;&#180;&#235;&#147;&#156; &#236;&#131;&#129;&#236;&#132;&#184; &#194;&#183; &#236;&#154;&#176;&#237;&#154;&#140;&#236;&#160;&#132; &#237;&#155;&#132; &#237;&#154;&#161;&#235;&#139;&#168;&#235;&#179;&#180;&#235;&#143;&#132; &#235;&#179;&#180;&#237;&#150;&#137;&#236;&#158;&#144; &#235;&#179;&#180;&#237;&#152;&#184; (&#236;&#163;&#188;&#236;&#176;&#168; &#236;&#164;&#145; &#194;&#183; &#236;&#176;&#189; 1&#236;&#185;&#184;)">
+<rect width="2560" height="1440" transform="translate(-903 -552.992)" fill="#1D1E21"/>
+<g id="Body">
+<g id="App windows">
+<rect width="1707" height="1216" transform="translate(-50 -456.992)" fill="#131417"/>
+<g id="DRIVE RULE (&#236;&#132;&#184;&#235;&#161;&#156;&#237;&#152;&#149; &#236;&#176;&#189;)">
+<rect x="-38.3359" y="-445.328" width="835.333" height="1192.67" rx="31" fill="#1D1E21"/>
+<rect x="-38.3359" y="-445.328" width="835.333" height="1192.67" rx="31" stroke="#3A3B40" stroke-width="2"/>
+<g id="Scene (crop)">
+<g clip-path="url(#clip0_0_1)">
+<g id="Scene &#194;&#183; &#236;&#154;&#176;&#237;&#154;&#140;&#236;&#160;&#132; &#237;&#155;&#132; &#237;&#154;&#161;&#235;&#139;&#168;&#235;&#179;&#180;&#235;&#143;&#132; &#236;&#160;&#149;&#236;&#167;&#128; (&#236;&#176;&#189; &#235;&#167;&#158;&#236;&#182;&#164;)" clip-path="url(#clip1_0_1)">
+<rect width="758.667" height="714" fill="#1D1E21"/>
+<g id="Scene &#194;&#183; &#236;&#154;&#176;&#237;&#154;&#140;&#236;&#160;&#132; &#237;&#155;&#132; &#237;&#154;&#161;&#235;&#139;&#168;&#235;&#179;&#180;&#235;&#143;&#132; &#236;&#160;&#149;&#236;&#167;&#128;">
+<g clip-path="url(#clip2_0_1)">
+<rect x="-420" y="59.1641" width="1428.05" height="646.481" rx="38.5959" fill="#1D1E21"/>
+<g id="Road">
+<g id="Blocks">
+<rect id="Rectangle" opacity="0.55" x="-398.289" y="80.8672" width="538.118" height="125.712" rx="25.3232" fill="#313236"/>
+<rect id="Rectangle_2" opacity="0.55" x="448.227" y="80.8672" width="538.118" height="125.712" rx="25.3232" fill="#313236"/>
+<rect id="Rectangle_3" opacity="0.55" x="-398.289" y="486.047" width="538.118" height="198.064" rx="25.3232" fill="#313236"/>
+<rect id="Rectangle_4" opacity="0.55" x="448.227" y="486.047" width="538.118" height="198.064" rx="25.3232" fill="#313236"/>
+</g>
+<g id="Buildings">
+<rect id="bldg" x="-32.4141" y="102.289" width="150.812" height="82.8702" rx="11.9004" fill="white" fill-opacity="0.05"/>
+<rect id="bldg_2" x="469.641" y="102.289" width="150.812" height="82.8702" rx="11.9004" fill="white" fill-opacity="0.05"/>
+<rect id="bldg_3" x="641.875" y="102.289" width="150.812" height="82.8702" rx="11.9004" fill="white" fill-opacity="0.05"/>
+<rect id="bldg_4" x="-32.4141" y="507.461" width="150.812" height="155.222" rx="11.9004" fill="white" fill-opacity="0.05"/>
+<rect id="bldg_5" x="469.641" y="507.461" width="150.812" height="155.222" rx="11.9004" fill="white" fill-opacity="0.05"/>
+<rect id="bldg_6" x="641.875" y="507.461" width="150.812" height="155.222" rx="11.9004" fill="white" fill-opacity="0.05"/>
+</g>
+<rect id="Horizontal road" x="-420" y="228.023" width="1428.05" height="236.4" fill="#44464E"/>
+<rect id="Vertical road" x="161.359" y="59.1641" width="265.347" height="646.481" fill="#44464E"/>
+<g id="Lane dashes">
+<rect id="dash" x="-27.2891" y="285.273" width="40.4613" height="5.9502" fill="white" fill-opacity="0.45"/>
+<rect id="dash_2" x="48.8828" y="285.273" width="40.4613" height="5.9502" fill="white" fill-opacity="0.45"/>
+<rect id="dash_3" x="505.852" y="285.273" width="40.4613" height="5.9502" fill="white" fill-opacity="0.45"/>
+<rect id="dash_4" x="582.008" y="285.273" width="40.4613" height="5.9502" fill="white" fill-opacity="0.45"/>
+<rect id="dash_5" x="658.18" y="285.273" width="40.4613" height="5.9502" fill="white" fill-opacity="0.45"/>
+<rect id="dash_6" x="734.344" y="285.273" width="40.4613" height="5.9502" fill="white" fill-opacity="0.45"/>
+<rect id="dash_7" x="-27.2891" y="406.656" width="40.4613" height="5.9502" fill="white" fill-opacity="0.45"/>
+<rect id="dash_8" x="48.8828" y="406.656" width="40.4613" height="5.9502" fill="white" fill-opacity="0.45"/>
+<rect id="dash_9" x="505.852" y="406.656" width="40.4613" height="5.9502" fill="white" fill-opacity="0.45"/>
+<rect id="dash_10" x="582.008" y="406.656" width="40.4613" height="5.9502" fill="white" fill-opacity="0.45"/>
+<rect id="dash_11" x="658.18" y="406.656" width="40.4613" height="5.9502" fill="white" fill-opacity="0.45"/>
+<rect id="dash_12" x="734.344" y="406.656" width="40.4613" height="5.9502" fill="white" fill-opacity="0.45"/>
+<rect id="dash_13" x="228.57" y="35.3594" width="5.9502" height="40.4613" fill="white" fill-opacity="0.45"/>
+<rect id="dash_14" x="228.57" y="111.523" width="5.9502" height="40.4613" fill="white" fill-opacity="0.45"/>
+<rect id="dash_15" x="228.57" y="568.5" width="5.9502" height="40.4613" fill="white" fill-opacity="0.45"/>
+<rect id="dash_16" x="228.57" y="644.664" width="5.9502" height="40.4613" fill="white" fill-opacity="0.45"/>
+<rect id="dash_17" x="359.477" y="35.3594" width="5.9502" height="40.4613" fill="white" fill-opacity="0.45"/>
+<rect id="dash_18" x="359.477" y="111.523" width="5.9502" height="40.4613" fill="white" fill-opacity="0.45"/>
+<rect id="dash_19" x="359.477" y="568.5" width="5.9502" height="40.4613" fill="white" fill-opacity="0.45"/>
+<rect id="dash_20" x="359.477" y="644.664" width="5.9502" height="40.4613" fill="white" fill-opacity="0.45"/>
+</g>
+<rect id="Center line N" x="290.398" y="59.1641" width="7.23673" height="156.796" fill="#FFC224"/>
+<rect id="Center line S" x="290.398" y="553.68" width="7.23673" height="151.971" fill="#FFC224"/>
+<rect id="Center line W" x="-420" y="342.602" width="569.289" height="7.23673" fill="#FFC224"/>
+<rect id="Center line E" x="503.906" y="342.602" width="504.159" height="7.23673" fill="#FFC224"/>
+<rect id="Crosswalk S 1" x="168.586" y="478.891" width="16.8857" height="50.6571" fill="white"/>
+<rect id="Crosswalk S 2" x="201.156" y="478.891" width="16.8857" height="50.6571" fill="white"/>
+<rect id="Crosswalk S 3" x="233.727" y="478.891" width="16.8857" height="50.6571" fill="white"/>
+<rect id="Crosswalk S 4" x="266.289" y="478.891" width="16.8857" height="50.6571" fill="white"/>
+<rect id="Crosswalk S 5" x="298.852" y="478.891" width="16.8857" height="50.6571" fill="white"/>
+<rect id="Crosswalk S 6" x="331.445" y="478.891" width="16.8857" height="50.6571" fill="white"/>
+<rect id="Crosswalk S 7" x="363.984" y="478.891" width="16.8857" height="50.6571" fill="white"/>
+<rect id="Crosswalk S 8" x="396.562" y="478.891" width="16.8857" height="50.6571" fill="white"/>
+<rect id="Crosswalk E 1" x="438.75" y="235.258" width="50.6571" height="16.8857" fill="white"/>
+<rect id="Crosswalk E 2" x="438.75" y="267.82" width="50.6571" height="16.8857" fill="white"/>
+<rect id="Crosswalk E 3" x="438.75" y="300.398" width="50.6571" height="16.8857" fill="white"/>
+<rect id="Crosswalk E 4" x="438.75" y="332.961" width="50.6571" height="16.8857" fill="white"/>
+<rect id="Crosswalk E 5" x="438.75" y="365.516" width="50.6571" height="16.8857" fill="white"/>
+<rect id="Crosswalk E 6" x="438.75" y="398.086" width="50.6571" height="16.8857" fill="white"/>
+<rect id="Crosswalk E 7" x="438.75" y="430.648" width="50.6571" height="16.8857" fill="white"/>
+<rect id="Stop line" x="296.438" y="544.016" width="130.261" height="9.64897" fill="white"/>
+</g>
+<g id="Pedestrian" filter="url(#filter0_d_0_1)">
+<rect x="419.797" y="259.766" width="89.5976" height="89.5976" rx="44.7988" fill="#FF7EB6"/>
+<rect x="417.212" y="257.181" width="94.7667" height="94.7667" rx="47.3833" stroke="#131417" stroke-width="5.16909"/>
+<g id="Icon/User">
+<path id="Vector" d="M464.596 304.559C469.671 304.559 473.785 300.444 473.785 295.369C473.785 290.294 469.671 286.18 464.596 286.18C459.521 286.18 455.406 290.294 455.406 295.369C455.406 300.444 459.521 304.559 464.596 304.559Z" stroke="#131417" stroke-width="4.59475" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M446.211 325.238C446.211 320.364 448.147 315.689 451.594 312.242C455.041 308.796 459.716 306.859 464.59 306.859C469.464 306.859 474.139 308.796 477.586 312.242C481.033 315.689 482.969 320.364 482.969 325.238" stroke="#131417" stroke-width="4.59475" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+<g id="Car" filter="url(#filter1_d_0_1)">
+<g clip-path="url(#clip3_0_1)">
+<path id="Body_2" d="M413.633 415.608V396.31C413.633 379.561 400.056 365.984 383.307 365.984H295.088C278.34 365.984 264.763 379.561 264.763 396.31V415.608C264.763 432.356 278.34 445.933 295.088 445.933H383.307C400.056 445.933 413.633 432.356 413.633 415.608Z" fill="#0082FF"/>
+<path id="Windshield" d="M365.391 378.414C373.661 392.198 373.661 419.767 365.391 433.551L344.714 428.037C348.85 415.632 348.85 396.334 344.714 383.928L365.391 378.414Z" fill="#0A0E13" fill-opacity="0.55"/>
+<path id="Roof" d="M340.57 418.367V393.555C340.57 388.226 336.25 383.906 330.921 383.906H317.137C311.808 383.906 307.488 388.226 307.488 393.555V418.367C307.488 423.696 311.808 428.016 317.137 428.016H330.921C336.25 428.016 340.57 423.696 340.57 418.367Z" fill="#0A0E13" fill-opacity="0.22"/>
+<path id="Rear glass" d="M303.352 383.877C299.216 396.283 299.216 415.581 303.352 427.987L286.81 432.122C279.918 415.581 279.918 396.283 286.81 379.742L303.352 383.877Z" fill="#0A0E13" fill-opacity="0.45"/>
+<path id="Headlight L" d="M409.492 390.815V379.788C409.492 378.266 408.258 377.031 406.735 377.031C405.213 377.031 403.978 378.266 403.978 379.788V390.815C403.978 392.338 405.213 393.572 406.735 393.572C408.258 393.572 409.492 392.338 409.492 390.815Z" fill="white"/>
+<path id="Headlight R" d="M409.492 432.151V421.124C409.492 419.601 408.258 418.367 406.735 418.367C405.213 418.367 403.978 419.601 403.978 421.124V432.151C403.978 433.674 405.213 434.908 406.735 434.908C408.258 434.908 409.492 433.674 409.492 432.151Z" fill="white"/>
+<path id="Taillight L" d="M273.047 391.505V379.099C273.047 377.957 272.121 377.031 270.979 377.031C269.837 377.031 268.912 377.957 268.912 379.099V391.505C268.912 392.647 269.837 393.572 270.979 393.572C272.121 393.572 273.047 392.647 273.047 391.505Z" fill="#FF6B6B"/>
+<path id="Taillight R" d="M273.047 432.841V420.435C273.047 419.293 272.121 418.367 270.979 418.367C269.837 418.367 268.912 419.293 268.912 420.435V432.841C268.912 433.983 269.837 434.908 270.979 434.908C272.121 434.908 273.047 433.983 273.047 432.841Z" fill="#FF6B6B"/>
+</g>
+</g>
+<rect id="&#236;&#160;&#149;&#236;&#167;&#128; &#236;&#156;&#132;&#236;&#185;&#152;" x="421.5" y="349.867" width="11.9" height="112.2" fill="#FF4C28"/>
+<g id="&#235;&#179;&#180;&#237;&#150;&#137; &#236;&#139;&#160;&#237;&#152;&#184; (&#235;&#133;&#185;&#236;&#131;&#137;)">
+<rect x="511.602" y="89.7656" width="71.4" height="125.8" rx="17" fill="#1D1E21"/>
+<circle id="Ellipse" cx="547.303" cy="125.467" r="22.1" fill="#3D1A14"/>
+<circle id="Ellipse_2" cx="547.303" cy="179.866" r="22.1" fill="#00E074"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_0_1" x="380.164" y="220.133" width="168.859" height="168.859" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feMorphology radius="3.44606" operator="dilate" in="SourceAlpha" result="effect1_dropShadow_0_1"/>
+<feOffset/>
+<feGaussianBlur stdDeviation="15.5073"/>
+<feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 0.7 0 0 0 0 0.24 0 0 0 0.45 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+</filter>
+<filter id="filter1_d_0_1" x="242.718" y="350.824" width="192.979" height="126.815" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="8.27055"/>
+<feGaussianBlur stdDeviation="9.64897"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+</filter>
+<clipPath id="clip0_0_1">
+<rect width="758.667" height="676.337" rx="20" fill="white"/>
+</clipPath>
+<clipPath id="clip1_0_1">
+<rect width="758.667" height="714" fill="white"/>
+</clipPath>
+<clipPath id="clip2_0_1">
+<rect x="-420" y="59.1641" width="1428.05" height="646.481" rx="38.5959" fill="white"/>
+</clipPath>
+<clipPath id="clip3_0_1">
+<rect width="88.2192" height="154.384" fill="white" transform="matrix(0 1 -1 0 416.398 361.852)"/>
+</clipPath>
+</defs>
+</svg>

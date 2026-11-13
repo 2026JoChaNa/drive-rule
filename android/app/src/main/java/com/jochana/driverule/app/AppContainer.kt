@@ -6,7 +6,9 @@ import com.jochana.driverule.core.data.remote.BackendApiClient
 import com.jochana.driverule.core.platform.speech.PleosNameSpeechEngine
 import com.jochana.driverule.domain.speech.NameSpeechEngine
 import com.jochana.driverule.core.data.local.profile.DriverProfileDatabase
+import com.jochana.driverule.core.data.repository.BackendCardErrorReportRepository
 import com.jochana.driverule.core.data.repository.LocalThemePreferenceRepository
+import com.jochana.driverule.domain.repository.CardErrorReportRepository
 import com.jochana.driverule.core.data.repository.RoomDriverProfileRepository
 import com.jochana.driverule.core.data.repository.UnconfiguredRuleCardRepository
 import com.jochana.driverule.domain.repository.DriverProfileRepository
@@ -25,4 +27,7 @@ class AppContainer(context: Context) {
     val themePreferenceRepository: ThemePreferenceRepository = LocalThemePreferenceRepository(context)
     val uxRestrictionProvider: UxRestrictionProvider = AppEnvironment.createUxProvider()
     val previewEntries = AppEnvironment.previewEntries()
+    val cardDetails = AppEnvironment.cardDetails()
+    // Resolving the client lazily keeps app start free of network setup.
+    val cardErrorReportRepository: CardErrorReportRepository = BackendCardErrorReportRepository { backendApi }
 }
