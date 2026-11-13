@@ -43,7 +43,7 @@ cd server
 
 설계: [`docs/decisions/009-core-features-v6-alignment.md`](docs/decisions/009-core-features-v6-alignment.md) (008 일부 대체)
 
-차량 앱 개발자용 사용 문서: [`docs/api/app-api.md`](docs/api/app-api.md)
+사용 설명서: 차량 앱 [`docs/api/app-api.md`](docs/api/app-api.md) · 검수 CMS(검수자 · 운영자) [`docs/api/admin-api.md`](docs/api/admin-api.md)
 
 | 쓰는 곳 | 경로 | 인증 |
 |---|---|---|
