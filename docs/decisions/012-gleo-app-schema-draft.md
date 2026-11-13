@@ -1,0 +1,121 @@
+# 012. Gleo App Schema 초안 — function 이름 · 조건 이름 · topic 목록
+
+- 날짜: 2026-11-13
+- 상태: **초안** — 아래 '기획 확인표' 회신 대기. **마감: App Schema 제출 전 (11/16 주)**
+- 기준: Notion 「🚦 기획 v6」 2장 · 「기획 v5」 3장 Gleo 표 · [Pleos App Schema 작성 가이드](https://document.pleos.ai/docs/pleos-only/app-integration-guide/guide/app-capability) 원문
+- 관련: [009](009-core-features-v6-alignment.md) B-2 · F (이 기록이 009 '기획 확인 요청' 1 · 2번을 이어받는다) · [006](006-topic-primary-card.md)
+- 초안 파일: [`spec/gleo-app-schema/schema.json`](../../spec/gleo-app-schema/schema.json)
+
+## 배경
+
+App Schema 는 앱의 `assets/schema.json` 으로 들어가 Pleos 심사를 받고, Gleo 가 부팅 때 한 번 읽는다 (009 '조사'). 제출 후에 파라미터 이름 · 값 · topic 을 바꾸려면 앱 업데이트와 재심사가 필요하다. 그래서 제출 전에 이름과 값 목록을 정해야 한다.
+
+009 B-2 는 조건 4개를 초안으로 넣었고, topic 목록은 기획이 주기로 했다. 기획 회신을 '예 / 아니오'로 받을 수 있게 이 기록에서 개발 판단은 끝내고, 기획이 정할 것만 표로 남긴다.
+
+## 조사 (가이드 원문, 2026-11-13)
+
+| 가이드 내용 | 영향 |
+|---|---|
+| function 이름은 **모두 대문자, 단어는 밑줄**로 구분한다. 2~3단어로 대상까지 쓴다 | v6 의 `list_rule_changes` 등 소문자 이름은 그대로 쓸 수 없다 → 결정 1 |
+| function 은 최대 3개 | v6 와 같다 |
+| description 은 **영어**, 1~2문장. **구체적인 예시를 넣지 않는다**. Gleo 동작을 조작하거나 다른 앱을 막는 문구 금지 | 예시 발화는 description 이 아니라 기획서에만 둔다 |
+| 파라미터 type 은 string · number · boolean · array 중 **하나**. enum 은 문자열만 | 009 와 같다 |
+| 파라미터 이름은 **LLM 이 값을 쉽게 알아보는 이름** | `turn_light` 는 영어로 방향지시등(turn signal)으로 읽힌다 → 결정 2 |
+| `required` 에는 필수 파라미터만. 선택 파라미터는 넣지 않는다. 채움은 보장되지 않는다 | 결정 4 · 5 |
+| 최상위에 **`invokeWord`** 칸이 있다 (가이드 예시: `"invokeWord": "리마인더"`) | v5 의 "invokeWord 정의 없음" 걱정은 풀렸다. 앱 이름 없이 Gleo 가 우리 앱을 고르는지는 여전히 에뮬레이터로 확인한다 (v6 6장) |
+| `component` = `activity`(화면 실행) 또는 `service`(화면 없이 처리) | 결정 3 |
+
+## 결정 (개발 판단)
+
+**1. function 이름은 `LIST_RULE_CHANGES` · `ASK_RULE` · `CONFIRM_RULE`.** v6 이름을 가이드 규칙에 맞게 대문자로 바꾸기만 했고, 뜻은 같다.
+
+**2. 공통 조건 키 이름을 바꾼다.** 값(`yes` / `no` / `red` / `green`)은 그대로다.
+
+| 전 | 후 | 이유 |
+|---|---|---|
+| `turn_light` | `right_turn_traffic_light` | turn light = 방향지시등으로 읽힌다. 우회전 **신호등**임을 이름에 쓴다 |
+| `front_signal` | `front_traffic_light` | signal 도 방향지시등과 헷갈린다. 위 이름과 같은 낱말(traffic light)로 맞춘다 |
+| `ped_signal` | `crosswalk_light` | 약어를 풀고, 어느 신호인지(돌아선 뒤 만나는 횡단보도) 이름에 담는다 |
+| `pedestrian` | `pedestrian_present` | 이름만으로 yes / no 값이 '있나 없나'임을 알게 한다 |
+
+- 이름은 topic 접두어 없이 일반적으로 짓는다. 다른 topic(예: 좌회전)이 같은 조건을 쓸 수 있다
+- 바꾼 곳: `RuleCondition` · 시연 시드 · 공용 테스트 케이스(`spec/rule-matching/cases.json`) · 서버 테스트 · [앱 API 문서](../api/app-api.md)
+- 운영 DB 의 시연 우회전 카드(DRAFT)에 예전 키가 들어 있어 Flyway `V2__rename_rule_condition_keys.sql` 로 바꾼다. 답변 보류 기록도 같은 방식으로 바꾼다 (2026-11-13 기준 0건)
+- 앱 코드는 아직 조건 키를 쓰지 않는다 (`android/` 검색 0건). 앱은 키를 하드코딩하지 않고 동기화 응답의 `conditions` 를 쓰기로 되어 있다
+
+**3. `component` 는 셋 다 `service`.** 주행 중에는 화면을 쓰지 않는다 (v6 1-1 4번). 답은 음성으로만 나가고, 주차 후 화면은 앱을 열 때 보여 준다.
+
+**4. `CONFIRM_RULE` 은 `card_id` 를 받지 않는다. `action`(`confirm` / `repeat`)만 받고, 앱이 방금 읽어 준 카드를 기억한다.**
+
+- 카드 ID 는 운전자가 말하지 않는 내부 값이다. Gleo 가 앞 응답에서 옮겨 채워야 하는데, 가이드는 필수 파라미터도 채움을 보장하지 않는다
+- "다시 말해 줘"가 ID 가 비어서 실패하면 안 된다
+- 009 F 로 Gleo 답은 앱이 사본으로 만든다. 그래서 앱은 마지막으로 답한 카드를 이미 안다
+- v6 2-2 표의 입력(`card_id`, `action`)과 다르다. 기획 확인표 5번으로 알린다
+
+**5. `LIST_RULE_CHANGES` 의 `since`(YYYY-MM) · `period` 는 둘 다 선택이다.** `required` 를 비운다.
+
+- 가이드는 둘 중 하나만 필수인 경우를 표현하지 못한다 (oneOf 같은 JSON Schema 기능 없음). 선택 파라미터는 `required` 에 넣지 말라고 한다
+- 둘 다 비면 앱이 `asking` + `missingField: "since"` 로 답한다. v6 2-3 의 "마지막으로 운전하신 게 언제쯤인가요?" 되묻기와 같다
+
+**6. 초안 파일은 [`spec/gleo-app-schema/schema.json`](../../spec/gleo-app-schema/schema.json) 에 둔다.** 앱이 이 파일을 `assets/schema.json` 으로 복사한다.
+
+- `GleoAppSchemaTest`(서버)가 검사하는 것:
+  - 가이드 형식: 이름 규칙 · 영어 description · type · enum
+  - `ASK_RULE` 의 조건 파라미터가 `RuleCondition` 과 이름 · 값 · 순서까지 같은지
+  - 시드 카드의 topic 이 모두 목록 안에 있는지
+- 셋 중 하나만 고치면 테스트가 실패한다
+
+## 기획 확인표
+
+'예'면 초안 그대로 제출한다. '아니오'면 오른쪽 칸대로 고친다.
+
+| # | 질문 | 제안 | 근거 | '아니오'면 |
+|---|---|---|---|---|
+| 1 | `topic` 을 정해진 목록(enum)으로 고정할까요? | **예** | 목록이 없으면 Gleo 가 질문마다 다른 이름을 만들어 대표 카드와 맞지 않는다 → 거의 항상 답변 보류 | 자유 문자열. 앱이 이름을 대표 카드 topic 에 맞추는 규칙이 따로 필요하다 |
+| 2 | 아래 'topic 목록' 15개로 제출할까요? | **예** | 아래 표 | 빼거나 더할 topic 을 알려 주세요. 이름은 개발이 짓습니다 |
+| 3 | 전방 신호에 **노란불(`yellow`)** 값을 더할까요? | **예** | 목록 밖의 값은 받을 수 없다. "노란불일 때 우회전" 질문이 빨강 · 초록으로 잘못 들어가거나, 되물어도 운전자의 답을 받을 값이 없다. 시행규칙 별표 2 황색 등화는 따로 정해져 있다: 제1호 정지선 · 횡단보도 직전 정지(이미 진입했으면 신속히 통과), 제2호 "우회전을 할 수 있고 우회전하는 경우에는 보행자의 횡단을 방해하지 못한다" ([논문 인용 원문](https://koreascience.kr/article/JAKO201013663900006.pdf) · [대법원 2024도1195 해설](https://www.lawtalk.co.kr/posts/89834)) | 넣지 않는다. 노란불 질문은 답변 보류가 된다 |
+| 4 | 보행 신호에 **녹색 점멸** 값을 더할까요? | **아니오** | 운전자가 할 일이 녹색과 같다. 제27조제1항(건너거나 건너려는 사람이 있으면 정지)은 신호 색과 관계없다. Gleo 가 녹색으로 넣거나 비워 둬도 답이 같다 | 값을 더하고, 우회전 카드 횡단보도 소표에 행을 더한다 |
+| 5 | `CONFIRM_RULE` 을 카드 ID 없이 `action` 만으로 받을까요? (결정 4) | **예** | 결정 4 | v6 대로 `card_id` 를 받는다. ID 가 비면 앱이 마지막 카드로 대신한다 |
+| 6 | 호출어 `invokeWord` 를 **"드라이브룰"** 로 할까요? | **예** | v5 예시 발화가 모두 "드라이브룰, …"로 시작한다 | 원하는 호출어를 알려 주세요 |
+
+3번이 '예'면 우회전 카드 '교차로 진입 전' 소표에 (우회전 신호등 없음 · 전방 노란불) 행이 하나 더 생긴다. 그 행에는 검수 문장이 필요하다. 원문은 아직 2차 자료로만 봤다. 검수 때 국가법령정보센터의 별표 2 현행본(2022.1.21 개정)과 대조한다.
+
+### topic 목록 (제안)
+
+| topic | 뜻 | 출처 | 카드 |
+|---|---|---|---|
+| `right_turn` | 우회전할 때 멈추는 곳 | v6 2-4 · v5 | 시드 (조건 분기, DRAFT) |
+| `left_turn` | 좌회전 | v6 0장 '제외 → Gleo 답변 카드로 유지' | 없음 |
+| `school_zone_crosswalk` | 보호구역 신호등 없는 횡단보도 일시정지 | v6 카드 H | 시드 H (이벤트 카드, topic 없음) |
+| `school_zone_parking` | 보호구역 주정차 금지 | v5 · v6 카드 B | 시드 B (이벤트 카드, topic 없음) |
+| `highway_stopping` | 고속도로 정차 · 주차 (갓길 포함) | v5 `highway_shoulder` · v6 카드 A | 시드 A (이벤트 카드, topic 없음) |
+| `speeding` | 과속 | v6 0장 제외 목록 | 없음 |
+| `safe_distance` | 안전거리 | v6 0장 제외 목록 | 없음 |
+| `turn_signal` | 방향지시등 | v6 1-4 제외 규칙 (벌점 신설은 공포 전 — 현행 범칙금만 답함) | 없음 |
+| `seatbelt` | 안전띠 (동승자 포함) | v5 `seatbelt_passenger` | 없음 |
+| `drunk_driving_aid` | 음주운전 조장 금지 (차 제공 · 동승) | v5 · v6 2-3 (제21728호) | 없음 |
+| `breath_test_obstruction` | 음주측정 방해 금지 | v6 2-3 (제20544호) | 없음 |
+| `drug_driving` | 약물 운전 | v5 · v6 2-3 (제20864호 · 제21246호) | 없음 |
+| `ignition_interlock_license` | 음주운전 방지장치 조건부 면허 (일부 운전자) | v6 2-3 '물으면 답합니다' | 없음 |
+| `license_renewal` | 운전면허 갱신 기간 | v5 · v6 2-3 (제21016호) | 없음 |
+| `other` | 위 어디에도 맞지 않음 | v5 `none` | 없음 — 항상 답변 보류 |
+
+- **카드가 아직 없는 topic 도 넣자고 제안한다.** topic 을 나중에 더하려면 앱 업데이트와 재심사가 필요하다. 목록에 미리 있으면 카드만 쓰면 된다. 카드가 없는 동안은 앱이 답변 보류로 답하고 신고한다. 그 신고 건수가 어떤 카드를 먼저 쓸지 정하는 근거가 된다
+- v5 의 `none` 은 `other` 로 바꿨다. '주제 없음'이 아니라 '목록 밖의 주제'라는 뜻이 이름에 드러나야 Gleo 가 덜 헷갈린다
+- 이벤트 카드 A · B · H 에 topic 을 붙일지(대표 카드로 삼을지)는 카드 검수 때 정한다. 스키마와는 관계없다 (006: topic 은 대표 카드 1장에만)
+
+## 회신 후 바꿀 곳
+
+| 회신 | 바꿀 곳 |
+|---|---|
+| topic 목록 | `schema.json` 만. 서버는 topic 을 문자열로 저장한다 |
+| 조건 · 값 (3 · 4번) | `RuleCondition` · `schema.json` · `spec/rule-matching/cases.json` · 시드 우회전 카드. 어긋나면 `GleoAppSchemaTest` 가 실패한다 |
+| 5 · 6번 | `schema.json` 만 |
+
+확정되면 앱 쪽에 `schema.json` 복사를 요청한다. 앱 코드는 개발 범위 밖이라 직접 고치지 않는다.
+
+## 고르지 않은 것
+
+- **조건을 한 파라미터로 묶기**(예: `"conditions": "red,yes"` 문자열이나 배열): 중첩 객체가 없어 문자열 해석이 필요하다. 그만큼 LLM 오류가 늘고, 값 목록(enum)도 걸 수 없다
+- **yes / no 를 boolean 으로**: 가능하다. 하지만 다른 조건 값이 모두 문자열이라, 매칭 명세의 '문자열 같으면 일치' 규칙을 하나로 두려고 문자열 enum 을 유지한다. '모름'은 어느 쪽이든 파라미터를 비우는 것이다
+- **topic 마다 다른 function**: function 이 3개로 제한된다

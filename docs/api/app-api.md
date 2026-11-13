@@ -66,7 +66,7 @@ Gleo 질문(`list_rule_changes` · `ask_rule` · `confirm_rule`)에는 **서버�
   "cards": [ { "cardId": 5, "version": 2, "...": "아래 표" } ],
   "retiredCardIds": [3],
   "conditions": [
-    { "key": "ped_signal", "question": "돌아선 뒤 횡단보도 보행 신호는 무슨 색이었나요?",
+    { "key": "crosswalk_light", "question": "돌아선 뒤 횡단보도 보행 신호는 무슨 색이었나요?",
       "options": [ { "key": "green", "label": "초록불이었어요" }, { "key": "red", "label": "빨간불이었어요" } ] }
   ]
 }
@@ -129,8 +129,8 @@ Gleo 질문(`list_rule_changes` · `ask_rule` · `confirm_rule`)에는 **서버�
 { "schema": 2,
   "tables": [
     { "key": "approach", "title": "우회전하기 전",
-      "conditions": ["turn_light", "front_signal"],
-      "rows": [ { "when": { "turn_light": "yes" }, "text": "…", "tts": "…", "scene": "…" } ] }
+      "conditions": ["right_turn_traffic_light", "front_traffic_light"],
+      "rows": [ { "when": { "right_turn_traffic_light": "yes" }, "text": "…", "tts": "…", "scene": "…" } ] }
   ] }
 ```
 
@@ -142,12 +142,12 @@ Gleo 질문(`list_rule_changes` · `ask_rule` · `confirm_rule`)에는 **서버�
 
 | `key` | 선택지 `key` |
 |---|---|
-| `turn_light` | `yes` · `no` |
-| `front_signal` | `red` · `green` |
-| `ped_signal` | `green` · `red` |
-| `pedestrian` | `yes` · `no` |
+| `right_turn_traffic_light` | `yes` · `no` |
+| `front_traffic_light` | `red` · `green` |
+| `crosswalk_light` | `green` · `red` |
+| `pedestrian_present` | `yes` · `no` |
 
-Gleo App Schema `ask_rule` 파라미터와 1:1입니다. **기획 확인 전 초안**이라 App Schema 제출(11/16 주) 전에 바뀔 수 있습니다. 화면 문구는 응답의 `question` · `label` 을 쓰고, 키는 하드코딩하지 말고 응답을 기준으로 삼으세요.
+Gleo App Schema `ASK_RULE` 파라미터와 1:1입니다 (스키마 초안: [`spec/gleo-app-schema/schema.json`](../../spec/gleo-app-schema/schema.json), 결정 012). **기획 확인 전 초안**이라 App Schema 제출(11/16 주) 전에 바뀔 수 있습니다 — 노란불(`yellow`) 값 추가를 제안해 두었습니다. 화면 문구는 응답의 `question` · `label` 을 쓰고, 키는 하드코딩하지 말고 응답을 기준으로 삼으세요.
 
 ---
 
@@ -212,7 +212,7 @@ Gleo App Schema `ask_rule` 파라미터와 1:1입니다. **기획 확인 전 초
 Gleo 질문에 답할 카드가 차 사본에 없을 때(대표 카드 없음 · 보류 행) 보냅니다. 운전자에게는 답변 보류 문장으로 답합니다.
 
 ```json
-{ "topic": "right_turn", "conditions": { "ped_signal": "red", "pedestrian": "no" } }
+{ "topic": "right_turn", "conditions": { "crosswalk_light": "red", "pedestrian_present": "no" } }
 ```
 
 | 칸 | 필수 | 설명 |

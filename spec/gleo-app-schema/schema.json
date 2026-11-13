@@ -1,0 +1,105 @@
+{
+  "packageName": "com.jochana.driverule",
+  "appDescription": "Answers drivers with human-reviewed Korean traffic law information, including recent rule changes and rules that depend on the driving situation.",
+  "invokeWord": "드라이브룰",
+  "version": "1.0.0",
+  "actionCalls": [
+    {
+      "type": "function",
+      "function": {
+        "name": "LIST_RULE_CHANGES",
+        "description": "List reviewed traffic rule changes that took effect after the given month or that fall in the given period.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "since": {
+              "type": "string",
+              "description": "Year and month the driver last drove regularly, in YYYY-MM format."
+            },
+            "period": {
+              "type": "string",
+              "description": "Fixed time range of rule changes to list instead of a starting month.",
+              "enum": ["this_month", "upcoming"]
+            }
+          },
+          "required": []
+        },
+        "component": "service"
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "ASK_RULE",
+        "description": "Answer what the traffic law requires of a driver for a subject, narrowed by the situation the driver describes.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "topic": {
+              "type": "string",
+              "description": "Traffic rule subject the driver is asking about, or other when none of the listed subjects fits.",
+              "enum": [
+                "right_turn",
+                "left_turn",
+                "school_zone_crosswalk",
+                "school_zone_parking",
+                "highway_stopping",
+                "speeding",
+                "safe_distance",
+                "turn_signal",
+                "seatbelt",
+                "drunk_driving_aid",
+                "breath_test_obstruction",
+                "drug_driving",
+                "ignition_interlock_license",
+                "license_renewal",
+                "other"
+              ]
+            },
+            "right_turn_traffic_light": {
+              "type": "string",
+              "description": "Whether the intersection has a dedicated traffic light for right turns.",
+              "enum": ["yes", "no"]
+            },
+            "front_traffic_light": {
+              "type": "string",
+              "description": "Color of the vehicle traffic light facing the driver before turning.",
+              "enum": ["red", "green"]
+            },
+            "crosswalk_light": {
+              "type": "string",
+              "description": "Color of the pedestrian light at the crosswalk the driver meets right after turning.",
+              "enum": ["green", "red"]
+            },
+            "pedestrian_present": {
+              "type": "string",
+              "description": "Whether someone is crossing or about to cross that crosswalk.",
+              "enum": ["yes", "no"]
+            }
+          },
+          "required": ["topic"]
+        },
+        "component": "service"
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "CONFIRM_RULE",
+        "description": "Record that the driver understood the rule DRIVE RULE just read out, or read that rule out again.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "description": "Whether the driver confirmed the rule or asked to hear it again.",
+              "enum": ["confirm", "repeat"]
+            }
+          },
+          "required": ["action"]
+        },
+        "component": "service"
+      }
+    }
+  ]
+}

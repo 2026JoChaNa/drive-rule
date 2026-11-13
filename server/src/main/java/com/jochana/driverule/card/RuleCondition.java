@@ -13,13 +13,13 @@ import java.util.Optional;
  */
 public enum RuleCondition {
 
-	TURN_LIGHT("turn_light", "우회전 신호등이 있었나요?",
+	RIGHT_TURN_TRAFFIC_LIGHT("right_turn_traffic_light", "우회전 신호등이 있었나요?",
 			List.of(new Option("yes", "있었어요"), new Option("no", "없었어요"))),
-	FRONT_SIGNAL("front_signal", "전방 신호가 빨간불이었나요?",
+	FRONT_TRAFFIC_LIGHT("front_traffic_light", "전방 신호가 빨간불이었나요?",
 			List.of(new Option("red", "빨간불이었어요"), new Option("green", "초록불이었어요"))),
-	PED_SIGNAL("ped_signal", "돌아선 뒤 횡단보도 보행 신호는 무슨 색이었나요?",
+	CROSSWALK_LIGHT("crosswalk_light", "돌아선 뒤 횡단보도 보행 신호는 무슨 색이었나요?",
 			List.of(new Option("green", "초록불이었어요"), new Option("red", "빨간불이었어요"))),
-	PEDESTRIAN("pedestrian", "건너거나 건너려는 사람이 있었나요?",
+	PEDESTRIAN_PRESENT("pedestrian_present", "건너거나 건너려는 사람이 있었나요?",
 			List.of(new Option("yes", "있었어요"), new Option("no", "없었어요")));
 
 	public record Option(String key, String label) {
