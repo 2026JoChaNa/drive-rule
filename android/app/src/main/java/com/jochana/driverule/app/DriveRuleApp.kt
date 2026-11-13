@@ -54,7 +54,11 @@ import com.jochana.driverule.feature.profile.ProfileInputError
 import com.jochana.driverule.ui.theme.DriveRuleTheme
 
 @Composable
-fun DriveRuleApp(appContainer: AppContainer, onThemeChanged: (Boolean) -> Unit = {}) {
+fun DriveRuleApp(
+    appContainer: AppContainer,
+    onThemeChanged: (Boolean) -> Unit = {},
+    backgroundControls: @Composable () -> Unit = {},
+) {
     val factory = remember(appContainer) {
         viewModelFactory {
             initializer {
@@ -75,7 +79,8 @@ fun DriveRuleApp(appContainer: AppContainer, onThemeChanged: (Boolean) -> Unit =
     DriveRuleTheme(darkTheme = dark) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             DriverFlowContent(state, model, appContainer.previewEntries,
-                Modifier.safeDrawingPadding().imePadding().fillMaxSize(), speechEngineFactory)
+                Modifier.safeDrawingPadding().imePadding().fillMaxSize(), speechEngineFactory,
+                backgroundControls)
         }
     }
 }
@@ -87,6 +92,7 @@ internal fun DriverFlowContent(
     entries: List<HomePreviewEntry>,
     modifier: Modifier = Modifier,
     speechEngineFactory: (() -> NameSpeechEngine)? = null,
+    backgroundControls: @Composable () -> Unit = {},
 ) {
     if (state.vehicleUxState != VehicleUxState.Unrestricted) {
         StatusScreen(stringResource(if (state.vehicleUxState == VehicleUxState.Restricted)
@@ -105,12 +111,13 @@ internal fun DriverFlowContent(
         return
     }
     // Conditional scope removes dialogs and input focus immediately when UX becomes restricted.
-    AllowedDriverContent(state, model, entries, modifier, speechEngineFactory)
+    AllowedDriverContent(state, model, entries, modifier, speechEngineFactory, backgroundControls)
 }
 
 @Composable
 private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowViewModel,
-    entries: List<HomePreviewEntry>, modifier: Modifier, speechEngineFactory: (() -> NameSpeechEngine)?) {
+    entries: List<HomePreviewEntry>, modifier: Modifier, speechEngineFactory: (() -> NameSpeechEngine)?,
+    backgroundControls: @Composable () -> Unit) {
     var showTheme by remember { mutableStateOf(false) }
     var showDrivers by remember { mutableStateOf(false) }
     var showGleo by remember { mutableStateOf(false) }
@@ -144,7 +151,8 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
                     onChangeDriver = { if (!state.saving) showDrivers = true },
                     onEntryClick = { selectedEntry = it }, onGleoClick = { showGleo = true },
                     onChangesClick = { showChanges = true }, onThemeClick = { showTheme = true },
-                    themeLabel = themeLabel, modifier = Modifier.weight(1f))
+                    themeLabel = themeLabel, modifier = Modifier.weight(1f),
+                    backgroundControls = backgroundControls)
             }
         }
         if (showDrivers && !state.permissionGuidePending) DriverChangeSheet(

@@ -1,5 +1,8 @@
 package com.jochana.driverule.app
 
+import androidx.activity.ComponentActivity
+import androidx.compose.runtime.Composable
+
 import com.jochana.driverule.core.model.VehicleUxState
 import com.jochana.driverule.domain.vehicle.UxRestrictionProvider
 import com.jochana.driverule.feature.home.HomePreviewEntry
@@ -10,6 +13,10 @@ import kotlinx.coroutines.flow.asStateFlow
 
 /** UI fixtures only: never packaged in release and never recorded as actual heard guidance. */
 object AppEnvironment {
+
+    fun createBackgroundHost(activity: ComponentActivity): BackgroundGuidanceHost =
+        com.jochana.driverule.core.platform.background.SampleBackgroundGuidanceHost(activity)
+
     fun createUxProvider(): UxRestrictionProvider = object : UxRestrictionProvider {
         override val state = MutableStateFlow(VehicleUxState.Unrestricted).asStateFlow()
     }

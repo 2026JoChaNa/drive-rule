@@ -1,6 +1,6 @@
 # DRIVE RULE Android 구조
 
-2026-11-12 · [결정 008](decisions/008-android-guidance-architecture.md) · [결정 009](decisions/009-local-profile-and-ui-demo.md) · 단일 `:app` 모듈
+2026-11-13 · [결정 008](decisions/008-android-guidance-architecture.md) · [결정 009](decisions/009-local-profile-and-ui-demo.md) · 단일 `:app` 모듈
 
 앱 코드·빌드·개발 README는 `android/`, 설계·검증·Android 전용 결정은 `docs/android/`에서 관리한다. 공유 루트 README의 통합 작성은 마지막 단계로 남긴다.
 
@@ -12,11 +12,12 @@
 |---|---|
 | Compose Screen, ViewModel, immutable UiState/StateFlow | 검수 법령 캐시·프로필별 확인 이력 |
 | 이름 최초 설정·건너뛰기·최대 3명 추가/선택, Room 저장 | 이름 수정·삭제와 이력 보존/삭제 정책 |
-| 최초 권한 안내 완료 상태 저장, Room v1→v2 migration | 알림·차량 속도/기어·Gleo 연동 |
+| 최초 권한 안내 완료 상태 저장, Room v1→v2 migration | 실제 차량 속도/기어·Gleo 연동 |
 | Pleos 온디바이스 이름 STT adapter와 화면 수명에 따른 시작·종료 | 실제 차량의 한국어 음성 인식 성공·품질 검증 |
 | DataStore 테마 저장, 최초 설정·권한 안내·더미 홈 라이트/다크 화면 | 실제 차량의 디자인·물리 크기·분할창 검증 |
-| Repository/UX provider 인터페이스, AppContainer 수동 주입 | 이벤트 판정, 안내 상태 전이, coordinator와 취소/복구 |
-| Unknown/Restricted 입력·상세 제한, debug 시연 환경 분리 | Pleos 신호·TTS·표시 surface·백그라운드 host |
+| Repository/UX provider 인터페이스, AppContainer 수동 주입 | 실제 차량 이벤트 판정·법령 정책·프로세스 복구 |
+| Unknown/Restricted 입력·상세 제한, debug 시연 환경 분리 | Pleos 신호·TTS·사용자 정의 외부 카드 surface |
+| 순수 coordinator·debug FGS 샘플·이벤트 수신/알림 게시 분리 | 실제 내비 앱·절전·실차 이벤트 수신 검증 |
 | 단일 app 빌드와 CI 설정, JVM·Room 계측 테스트 작성 | 현재 변경의 검증 결과는 별도 구현 기록에서 관리 |
 
 현재 UI·저장 범위와 검증 결과는 [구현 기록](ui-implementation-2026-11-12.md)을 따른다. 아래 주행 안내 흐름도와 상태표는 설계다. 이름이 등장하는 타입을 모두 미리 생성하지 않으며, 현재 연결되지 않은 기능의 실행을 보장하지 않는다.
@@ -34,7 +35,7 @@
 | 타이머·음성·카드 실행 | `app/guidance` → 출력 port → `core/platform` | 한 실행 조정자가 상태를 변경. UI 재구독으로 실행을 시작하지 않음. |
 | 설정 | `feature/settings` + 설정 Repository | 설정을 바꾸면 진행 중 안내에도 정책 적용. 음소거를 지원 상실과 구분. |
 
-`decision_json`은 검수된 조건별 문구 선택에만 사용한다. 이벤트 trigger DSL로 쓰지 않는다. 프로필·위치·안내 이력은 서버에 보내지 않으며, 결정 001~005의 계약과 006·007의 초안 상태를 유지한다.
+`decision_json`은 검수된 조건별 문구 선택에만 사용한다. 이벤트 trigger DSL로 쓰지 않는다. 프로필·위치·안내 이력은 서버에 보내지 않으며, 서버 결정 006의 대표 topic 정책과 007의 초안 상태를 구분한다. 서버 wire 계약은 앱 API v1 및 schema 2를 따른다.
 
 ## 폴더와 의존성
 
@@ -105,7 +106,13 @@ Route/앱 조립 화면은 ViewModel 생성·연결과 lifecycle에 맞춘 상�
 
 adapter는 [SpeechToText 3.3.1의 `Mode.ON_DEVICE`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/intro)와 [`Locale.KOREA`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/set-locale)를 사용한다. SDK 기본값인 HYBRID 또는 서버 인식으로 전환하지 않는다. [`request()`/`stop()`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/start-and-stop), [최종 결과 구분](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/result-listeners), [listener 제거·release](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/initialization-and-release)를 adapter 내부에서 처리한다.
 
-[`pleos.car.permission.STT_SERVICE`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/declaring-permissions)는 대상 Pleos 환경의 normal 권한이며 별도 OS 허용 팝업이 없다. 앱의 권한 안내는 기능 범위 설명만 담당한다. 앱이 직접 녹음하지 않고 SDK가 병합하는 `INTERNET` 권한도 제거하며, 원본 오디오·인식 결과를 앱 로그나 질문 이력으로 저장하지 않는다. 실제 장치에서의 서비스 가용성·한국어 인식 성공·품질은 통합 검증 기록에서 별도로 확인한다.
+[`pleos.car.permission.STT_SERVICE`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/declaring-permissions)는 대상 Pleos 환경의 normal 권한이며 별도 OS 허용 팝업이 없다. 앱의 권한 안내는 기능 범위 설명만 담당한다. 앱이 직접 녹음하지 않고 원본 오디오·인식 결과를 앱 로그나 질문 이력으로 저장하지 않는다. 백엔드 API 준비로 앱 `INTERNET` 권한은 선언했지만 음성 adapter는 계속 `Mode.ON_DEVICE`를 사용한다. 실제 장치에서의 서비스 가용성·한국어 인식 성공·품질은 통합 검증 기록에서 별도로 확인한다.
+
+## API 경계 — 2026-11-13
+
+`AppContainer.backendApi` → `core/data/remote/BackendApiClient` → Retrofit/OkHttp 순서로 통신한다. 클라이언트 생성만으로 요청하지 않으며 ViewModel이나 `RoomDriverProfileRepository`에는 연결하지 않았다. 2026-11-13 사용자 확인에 따라 등록은 차량 내부 Room 저장으로 유지한다. 현행 서버에는 사용자 등록 API가 없으며 이름·프로필 ID를 전송하지 않는다. 프로필 DB 스키마·migration·입력/권한 안내 흐름은 유지한다.
+
+DTO는 wire 형식이며 domain 모델이 아니다. JSON 추가 필드는 무시하고 enum 문자열 및 decision JSON을 보존하지만, 알 수 없는 카드 유형·schema를 실제 안내에 사용할 수 있다는 뜻은 아니다. 후속 mapper와 원자적 캐시 갱신을 구현하기 전 `ruleCardRepository`는 계속 Unavailable이며 홈은 더미다. 자세한 API 목록·전송 정책·검증 결과는 [연동 준비 기록](backend-api-preparation-2026-11-13.md)을 따른다.
 
 ## 주행 안내 흐름과 실행 수명
 
@@ -174,7 +181,7 @@ coordinator는 실행 host가 제공하는 명시적인 scope와 시작/종료 �
 3. **플랫폼 확인:** 위 UI 개발과 병행해 UX 신호·TTS·카드 surface·실행 host를 각각 작은 연동 예제로 확인. 미지원이면 adapter 계약과 제공 범위를 조정.
 4. **주행 안내 규칙:** 가짜 신호/시계/출력으로 상태 전이를 구현. 중복 후보, 우선순위 충돌, 회수, 프로필/경로 변경, callback 역전·누락, 취소 후 늦은 표시, 재구독/프로세스 복구를 검증.
 5. **실제 연결:** 검증된 host/adapter만 연결하고 내비 동시 사용·권한 철회·주야간·백그라운드·실제 선행 시점을 기기에서 확인.
-6. **서버 계약:** 캐시 동기화 endpoint/DTO/회수 계약을 합의한 뒤 대체. Gleo 기능 2는 후속 범위로 유지.
+6. **서버 계약:** 앱 API v1 공통 client/DTO를 준비했다. 캐시의 카드·회수·조건·토큰 원자적 갱신과 홈 연결은 다음 단계이며 Gleo 기능 2는 후속 범위로 유지한다.
 
 단순 Repository 전달에는 UseCase를 강제하지 않는다. 복잡하거나 공유되는 정책만 분리한다. BaseViewModel/범용 event bus/전역 mutable store는 만들지 않으며, Hilt·MVI 라이브러리·다중 모듈은 실제 필요가 생길 때 도입한다.
 
@@ -189,3 +196,9 @@ coordinator는 실행 host가 제공하는 명시적인 scope와 시작/종료 �
 - 로컬 저장/UI 의존성: Room 2.7.2, KSP 2.1.20-1.0.32, Preferences DataStore 1.1.1, Coil/SVG 2.7.0. Asta Sans와 OFL 원문을 앱에 번들로 포함한다. 실제 버전은 `android/gradle/libs.versions.toml`을 따른다.
 
 현재 조합은 JDK17/SDK34 개발 환경 기준이며 Pleos SpeechToText 3.3.1을 추가했다. 프로필·최초 권한 안내·음성 이름 입력 adapter·샘플 홈이 현재 구현 범위다. 주행 안내 엔진과 차량 신호·TTS·카드 SDK 연동은 설계 단계이며, 제출 조건과 실제 음성 인식 결과는 별도로 검증한다.
+
+## 백그라운드 이벤트 실행 준비 — 2026-11-13
+
+최초 구현은 debug 전용 `SampleGuidanceService`가 `GuidanceCoordinator`와 타이머 출처를 소유한다. MainActivity.onStart의 host가 한 번 시작하며 Activity.onStop이나 Compose 재구독은 세션을 끝내거나 새로 만들지 않는다. 읽기 전용 runtime은 전체 수신·앱 화면 부재 중 수신·알림 게시를 구분한다. 알림 권한 거부가 이벤트 처리를 중단시키지 않는다.
+
+서비스는 10분 샘플 세션 또는 명시 중지로 종료한다. 실제 차량 신호·TTS·운전 상황 정책·법령 캐시는 아직 연결하지 않았다. 과거 문서의 전체 주행 엔진·플랫폼 출력 구상과 이번 작은 구현을 구분한다. [상세 실행·검증](background-events-2026-11-13.md).

@@ -43,6 +43,7 @@ fun HomeScreen(
     onThemeClick: () -> Unit,
     themeLabel: String,
     modifier: Modifier = Modifier,
+    backgroundControls: @Composable () -> Unit = {},
 ) {
     DriveRuleWindow(modifier.testTag("home_screen")) {
         val layout = LocalDriveRuleLayout.current
@@ -61,6 +62,7 @@ fun HomeScreen(
             modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(layout.space(32f)),
         ) {
+            backgroundControls()
             Column(
                 modifier = Modifier.fillMaxWidth()
                     .background(colors.surface, RoundedCornerShape(layout.space(42.667f)))

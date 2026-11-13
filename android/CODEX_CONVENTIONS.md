@@ -1,6 +1,6 @@
 # DRIVE RULE Android 개발 컨벤션
 
-작성일: 2026-11-12 · 적용 위치: `android/` · 상태: 개발 기준 v1.4 (이름 화면 진입 시 음성 자동 시작 반영)
+작성일: 2026-11-12 · 적용 위치: `android/` · 상태: 개발 기준 v1.5 (2026-11-13 앱 API v1 통신 준비 반영)
 
 이 문서는 사용자 최신 요청과 저장소의 채택된 결정을 연결한다. **확정 요구**, **이번에 정한 개발 기준**, **검증 대기**를 구분한다. 근거와 접근 결과는 [출처 및 검증 기록](../docs/android/source-check-2026-11-12.md)에 있다.
 
@@ -28,10 +28,10 @@ DRIVE RULE은 검수한 교통 법령 정보를 운전 상황에 맞춰 미리 �
 프로젝트 요구사항 해석은 최신 사용자 명시 요청 → 채택된 결정 문서 → 현재 구현·계약 → 기획/디자인 → 참고 자료 순으로 대조한다. 이 순서는 시스템·개발자 지침이나 플랫폼 제약을 덮어쓰지 않는다. 충돌은 관련 결정 문서에 근거를 남겨 해결한다.
 
 - 2026-11-12에 이름 최초 설정·Room 프로필 추가/선택·DataStore 테마·더미 홈에 이어 최초 권한 안내와 Pleos 음성 이름 입력 adapter를 추가했다. 현재 범위와 빌드 방법은 [README](README.md), 의존성 방향은 [구조 문서](../docs/android/architecture.md), 검증 결과는 [UI 구현 기록](../docs/android/ui-implementation-2026-11-12.md)을 따른다. 실제 법령 캐시·주행 안내, 차량 신호·TTS·카드 표시 adapter는 아직 구현 전이다.
-- 서버는 부트스트랩 상태다. 법령 조회·동기화 URL, DTO, 인증은 아직 구현 계약으로 확정되지 않았다.
+- 서버 앱용 계약은 [앱 API v1](../docs/api/app-api.md)과 운영 OpenAPI를 기준으로 한다. 2026-11-13 공통 통신 client/DTO를 준비했으나 캐시·홈 연결은 아직 전이다. 사용자 등록 API는 없고 기존 Room 등록을 유지한다. 상세 범위는 [연동 준비](../docs/android/backend-api-preparation-2026-11-13.md)를 따른다.
 - 설계 기준은 [erd.data.mjs](../docs/db/erd.data.mjs)다. 구현 후 Room Entity/Flyway SQL과 함께 유지한다. 생성물 `ERD.drawio`를 직접 수정하지 않는다.
-- [001](../docs/decisions/001-remove-driving-context.md)~[005](../docs/decisions/005-screen-check-v5-2.md)는 채택된 결정이다. [006](../docs/decisions/006-topic-primary-card.md), [007](../docs/decisions/007-remove-favorite-place.md)은 초안이다.
-- `topic` UNIQUE 해제, `is_primary`/`topic_group` 도입, `favorite_place` 삭제를 확정 사항으로 구현하지 않는다.
+- [001](../docs/decisions/001-remove-driving-context.md)~[005](../docs/decisions/005-screen-check-v5-2.md)는 채택된 결정이다. [006](../docs/decisions/006-topic-primary-card.md)은 서버 대표 topic UQ 유지 결정이며 [007](../docs/decisions/007-remove-favorite-place.md)은 여전히 초안이다.
+- 서버 `rule_card.topic`의 UNIQUE 유지 정책은 바꾸지 않는다. `is_primary`/`topic_group` 도입과 `favorite_place` 삭제를 임의로 확정하지 않는다. 앱 Room `cached_card.topic`에는 UNIQUE를 두지 않는다. 회수된 사본에는 이전 topic이 남을 수 있으므로 대표 조회는 `WHERE topic = ? AND is_retired = 0`을 따른다([앱 API v1](../docs/api/app-api.md)).
 - [008](../docs/android/decisions/008-android-guidance-architecture.md)은 Android 구조 결정이다. 기존 제품/데이터 결정을 바꾸지 않으며 실제 주행 안내 엔진·SDK host는 아직 구현 전이다.
 - [009](../docs/android/decisions/009-local-profile-and-ui-demo.md)는 현재 로컬 프로필·테마와 샘플 UI의 범위를 정한다. debug의 주차 상태 가정·법령 표시 샘플은 release에서 사용하지 않는다.
 
@@ -43,7 +43,7 @@ DRIVE RULE은 검수한 교통 법령 정보를 운전 상황에 맞춰 미리 �
 | 화면 | Jetpack Compose, 단방향 상태 흐름, ViewModel + immutable `UiState` + `StateFlow` |
 | 비동기 | Kotlin Coroutines/Flow, 구조화된 동시성, 취소 전파, SDK listener 해제 |
 | 로컬 저장 | Room: 카드·프로필·개인별 이력. DataStore: 음성 설정 등 작은 환경설정 |
-| 네트워크 | repository 뒤에 API client를 둔다. 구체 client/직렬화 라이브러리는 첫 서버 계약 때 한 조합으로 고정 |
+| 네트워크 | repository 뒤에 API client를 둔다. OkHttp 4.12.0 + Retrofit 2.11.0 + kotlinx.serialization 1.8.1, Kotlin serialization plugin 2.1.20 |
 | 의존성 주입 | 생성자 주입을 기본으로 한다. DI 프레임워크는 규모에 맞춰 도입하고 선택 근거를 남긴다. |
 | 스케줄 작업 | WorkManager는 지연 가능한 카드 동기화/재시도에 사용. 실시간 이벤트 감지·즉시 팝업 타이머에 쓰지 않는다. |
 | 장치 통합 | Pleos/AAOS 코드는 adapter 안에 둔다. UI/도메인이 SDK 객체를 직접 참조하지 않는다. |
@@ -167,9 +167,9 @@ Pleos/AAOS/Fake 신호 → 정규화·유효성 → 이벤트 후보
 | 버전 | 카드 ID와 버전을 함께 추적한다. 명시적 서버 계약 없이 낮은 버전으로 덮어쓰거나 회수 카드를 되살리지 않는다. |
 | 검수 | 문구 변경은 재검수 대상. 법령 내용·금액·시행일을 생성형 모델의 추정으로 보완하지 않는다. |
 
-`decision_json`은 [결정 002](../docs/decisions/002-condition-branch-format.md)의 검수된 조건별 응답용이며 차량 이벤트 trigger DSL이 아니다. `schema:1`, enum 선택지, `UNIQUE`, 조건 최대 3개를 따른다. 모든 선택지 조합에 정확히 한 분기가 맞는지 검증한다. 조건 수와 총 조합 수를 따로 계산하고 기존 결정의 검수 부담 상한 8조합을 유지한다. 선택지 증가로 상한을 넘겨야 한다면 Android 구현 범위에서 임의 변경하지 않고 공유 계약 변경 작업에서 먼저 002를 개정한다. 미지원 schema·겹침·누락이면 해당 카드의 분기 안내를 보류한다.
+`decision_json`은 검수된 조건별 응답용이며 차량 이벤트 trigger DSL이 아니다. 현재 서버 계약은 [결정 009](../docs/decisions/009-core-features-v6-alignment.md)의 `schema:2`와 `tables[]`다. 후속 mapper는 미지원 schema/cardType을 해당 카드 단위로 제외하고, 분기 선택은 [공용 명세](../spec/rule-matching/README.md)와 cases.json을 검증한다. 통신 DTO에서 문자열 enum·decision JSON을 받는 것만으로 분기 검증이 완료되지는 않는다.
 
-이벤트-카드 매핑 필드는 현재 ERD에 없다. 서버 계약이 생길 때까지 app-local typed mapping 또는 fixture로 경계를 검증하고 이를 운영 서버 기능으로 소개하지 않는다. `topic`, `card_type`, `stage`를 임의의 이벤트 코드로 재사용하지 않는다.
+현재 앱 API는 nullable `eventTag`를 제공한다. 새 값은 Unknown으로 취급하며 신호 판정·카드 매핑은 후속 도메인 검증을 거친다. 통신 DTO를 운영 이벤트 안내 기능으로 소개하지 않는다. `topic`, `card_type`, `stage`를 임의의 이벤트 코드로 재사용하지 않는다.
 
 동기화 첫 구현 전에 endpoint/인증, DTO, full/delta, cursor, 회수 목록과 보존 기간, 재게시 규칙, 재시도·신선도 정책을 문서화한다. 부분 실패 시 정상 캐시를 유지하며, 카드와 회수 정보는 원자적으로 반영한다. 오래 오프라인인 차량이 회수 목록을 놓치지 않게 전체 재동기화 조건도 정한다.
 
@@ -179,11 +179,11 @@ Pleos/AAOS/Fake 신호 → 정규화·유효성 → 이벤트 후보
 
 - 프로필 이름, VIN, 좌표·목적지, 질문 이력, 확인·안내 이력은 차량 내부에 보관한다. 로그·크래시 SDK·분석 이벤트로 유출하지 않는다.
 - MVP에는 지표 수집·가명 기기 식별자를 도입하지 않는다. 네트워크 URL, 헤더, 로그에도 이름/위치를 넣지 않는다.
-- 현재 이름 STT는 온디바이스 경로만 사용하고 SDK가 병합하는 앱 `INTERNET` 권한을 제거한다. 앱이 원본 오디오를 수집·저장하거나 인식 텍스트를 로그에 남기지 않는다. 추후 법령 API 연결에 네트워크 권한이 필요하면 사용 목적과 송신 데이터 범위를 별도로 검토한다.
-- 기존 서버 송신 예외는 주차 중 자유 질문과 카드 오류 신고다. 질문 기능은 이번 범위가 아니며 이름/위치 자동 첨부를 하지 않는다. 오류 신고는 카드 ID·버전만 식별 근거로 사용한다.
+- 이름 STT는 계속 `Mode.ON_DEVICE`만 사용한다. 2026-11-13 백엔드 API 준비로 `INTERNET`을 선언했으며 음성 인식의 서버 전환을 허용한 것이 아니다. 앱이 원본 오디오를 수집·저장하거나 인식 텍스트를 로그/HTTP에 남기지 않는다.
+- 현재 앱 API 송신 값은 syncToken/ETag, 카드 ID·버전, 주제·조건이다. 이름·프로필 ID·기기 ID·VIN·위치·질문 원문은 붙이지 않는다. Gleo는 차량 사본으로 답하고 답변 보류 신고에는 주제·조건만 사용한다. 실제 Gleo 연동은 후속 범위다.
 - 개인 로컬 DB를 OS 백업 경로로 차 밖에 복제하지 않도록 Android 백업/전송 규칙을 명시적으로 검토한다.
-- HTTPS를 기본으로 사용한다. 로컬 테스트용 평문 허용은 debug 설정에 한정한다. 인증서 검사 무력화, 앱에 서버 비밀키 삽입을 금지한다.
-- 보호구역 파일은 기존 CDN 배포 설계를 따르고 HTTPS·해시 검증을 거친 사본만 교체한다. 실패 시 이전 정상 사본을 유지한다.
+- HTTPS를 기본으로 하되 전달된 API의 현재 운영 주소 `http://13.124.175.42:8080/`에 한해 host별 평문 예외를 둔다. debug에만 개발 PC/loopback 주소를 추가한다. 앱 전체 평문 허용, 인증서 검사 무력화, 앱에 관리자 키 삽입은 금지한다.
+- 보호구역 파일은 API manifest 기준 상대 URL을 해석하고 허용된 origin/전송 정책 및 압축 해제 후 SHA-256을 검증한 뒤 한 트랜잭션으로 교체한다. 실패 시 이전 정상 사본을 유지한다. 현재는 manifest 통신만 준비했으며 다운로드·교체는 후속 구현이다.
 - `.env`, `local.properties`, 서명키·토큰은 Git에 넣지 않는다. mock 법령과 fake 차량 신호는 release 구성에서 활성화되지 않도록 분리한다.
 
 ## 9. 디자인과 첨부 이미지
@@ -251,3 +251,8 @@ Android 검증은 `.github/workflows/android-ci.yml`에서 lint·JVM 테스트·
 출시 전 결정 항목: 앱 카테고리와 선제 음성 허용, 카드 표시 표면, 필요한 서비스/권한, 첫 지원 이벤트, 이벤트-카드 매핑, 각 신호 유효 시간, cooldown/표시 시간/주행 상한, trip 경계, 법령 캐시 유효 기간, 프로필/이력 보관·삭제 정책. 구현 가능한 부분을 진행하되 미확정 값을 제품 사실로 숨기지 않는다.
 
 새 Android 전용 결정은 `docs/android/decisions/`에 날짜·상태·이유·영향을 적는다. 기존 공유 `docs/decisions/`는 공통 계약의 참고 원본으로 유지한다. 작업 완료 보고는 변경/검증/미검증 사항을 구분한다. GitHub 인증이나 Figma 접근 확인을 앱 빌드·기기 검증 성공으로 대신하지 않는다.
+
+
+### 2026-11-13 백그라운드 샘플 구현 범위
+
+`GuidanceCoordinator`와 debug 전용 `SampleGuidanceService`를 추가했다. 앱 실행 시 10분 세션을 시작하고 다른 앱에서도 타이머 샘플 이벤트를 처리한다. 수신·백그라운드 수신·알림 게시를 구분하며 알림 거부가 수신을 막지 않는다. 실제 차량 이벤트·TTS·법령 정책·외부 사용자 정의 카드 지원은 검증 전이다. 자세한 범위와 공식 근거는 [백그라운드 이벤트 기록](../docs/android/background-events-2026-11-13.md)을 따른다.

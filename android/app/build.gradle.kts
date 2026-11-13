@@ -1,8 +1,22 @@
+import java.net.URI
+
 plugins {
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+}
+
+// The API origin is deployment configuration, never a credential or a driver identifier.
+val backendBaseUrl = providers.gradleProperty("driveRuleApiBaseUrl")
+    .orElse("http://13.124.175.42:8080/").get().trimEnd('/') + "/"
+val backendUri = URI(backendBaseUrl)
+require(backendUri.scheme in setOf("http", "https") && backendUri.host != null &&
+    backendUri.rawUserInfo == null && backendUri.rawQuery == null &&
+    backendUri.rawFragment == null && backendUri.rawPath == "/" &&
+    (backendUri.port == -1 || backendUri.port in 1..65535)) {
+    "driveRuleApiBaseUrl must be an HTTP(S) origin without credentials, query, or path"
 }
 
 android {
@@ -16,6 +30,7 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "0.1.0"
+        buildConfigField("String", "API_BASE_URL", "\"$backendBaseUrl\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -38,6 +53,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -50,6 +66,11 @@ ksp {
 }
 
 dependencies {
+    implementation(libs.okhttp)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.serialization)
+    implementation(libs.kotlinx.serialization.json)
+    testImplementation(libs.okhttp.mockwebserver)
     implementation(libs.pleos.speech.to.text)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

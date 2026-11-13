@@ -20,12 +20,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PleosSpeechServiceTest {
     @Test
-    fun onDeviceSpeechServiceBecomesReadyWithoutInternetPermission() {
+    fun onDeviceSpeechServiceBecomesReadyWithBackendNetworkPermission() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
         assumeTrue("Requires a Pleos image with STT_SERVICE installed", context.checkSelfPermission(
             "pleos.car.permission.STT_SERVICE") == PackageManager.PERMISSION_GRANTED)
-        assertEquals(PackageManager.PERMISSION_DENIED, context.checkSelfPermission(Manifest.permission.INTERNET))
+        // Backend access is enabled; the speech adapter still explicitly uses Mode.ON_DEVICE.
+        assertEquals(PackageManager.PERMISSION_GRANTED, context.checkSelfPermission(Manifest.permission.INTERNET))
         assertEquals(PackageManager.PERMISSION_DENIED, context.checkSelfPermission(Manifest.permission.RECORD_AUDIO))
         val completed = CountDownLatch(1)
         val error = AtomicReference<NameSpeechError?>(null)

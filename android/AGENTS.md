@@ -21,7 +21,7 @@
 7. 기능 제한은 `CarUxRestrictions`를 따른다. 속도 0, 도착 이벤트, 기어 P 하나로 조작 가능 상태를 단정하지 않는다. 상태를 읽지 못하면 제한을 유지한다.
 8. 백그라운드 실행, 선제 TTS, 시스템 위 카드 표시는 각각 공식 지원·허용을 확인한다. 임의 overlay 권한이나 background Activity 실행으로 대체하지 않는다.
 9. 미지원·권한 거부·오래된 신호는 `Unknown/Unavailable`로 처리한다. 주행 상황이나 법 위반을 추측으로 확정하지 않는다.
-10. `docs/decisions/001`~`005`와 현재 ERD를 존중한다. 006·007, 이벤트 매핑, cooldown, 카드 표시 시간, API DTO는 확정 여부를 표시한다.
+10. 공유 결정과 현재 ERD를 존중한다. 006은 대표 topic 결정, 007은 초안이다. 서버 wire 계약은 docs/api/app-api.md와 schema 2를 따른다. 사용자 등록 API는 없으며 계약 없는 endpoint를 만들지 않는다. 이벤트 판정·cooldown·카드 시간의 확정 여부는 별도 표시한다.
 11. UI 작업은 상세 컨벤션 9절과 [디자인 점검 기록](../docs/android/design-compliance-2026-11-12.md)을 따른다. 기본 Material 화면·빌드 성공을 Pleos 디자인 준수 완료로 보고하지 않는다. 글자 물리 크기, 대비, 주·야간, 1/2 window와 UX 제한 전환을 확인한다.
 12. [결정 008](../docs/android/decisions/008-android-guidance-architecture.md)과 [구조 문서](../docs/android/architecture.md)를 따른다. `domain/guidance`는 순수 정책·상태 전이, `app/guidance`는 실행 수명·타이머·출력 조정이다. UI 수집으로 TTS/카드를 시작하지 않는다. 단순 기능에 공통 MVI·UseCase·새 모듈을 강제하지 않는다.
 

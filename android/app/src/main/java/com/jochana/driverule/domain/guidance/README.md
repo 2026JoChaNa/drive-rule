@@ -6,3 +6,7 @@
 - 음성·카드 상태와 안내 ID·실행 세대를 구분한다. 안내 완료를 사용자 확인으로 처리하지 않는다.
 - 화면의 안내 관찰/명령, 음성/카드 출력에 필요한 port도 이 경계에 둔다. 타입은 실제 사용 기능과 함께 추가한다.
 - 명령 실행과 수명·타이머의 소유자는 `app/guidance` coordinator다. 상세 상태표는 저장소 `docs/android/architecture.md`를 따른다.
+
+## 현재 구현 — 2026-11-13
+
+구현: `GuidanceEvent`, `GuidanceCardOutput`, `GuidanceRuntimeState`, `GuidanceEventPolicy`를 추가했다. ID 중복과 만료를 판단하며 Android API를 참조하지 않는다. 출력 수락은 사용자 노출/청취를 의미하지 않는다.

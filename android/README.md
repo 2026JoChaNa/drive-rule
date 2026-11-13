@@ -25,7 +25,17 @@ Kotlin·Jetpack Compose 기반의 차량 앱이다. 현재 MVVM/UDF 구조에서
 
 `debug`는 화면 확인을 위해 주차 중 조작 가능 상태를 가정하며, `HomePreviewEntry` 더미 목록을 제공한다. 목록의 문구·시행 상태·시간은 디자인 샘플이며 검수된 법령, 실제 주행 이력 또는 실제 음성 재생 기록이 아니다. 홈의 상세·Gleo·변경 법령 진입은 샘플 또는 준비 중 안내만 제공한다.
 
-`release`에는 샘플 목록이 없으며 차량 상태 `Unknown`으로 입력과 상세를 제한한다. 실제 차량 UX adapter가 연결되기 전에는 정상적인 제품 서비스로 사용할 수 없다. 서버 API, 법령 캐시·프로필별 확인 이력, 차량 신호, 법령 변경 알림, TTS, Gleo, 백그라운드 카드와 프로필 이름 수정·삭제는 이번 구현에 포함하지 않는다. 기존 법령 저장소는 계속 `Unavailable`이다.
+`release`에는 샘플 목록이 없으며 차량 상태 `Unknown`으로 입력과 상세를 제한한다. 실제 차량 UX adapter가 연결되기 전에는 정상적인 제품 서비스로 사용할 수 없다. 서버 데이터의 UI 반영, 법령 캐시·프로필별 확인 이력, 차량 신호, 법령 변경 알림, TTS, Gleo, 백그라운드 카드와 프로필 이름 수정·삭제는 이번 구현에 포함하지 않는다. 기존 법령 저장소는 계속 `Unavailable`이다.
+
+## 백엔드 API 연결 준비
+
+2026-11-13 전달된 [앱 API v1](../docs/api/app-api.md)과 운영 OpenAPI를 기준으로 `core/data/remote/BackendApiClient`를 준비했다. 카드 동기화·보호구역 manifest 조회·오류 신고·답변 보류 신고의 DTO와 오류 처리를 제공한다. `AppContainer.backendApi`는 지연 생성되며 현재 이름 등록이나 홈 진입에서 호출하지 않는다. 실제 서버에 쓴 데이터는 없다.
+
+**운전자 등록은 차량 내부에 저장한다(2026-11-13 사용자 확인).** 현행 서버에는 등록 API가 없으며 최초 등록·추가 등록은 기존 `RoomDriverProfileRepository`를 사용하며 이름·프로필 ID를 전송하지 않는다. 별도 등록 API가 추가되면 요청/응답·인증·중복 처리 계약을 확인한 뒤 연결한다. 현재 공통 통신 준비를 사용자 등록 서버 연동 완료로 보지 않는다.
+
+기본 주소는 `http://13.124.175.42:8080/`이며 `BuildConfig.API_BASE_URL`로 관리한다. `-PdriveRuleApiBaseUrl=http://10.0.2.2:8080/`로 에뮬레이터에서 개발 PC의 서버를 선택할 수 있다. 주소는 인증 정보·query·하위 경로가 없는 origin이어야 한다. 평문 허용은 운영 IP 하나에 한정하고 debug에만 `10.0.2.2`, `127.0.0.1`, `localhost`를 추가했다. 새 HTTP host를 사용하려면 해당 variant의 `network_security_config.xml`에도 명시한다. 앱 전체 평문 허용이나 인증서 검증 해제는 사용하지 않는다.
+
+통신 조합은 OkHttp 4.12.0 / Retrofit 2.11.0 / kotlinx.serialization 1.8.1이다. 알 수 없는 JSON 필드는 무시하고 wire enum은 문자열로 보존한다. 회수 처리·지원 카드 유형/결정 schema 검증·토큰과 카드의 원자적 저장·재시도 스케줄은 아직 연결 전이다. `decision`은 schema 2 계약을 기준으로 후속 mapper에서 검증한다. [연동 준비와 검증 기록](../docs/android/backend-api-preparation-2026-11-13.md)을 참고한다.
 
 ## 최초 설정과 음성 이름 입력
 
@@ -33,7 +43,7 @@ Kotlin·Jetpack Compose 기반의 차량 앱이다. 현재 MVVM/UDF 구조에서
 
 최초·추가 등록의 빈 이름 화면에 진입하면 화면이 RESUMED이고 UX 조작이 허용될 때 음성 인식을 한 번 자동으로 시작한다. 이미 직접 입력한 이름은 자동 인식으로 덮어쓰지 않는다. 중간 결과는 상태 영역에 표시하고 최종 결과만 이름 입력란에 반영하며, 저장은 사용자가 이름을 확인한 뒤 ‘다음’을 눌러 확정한다. 취소·직접 입력·화면 이탈·ON_PAUSE/ON_STOP·UX 제한 전환 시 인식을 종료한다. 같은 화면 세션에서 복귀해도 자동 재개하지 않으며, 중지·타임아웃 후에는 ‘다시 말하기’로 명시적으로 재시도할 수 있다. 음성을 사용할 수 없거나 인식에 실패하면 직접 이름을 입력할 수 있다.
 
-음성 adapter는 [SpeechToText 3.3.1의 `ON_DEVICE` 모드](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/intro)와 [`Locale.KOREA`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/set-locale)를 사용한다. 서버 인식으로 전환하지 않으며 SDK가 병합하는 앱의 `INTERNET` 권한을 제거한다. [`pleos.car.permission.STT_SERVICE`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/declaring-permissions)는 대상 Pleos 환경의 normal 권한으로 별도 OS 허용 팝업이 없다. 권한 안내는 사용 범위를 설명하는 앱 화면이며 권한 부여 결과를 나타내지 않는다. 알림·차량 속도/기어 연동은 준비 중이고 Gleo 질의는 별도 후속 기능이다.
+음성 adapter는 [SpeechToText 3.3.1의 `ON_DEVICE` 모드](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/intro)와 [`Locale.KOREA`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/set-locale)를 사용한다. 서버 인식으로 전환하지 않는다. 앱은 백엔드 API 준비를 위해 `INTERNET` 권한을 선언하지만 음성 adapter는 계속 `Mode.ON_DEVICE`만 사용한다. [`pleos.car.permission.STT_SERVICE`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/declaring-permissions)는 대상 Pleos 환경의 normal 권한으로 별도 OS 허용 팝업이 없다. 권한 안내는 사용 범위를 설명하는 앱 화면이며 권한 부여 결과를 나타내지 않는다. 알림·차량 속도/기어 연동은 준비 중이고 Gleo 질의는 별도 후속 기능이다.
 
 음성 입력 코드의 연결과 실제 차량에서의 한국어 인식 성공·품질은 구분한다. 이번 변경의 빌드·테스트·장치 검증 결과는 [권한 안내·음성 입력 검증](../docs/android/onboarding-permissions-speech-2026-11-12.md)에서 관리한다.
 
@@ -48,7 +58,7 @@ Kotlin·Jetpack Compose 기반의 차량 앱이다. 현재 MVVM/UDF 구조에서
 7. [결정 009: 로컬 프로필과 화면 시연 범위](../docs/android/decisions/009-local-profile-and-ui-demo.md)
 8. [최초 설정·샘플 홈 구현 및 검증 기록](../docs/android/ui-implementation-2026-11-12.md)
 
-이름 등록·출발 전 화면은 MVVM/UDF로 구현한다. 향후 주행 안내는 `domain/event`·`domain/guidance`의 순수 판단, `app/guidance`의 실행 조정, `core/platform`의 SDK adapter로 나눈다. 새 `app/guidance`와 `core/platform/presentation`은 역할 README만 있으며 coordinator·출력 기능 구현 전이다.
+이름 등록·출발 전 화면은 MVVM/UDF로 구현한다. 향후 주행 안내는 `domain/event`·`domain/guidance`의 순수 판단, `app/guidance`의 실행 조정, `core/platform`의 SDK adapter로 나눈다. `app/guidance`에 순수 coordinator를 구현했다. Debug 서비스는 샘플 이벤트를 처리하며 공식 시스템 알림을 선택적으로 게시한다. 실제 차량 신호·TTS·외부 사용자 정의 카드 표시는 후속 검증 대상이다.
 
 현재 화면은 최초 설정·권한 안내와 샘플 홈의 UI 구현이다. 화면 검증 결과는 위 구현 기록에서 관리하며, 빌드·화면 시연을 실제 차량의 물리 글자 크기·UX 제한·Pleos 디자인 준수 완료로 해석하지 않는다.
 
@@ -111,7 +121,7 @@ Pleos에서 앱 프로세스는 실행됐지만 기존 task가 정상 앱 slot�
 
 스크립트는 현재 Android 사용자를 조회한다. 앱 데이터 삭제나 에뮬레이터 초기화는 하지 않는다. 원인 관측·아이콘 출처·실행 검증은 [런처 점검 기록](../docs/android/launcher-verification-2026-11-12.md)을 참고한다.
 
-Manifest는 Automotive 기기를 대상으로 하며 이름 음성 입력용 `STT_SERVICE`를 선언한다. 아직 주행 중 조작 가능 앱으로 선언하지 않았고 차량·위치·overlay·foreground service 권한을 요청하지 않는다. 앱이 직접 마이크를 녹음하는 `RECORD_AUDIO` 경로는 사용하지 않는다.
+Manifest는 Automotive 기기를 대상으로 하며 이름 음성 입력용 `STT_SERVICE`를 선언한다. 아직 주행 중 조작 가능 앱으로 선언하지 않았고 차량·위치·overlay 권한을 요청하지 않는다. Debug에만 유한 샘플 세션용 foreground service와 선택적 알림 권한을 선언한다. 앱이 직접 마이크를 녹음하는 `RECORD_AUDIO` 경로는 사용하지 않는다.
 
 ## 검증과 CI
 
@@ -130,3 +140,7 @@ JVM 테스트는 기존 출발 전 상태 처리에 더해 이름 검증, 프로
 - lint 오류 0개. 버전 업데이트 권고 21건(7개 대상이 분석 변형별로 반복)만 남아 있다. 경고를 숨기지 않았으며 초기 SDK34 호환 조합을 유지한다.
 - debug APK 생성 확인. 에뮬레이터 설치·화면 실행·실차 및 Pleos SDK 동작은 아직 검증하지 않았다.
 - 초기 로컬 검증 당시에는 GitHub 원격 CI 실행·커밋·푸시를 수행하지 않았다. 이후 원격 연결 재확인은 [출처 확인 기록](../docs/android/source-check-2026-11-12.md)의 추가 점검을 참고한다.
+
+## 백그라운드 이벤트 테스트
+
+Debug 앱을 열면 10분짜리 샘플 세션이 자동 시작된다. 첫 이벤트는 10초 뒤, 이후 30초마다 발생한다. 다른 앱으로 전환한 뒤 돌아오면 홈에서 전체/백그라운드 수신 수를 확인할 수 있다. 알림 권한이 없어도 수신은 계속되며, 중지한 세션은 직접 다시 시작할 때까지 중지 상태를 유지한다. 실제 차량 이벤트와 음성 출력은 아직 연결하지 않았다. [구조·공식 근거·검증 기록](../docs/android/background-events-2026-11-13.md)을 참고한다.
