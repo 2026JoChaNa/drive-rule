@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="voice_retry">다시 말하기</string>
+    <string name="voice_stop">음성 입력 중지</string>
+    <string name="voice_idle">이름을 직접 입력하거나 ‘다시 말하기’를 눌러 주세요.</string>
+    <string name="voice_name_ready">입력된 이름을 확인하고 ‘다음’을 눌러 주세요.</string>
+    <string name="voice_connecting">차량 음성 인식을 준비하고 있어요. 첫 실행에는 잠시 걸릴 수 있습니다.</string>
+    <string name="voice_listening">듣고 있어요. 이름을 말해 주세요.</string>
+    <string name="voice_processing">말씀하신 이름을 확인하고 있어요…</string>
+    <string name="voice_unavailable">이 차량에서 음성 입력을 사용할 수 없습니다. 키보드로 입력해 주세요.</string>
+    <string name="voice_permission_denied">음성 서비스 접근이 허용되지 않았습니다. 키보드로 입력해 주세요.</string>
+    <string name="voice_microphone_error">마이크를 사용할 수 없습니다. 잠시 후 다시 시도하거나 키보드로 입력해 주세요.</string>
+    <string name="voice_no_speech">이름을 듣지 못했어요. ‘다시 말하기’를 누르거나 직접 입력해 주세요.</string>
+    <string name="voice_timeout">음성 입력 시간이 끝났습니다. ‘다시 말하기’를 누르거나 직접 입력해 주세요.</string>
+    <string name="voice_engine_error">차량의 음성 인식에 문제가 있습니다. 키보드로 입력해 주세요.</string>
+    <string name="voice_language_error">이 차량의 한국어 음성 인식을 사용할 수 없습니다. 키보드로 입력해 주세요.</string>
+</resources>

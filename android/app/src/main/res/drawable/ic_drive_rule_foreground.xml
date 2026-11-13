@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Original glyph paths; 80 px source maps to the central 72 dp of the 108 dp adaptive layer. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <group android:scaleX="0.9" android:scaleY="0.9" android:translateX="18" android:translateY="18">
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M39.9987 21.6641C45.0613 21.6641 49.1654 25.7681 49.1654 30.8307V49.1641C49.1654 54.2267 45.0613 58.3307 39.9987 58.3307C34.9361 58.3307 30.832 54.2267 30.832 49.1641V30.8307C30.832 25.7681 34.9361 21.6641 39.9987 21.6641Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3.66667"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M42.9331 30.8318C42.9331 32.4518 41.6198 33.7651 39.9997 33.7651C38.3797 33.7651 37.0664 32.4518 37.0664 30.8318C37.0664 29.2117 38.3797 27.8984 39.9997 27.8984C41.6198 27.8984 42.9331 29.2117 42.9331 30.8318Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3.66667"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M42.9331 40.0036C42.9331 41.6237 41.6198 42.937 39.9997 42.937C38.3797 42.937 37.0664 41.6237 37.0664 40.0036C37.0664 38.3836 38.3797 37.0703 39.9997 37.0703C41.6198 37.0703 42.9331 38.3836 42.9331 40.0036Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3.66667"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M42.9331 49.1677C42.9331 50.7877 41.6198 52.101 39.9997 52.101C38.3797 52.101 37.0664 50.7877 37.0664 49.1677C37.0664 47.5477 38.3797 46.2344 39.9997 46.2344C41.6198 46.2344 42.9331 47.5477 42.9331 49.1677Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3.66667"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    </group>
+</vector>

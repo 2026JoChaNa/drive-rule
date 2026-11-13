@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-feature
         android:name="android.hardware.type.automotive"
         android:required="true" />
@@ -7,14 +8,17 @@
         android:name="android.hardware.touchscreen"
         android:required="false" />
 
-    <!-- No vehicle, location, overlay, network, or foreground-service permission
-         is needed until its platform integration is implemented and verified. -->
+    <!-- Pleos Speech Service captures audio; the app uses ON_DEVICE recognition only. -->
+    <uses-permission android:name="pleos.car.permission.STT_SERVICE" />
+    <!-- The SDK declares INTERNET for server registration. This app never uses that mode. -->
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
     <application
         android:name=".DriveRuleApplication"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/ic_drive_rule"
+        android:icon="@mipmap/ic_drive_rule"
+        android:roundIcon="@mipmap/ic_drive_rule"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.DriveRule"
