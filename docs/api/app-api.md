@@ -1,8 +1,8 @@
 # 차량 앱용 서버 API (v1)
 
-차량 앱(Android)이 서버를 부를 때 보는 문서입니다. 서버 쪽 판단 근거는 결정 기록 [008](../decisions/008-server-api-v1.md) · [009](../decisions/009-core-features-v6-alignment.md) · [010](../decisions/010-school-zone-dataset.md)에 있습니다.
+차량 앱(Android)이 서버를 부를 때 보는 문서입니다. 서버 쪽 판단 근거는 결정 기록 [008](../decisions/008-server-api-v1.md) · [009](../decisions/009-core-features-v6-alignment.md) · [010](../decisions/010-school-zone-dataset.md) · [012](../decisions/012-gleo-app-schema-draft.md)에 있습니다. 검수 CMS(관리자) API 는 [admin-api.md](admin-api.md) 입니다.
 
-- 기준: 2026-11-12, `main`
+- 기준: 2026-11-13, `main`
 - 실제 스펙: Swagger UI `/swagger-ui.html`, OpenAPI JSON `/v3/api-docs` (코드 생성에 써도 됩니다)
 - 이 문서와 서버 동작이 다르면 서버 쪽 버그로 보고 알려 주세요
 
@@ -45,7 +45,20 @@
 Gleo 질문에 답할 카드 없음 → POST /api/v1/answer-holds
 ```
 
-Gleo 질문(`list_rule_changes` · `ask_rule` · `confirm_rule`)에는 **서버를 부르지 않고** 차량 사본으로 답합니다 (Gleo 7초 제한, 009 F).
+Gleo 질문에는 **서버를 부르지 않고** 차량 사본으로 답합니다 (Gleo 7초 제한, 009 F).
+
+### Gleo function 3개 — 사본으로 답하는 법
+
+App Schema 초안: [`spec/gleo-app-schema/schema.json`](../../spec/gleo-app-schema/schema.json) (앱 `assets/schema.json` 으로 복사, 결정 012). 기획 확인 전이라 topic 목록 · 조건 값이 바뀔 수 있습니다.
+
+| function | 받는 값 | 사본에서 고르는 것 | callback |
+|---|---|---|---|
+| `LIST_RULE_CHANGES` | `since`(YYYY-MM) 또는 `period`(`this_month` / `upcoming`) — 둘 다 선택 | `audience = GENERAL` 이고 시행일이 그 뒤인 카드, 시행일 순 | 둘 다 비면 `asking` + `missingField: "since"` |
+| `ASK_RULE` | `topic`(필수) + 공통 조건 키 4개(선택, 1장 '공통 조건') | `topic` 이 같고 회수되지 않은 카드 1장 → 조건 분기면 [매칭 명세](../../spec/rule-matching/README.md) | 카드 없음 · 보류 행 → 답변 보류 문장 + 4장 신고. `topic = other` 는 항상 보류 |
+| `CONFIRM_RULE` | `action`(`confirm` / `repeat`) — 카드 ID 는 받지 않음 | 이 대화에서 **방금 읽어 준 카드** (앱이 기억) | `confirm` → 프로필별 확인 이력 저장, `repeat` → 같은 `tts` 다시 |
+
+- 조건 파라미터가 비어 오면 '모름'입니다. 별도 '모름' 값은 없습니다
+- Gleo 는 앱 응답으로 문장을 새로 만듭니다. `silent` 로 두고 앱 TTS 가 검수 문장을 그대로 읽을 수 있는지는 11/18 검증 항목입니다 (009 F)
 
 ---
 
@@ -254,10 +267,11 @@ Gleo 질문에 답할 카드가 차 사본에 없을 때(대표 카드 없음 ·
 
 신고 두 개(3 · 4장)는 같은 요청을 두 번 보내면 두 건으로 쌓입니다. 응답을 받지 못해 다시 보내는 경우는 괜찮지만, 같은 신고를 반복해서 보내지 않게 해 주세요.
 
-## 7. 지금 서버 상태 (2026-11-12)
+## 7. 지금 서버 상태 (2026-11-13)
 
-- 게시된 카드가 **0장**입니다. 시연 카드 5장(A · B · H · I · 우회전 조건 분기)이 DRAFT로 들어가 있고, 법령 원문을 채우고 2인 검수를 거치면 동기화에 나옵니다. 그전까지 `cards` 는 빈 배열입니다
+- 게시된 카드가 **0장**입니다. 시연 카드 5장(A · B · H · I · 우회전 조건 분기)이 DRAFT로 들어가 있고, 검수자 2명이 승인하면 동기화에 나옵니다 (순서: [admin-api.md 6장](admin-api.md#6-시연-카드를-게시하는-순서-2026-11-13-운영-상태-기준)). 그전까지 `cards` 는 빈 배열입니다
 - 동기화 응답 모양을 미리 보려면 로컬 서버에 시드를 넣고 CMS로 게시하세요 (README '시연 카드 넣기')
+- 공통 조건 키 이름이 2026-11-13 에 바뀌었습니다 (`turn_light` → `right_turn_traffic_light` 등, 값은 같음, 012). 동기화 응답의 `conditions` 를 기준으로 쓰셨다면 고칠 것이 없습니다
 
 ## 8. 앱 문서와 다른 점 (확인 요청)
 
@@ -267,6 +281,6 @@ Gleo 질문에 답할 카드가 차 사본에 없을 때(대표 카드 없음 ·
 
 | 항목 | 영향 |
 |---|---|
-| 익명 API 요청 제한 | 신고 두 개는 인증이 없어 반복 요청에 열려 있음 |
-| 공통 조건 목록 확정 | 기획 회신 후 확정. 키가 바뀌면 이 문서 1장 표도 바뀜 |
-| 고속도로 노선 · 횡단보도 좌표 | 카드 A · I 판정용. 2장과 같은 모양(`/api/v1/geo/{dataset}`)으로 추가 예정 |
+| App Schema 기획 확인 (012 확인표) | topic 목록 · 노란불 값이 바뀌면 `schema.json` · 1장 공통 조건 표가 바뀜. 제출 전(11/16 주) 확정 |
+| 고속도로 노선 · 횡단보도 좌표 | 카드 A · I 판정용. 2장과 같은 모양(`/api/v1/geo/{dataset}`)으로 추가 예정 (11/18 검증 후) |
+| 익명 API 요청 제한 | 신고 두 개는 인증이 없어 반복 요청에 열려 있음 (보안 작업은 당분간 보류) |
