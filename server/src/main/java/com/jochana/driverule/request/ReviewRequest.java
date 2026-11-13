@@ -34,7 +34,7 @@ public class ReviewRequest {
 	@Column(name = "topic", length = 40)
 	private String topic;
 
-	// 운전자가 답한 조건 {"ped_signal":"green"} — 공통 조건 키 · 값만 (검증 후 저장)
+	// 운전자가 답한 조건 {"crosswalk_light":"green"} — 공통 조건 키 · 값만 (검증 후 저장)
 	@Column(name = "conditions_json", columnDefinition = "json")
 	private String conditionsJson;
 

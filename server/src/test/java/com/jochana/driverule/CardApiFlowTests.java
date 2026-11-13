@@ -73,7 +73,7 @@ class CardApiFlowTests {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.fullSync").value(true))
 				.andExpect(jsonPath("$.cards[*].cardId", not(hasItem((int) cardId))))
-				.andExpect(jsonPath("$.conditions[*].key", hasItem("ped_signal")));
+				.andExpect(jsonPath("$.conditions[*].key", hasItem("crosswalk_light")));
 
 		// 검수 요청 → 승인 1건 → 같은 검수자 중복 → 승인 2건 = 게시
 		admin(post("/api/v1/admin/cards/" + cardId + "/submit"), "")
@@ -94,7 +94,7 @@ class CardApiFlowTests {
 				.andExpect(jsonPath(card + ".promulgatedOn").value(hasItem("2026-10-13")))
 				.andExpect(jsonPath(card + ".audience").value(hasItem("GENERAL")))
 				.andExpect(jsonPath(card + ".verifiedAt").value(hasItem(matchesPattern(".*T.*\\+09:00$"))))
-				.andExpect(jsonPath(card + ".decision.tables[1].conditions[0]").value(hasItem("ped_signal")))
+				.andExpect(jsonPath(card + ".decision.tables[1].conditions[0]").value(hasItem("crosswalk_light")))
 				.andReturn().getResponse().getContentAsString();
 		String syncToken = JsonPath.read(firstSync, "$.syncToken");
 
@@ -106,13 +106,13 @@ class CardApiFlowTests {
 		mvc.perform(json(post("/api/v1/cards/999999/error-reports"), "{\"cardVersion\":1}"))
 				.andExpect(status().isNotFound());
 		mvc.perform(json(post("/api/v1/answer-holds"),
-				"{\"topic\":\"highway_shoulder\",\"conditions\":{\"pedestrian\":\"no\"}}"))
+				"{\"topic\":\"highway_shoulder\",\"conditions\":{\"pedestrian_present\":\"no\"}}"))
 				.andExpect(status().isAccepted());
 		mvc.perform(json(post("/api/v1/answer-holds"), "{\"topic\":\"x\",\"conditions\":{\"weather\":\"rain\"}}"))
 				.andExpect(status().isUnprocessableContent())
 				.andExpect(jsonPath("$.code").value("CONDITION_UNKNOWN"));
 		admin(get("/api/v1/admin/review-requests?requestType=ANSWER_HOLD"), "")
-				.andExpect(jsonPath("$[?(@.topic == 'highway_shoulder')].conditions.pedestrian").value(hasItem("no")));
+				.andExpect(jsonPath("$[?(@.topic == 'highway_shoulder')].conditions.pedestrian_present").value(hasItem("no")));
 
 		// 게시된 적 있는 카드의 주제는 수정으로 못 바꾼다 — DRAFT 라 차에 가지 않는다
 		admin(put("/api/v1/admin/cards/" + cardId), rightTurn.replace("right_turn_flow", "right_turn_other"))
@@ -184,11 +184,11 @@ class CardApiFlowTests {
 	void decisionTableWithAGapIsRejected() throws Exception {
 		// 보행 신호 적색 행을 지우면 기획 v6 2-4 표와 같아진다 → 완전성 검사에 걸린다
 		String gap = seedCard("right_turn").replace("\"topic\":\"right_turn\"", "\"topic\":null")
-				.replaceAll(",\\{\"when\":\\{\"ped_signal\":\"red\"\\}[^}]*\\}", "");
+				.replaceAll(",\\{\"when\":\\{\"crosswalk_light\":\"red\"\\}[^}]*\\}", "");
 		admin(post("/api/v1/admin/cards"), gap)
 				.andExpect(status().isUnprocessableContent())
 				.andExpect(jsonPath("$.code").value("CARD_INVALID"))
-				.andExpect(jsonPath("$.errors[0]").value(containsString("ped_signal=red")));
+				.andExpect(jsonPath("$.errors[0]").value(containsString("crosswalk_light=red")));
 	}
 
 	@Test

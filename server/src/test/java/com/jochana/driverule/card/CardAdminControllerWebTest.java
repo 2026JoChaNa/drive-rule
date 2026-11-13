@@ -38,9 +38,9 @@ class CardAdminControllerWebTest {
 			  "title": "우회전", "ttsText": "t", "legalBasis": "제27조",
 			  "lawExcerpt": "원문", "effectiveOn": "2027-06-03",
 			  "decision": { "schema": 2, "tables": [{ "key": "approach", "title": "진입 전",
-			    "conditions": ["front_signal"],
-			    "rows": [{ "when": { "front_signal": "red" }, "text": "멈춥니다", "tts": "멈춥니다" },
-			             { "when": { "front_signal": "green" }, "text": "천천히", "tts": "천천히" }] }] } }
+			    "conditions": ["front_traffic_light"],
+			    "rows": [{ "when": { "front_traffic_light": "red" }, "text": "멈춥니다", "tts": "멈춥니다" },
+			             { "when": { "front_traffic_light": "green" }, "text": "천천히", "tts": "천천히" }] }] } }
 			""";
 
 	@Test
@@ -55,7 +55,7 @@ class CardAdminControllerWebTest {
 				.andExpect(jsonPath("$.errors[0]").value("e1"));
 
 		org.mockito.Mockito.verify(service).create(org.mockito.ArgumentMatchers.argThat(c ->
-				c.decision().tables().get(0).rows().get(0).when().get("front_signal").equals("red")
+				c.decision().tables().get(0).rows().get(0).when().get("front_traffic_light").equals("red")
 						&& c.effectiveOn().toString().equals("2027-06-03")
 						&& c.cardType() == CardType.CONDITIONAL));
 	}

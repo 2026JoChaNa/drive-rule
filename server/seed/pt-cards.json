@@ -82,29 +82,29 @@
             "key": "approach",
             "title": "교차로 진입 전",
             "conditions": [
-              "turn_light",
-              "front_signal"
+              "right_turn_traffic_light",
+              "front_traffic_light"
             ],
             "rows": [
               {
                 "when": {
-                  "turn_light": "yes"
+                  "right_turn_traffic_light": "yes"
                 },
                 "text": "녹색 화살표가 켜졌을 때만 우회전합니다",
                 "tts": "녹색 화살표가 켜졌을 때만 우회전합니다. 안 지키면 신호위반입니다."
               },
               {
                 "when": {
-                  "turn_light": "no",
-                  "front_signal": "red"
+                  "right_turn_traffic_light": "no",
+                  "front_traffic_light": "red"
                 },
                 "text": "정지선 앞에서 먼저 멈춘 뒤 천천히 우회전합니다",
                 "tts": "보행자가 없어도 정지선 앞에서 먼저 멈춘 뒤 천천히 우회전합니다."
               },
               {
                 "when": {
-                  "turn_light": "no",
-                  "front_signal": "green"
+                  "right_turn_traffic_light": "no",
+                  "front_traffic_light": "green"
                 },
                 "text": "천천히 우회전합니다",
                 "tts": "천천히 우회전할 수 있습니다. 돌아서 만나는 횡단보도에 사람이 있으면 멈춥니다."
@@ -115,29 +115,29 @@
             "key": "crosswalk",
             "title": "돌아선 뒤 횡단보도",
             "conditions": [
-              "ped_signal",
-              "pedestrian"
+              "crosswalk_light",
+              "pedestrian_present"
             ],
             "rows": [
               {
                 "when": {
-                  "ped_signal": "green",
-                  "pedestrian": "yes"
+                  "crosswalk_light": "green",
+                  "pedestrian_present": "yes"
                 },
                 "text": "횡단보도 앞에서 멈춥니다",
                 "tts": "횡단보도를 건너고 있거나 건너려는 사람이 있으면 횡단보도 앞에서 멈춥니다."
               },
               {
                 "when": {
-                  "ped_signal": "green",
-                  "pedestrian": "no"
+                  "crosswalk_light": "green",
+                  "pedestrian_present": "no"
                 },
                 "text": "주위를 살피고 천천히 지나갑니다",
                 "tts": "건너는 사람이 없으면 주위를 살피고 천천히 지나갈 수 있습니다."
               },
               {
                 "when": {
-                  "ped_signal": "red"
+                  "crosswalk_light": "red"
                 },
                 "text": "(검수 문장 필요 — 기획 확인)",
                 "tts": "(검수 문장 필요 — 기획 확인)"

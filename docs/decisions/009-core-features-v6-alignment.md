@@ -95,6 +95,8 @@ Gleo 파라미터는 중첩 객체를 받지 못하므로 v6 의 `conditions` �
 | `ped_signal` | 돌아선 뒤 횡단보도 보행 신호 | `green` / `red` |
 | `pedestrian` | 보행자가 건너거나 건너려 하나 | `yes` / `no` |
 
+> 2026-11-13: 키 이름을 바꿨다 (`right_turn_traffic_light` · `front_traffic_light` · `crosswalk_light` · `pedestrian_present`, 값은 같음). 이유와 App Schema 초안은 [012](012-gleo-app-schema-draft.md)
+
 - 노란불 · 점멸 신호 같은 값은 v6 에 없어 넣지 않았다 **(기획 확인)**
 - 새 조건 = 앱 업데이트 + Pleos 심사. 출시 카드 27장 기준으로 다시 본다
 - `topic` 도 enum 으로 고정하는 것을 제안한다 — Gleo 가 고르기 쉽고, 카드가 정해진 MVP 범위에 맞다. **topic 목록은 기획이 준다**
@@ -168,8 +170,8 @@ v6 2-1 은 "앱이 서버 API 를 호출하고, 닿지 못하면 사본으로"�
 
 | # | 항목 | 마감 |
 |---|---|---|
-| 1 | B-2 공통 조건 목록 (4개 조건과 값, 노란불 등 추가 여부) | **App Schema 제출 전 (11/16 주)** |
-| 2 | B-2 `topic` 목록 | **App Schema 제출 전 (11/16 주)** |
+| 1 | B-2 공통 조건 목록 (4개 조건과 값, 노란불 등 추가 여부) → **[012 기획 확인표](012-gleo-app-schema-draft.md#기획-확인표) 3 · 4번** | **App Schema 제출 전 (11/16 주)** |
+| 2 | B-2 `topic` 목록 → **[012 기획 확인표](012-gleo-app-schema-draft.md#기획-확인표) 1 · 2번** | **App Schema 제출 전 (11/16 주)** |
 | 3 | B-1 우회전 3행에 '우회전 신호등 없음' 조건 추가 | 카드 검수 전 |
 | 4 | B-1 보행 신호 적색 행의 검수 문장 | 카드 검수 전 |
 | 5 | F Gleo 답변을 앱 사본으로 (v6 2-1 3·4번 문구) | 앱 Gleo 구현 전 |

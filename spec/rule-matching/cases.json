@@ -6,21 +6,21 @@
         {
           "key": "approach",
           "title": "교차로 진입 전",
-          "conditions": ["turn_light", "front_signal"],
+          "conditions": ["right_turn_traffic_light", "front_traffic_light"],
           "rows": [
-            { "when": { "turn_light": "yes" }, "text": "approach.light_yes", "tts": "approach.light_yes" },
-            { "when": { "turn_light": "no", "front_signal": "red" }, "text": "approach.no_red", "tts": "approach.no_red" },
-            { "when": { "turn_light": "no", "front_signal": "green" }, "text": "approach.no_green", "tts": "approach.no_green" }
+            { "when": { "right_turn_traffic_light": "yes" }, "text": "approach.light_yes", "tts": "approach.light_yes" },
+            { "when": { "right_turn_traffic_light": "no", "front_traffic_light": "red" }, "text": "approach.no_red", "tts": "approach.no_red" },
+            { "when": { "right_turn_traffic_light": "no", "front_traffic_light": "green" }, "text": "approach.no_green", "tts": "approach.no_green" }
           ]
         },
         {
           "key": "crosswalk",
           "title": "돌아선 뒤 횡단보도",
-          "conditions": ["ped_signal", "pedestrian"],
+          "conditions": ["crosswalk_light", "pedestrian_present"],
           "rows": [
-            { "when": { "ped_signal": "green", "pedestrian": "yes" }, "text": "crosswalk.green_yes", "tts": "crosswalk.green_yes" },
-            { "when": { "ped_signal": "green", "pedestrian": "no" }, "text": "crosswalk.green_no", "tts": "crosswalk.green_no" },
-            { "when": { "ped_signal": "red" }, "text": "crosswalk.red", "tts": "crosswalk.red" }
+            { "when": { "crosswalk_light": "green", "pedestrian_present": "yes" }, "text": "crosswalk.green_yes", "tts": "crosswalk.green_yes" },
+            { "when": { "crosswalk_light": "green", "pedestrian_present": "no" }, "text": "crosswalk.green_no", "tts": "crosswalk.green_no" },
+            { "when": { "crosswalk_light": "red" }, "text": "crosswalk.red", "tts": "crosswalk.red" }
           ]
         }
       ]
@@ -31,11 +31,11 @@
         {
           "key": "only",
           "title": "같은 문장이 두 행에",
-          "conditions": ["ped_signal", "pedestrian"],
+          "conditions": ["crosswalk_light", "pedestrian_present"],
           "rows": [
-            { "when": { "ped_signal": "green", "pedestrian": "yes" }, "text": "stop", "tts": "stop" },
-            { "when": { "ped_signal": "green", "pedestrian": "no" }, "text": "same", "tts": "same" },
-            { "when": { "ped_signal": "red" }, "text": "same", "tts": "same" }
+            { "when": { "crosswalk_light": "green", "pedestrian_present": "yes" }, "text": "stop", "tts": "stop" },
+            { "when": { "crosswalk_light": "green", "pedestrian_present": "no" }, "text": "same", "tts": "same" },
+            { "when": { "crosswalk_light": "red" }, "text": "same", "tts": "same" }
           ]
         }
       ]
@@ -46,60 +46,60 @@
       "name": "조건 없음 → 첫 소표의 첫 조건을 묻는다",
       "decision": "right_turn",
       "given": {},
-      "expect": { "status": "ASK", "ask": "turn_light" }
+      "expect": { "status": "ASK", "ask": "right_turn_traffic_light" }
     },
     {
       "name": "기획 v6 2-4 대화 예시: 보행 신호 녹색만 → 보행자 있음·없음 두 문장을 함께",
       "decision": "right_turn",
-      "given": { "ped_signal": "green" },
+      "given": { "crosswalk_light": "green" },
       "expect": { "status": "ANSWER", "texts": ["crosswalk.green_yes", "crosswalk.green_no"] }
     },
     {
       "name": "소표 조건을 다 주면 한 행",
       "decision": "right_turn",
-      "given": { "ped_signal": "green", "pedestrian": "yes" },
+      "given": { "crosswalk_light": "green", "pedestrian_present": "yes" },
       "expect": { "status": "ANSWER", "texts": ["crosswalk.green_yes"] }
     },
     {
       "name": "'잘 모르겠어요'(전방 신호 모름) → 남은 두 행을 함께",
       "decision": "right_turn",
-      "given": { "turn_light": "no" },
+      "given": { "right_turn_traffic_light": "no" },
       "expect": { "status": "ANSWER", "texts": ["approach.no_red", "approach.no_green"] }
     },
     {
       "name": "when 에 없는 조건은 상관없음 — 신호등 있음 행도 후보",
       "decision": "right_turn",
-      "given": { "front_signal": "green" },
+      "given": { "front_traffic_light": "green" },
       "expect": { "status": "ANSWER", "texts": ["approach.light_yes", "approach.no_green"] }
     },
     {
       "name": "보행 신호 모름 + 보행자 있음 → 녹색·적색 행",
       "decision": "right_turn",
-      "given": { "pedestrian": "yes" },
+      "given": { "pedestrian_present": "yes" },
       "expect": { "status": "ANSWER", "texts": ["crosswalk.green_yes", "crosswalk.red"] }
     },
     {
       "name": "두 소표에서 후보 4개 → 첫 소표에서 갈리는 조건을 묻는다",
       "decision": "right_turn",
-      "given": { "front_signal": "green", "ped_signal": "green" },
-      "expect": { "status": "ASK", "ask": "turn_light" }
+      "given": { "front_traffic_light": "green", "crosswalk_light": "green" },
+      "expect": { "status": "ASK", "ask": "right_turn_traffic_light" }
     },
     {
       "name": "두 소표 모두 정해지면 한 행씩 모아서 (COLLECT)",
       "decision": "right_turn",
-      "given": { "turn_light": "no", "front_signal": "green", "ped_signal": "green", "pedestrian": "no" },
+      "given": { "right_turn_traffic_light": "no", "front_traffic_light": "green", "crosswalk_light": "green", "pedestrian_present": "no" },
       "expect": { "status": "ANSWER", "texts": ["approach.no_green", "crosswalk.green_no"] }
     },
     {
       "name": "후보 3개, 첫 소표는 이미 하나 → 갈리는 두 번째 소표 조건을 묻는다",
       "decision": "right_turn",
-      "given": { "turn_light": "yes", "pedestrian": "no" },
-      "expect": { "status": "ASK", "ask": "ped_signal" }
+      "given": { "right_turn_traffic_light": "yes", "pedestrian_present": "no" },
+      "expect": { "status": "ASK", "ask": "crosswalk_light" }
     },
     {
       "name": "같은 문장은 하나로 센다 — 두 행이 걸려도 문장은 하나",
       "decision": "shared_text",
-      "given": { "pedestrian": "no" },
+      "given": { "pedestrian_present": "no" },
       "expect": { "status": "ANSWER", "texts": ["same"] }
     }
   ]
