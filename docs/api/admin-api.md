@@ -321,6 +321,7 @@ curl -s "${H[@]}" -X PATCH $BASE/review-requests/3 -d '{"status":"RESOLVED"}'
 
 운영 서버에는 **시연 카드 5장(id 1~5)이 모두 DRAFT** 이고, 검수자는 0명, 법령 개정은 제22067호 1건(`PENDING`)입니다.
 
+0. (2026-11-13 추가) 시드의 '바뀐 규칙 묻기' 카드 5장 넣기: `BASE_URL=http://13.124.175.42:8080 ADMIN_API_KEY=$KEY node server/seed/seed.mjs` — 같은 제목의 카드는 건너뛰므로 새 5장과 법령 개정 5건만 들어간다 ([근거 대조](../content/rule-change-cards-legal-check.md))
 1. 검수자 2명 등록 (1장) — 실제로 검수할 팀원 이름으로
 2. 제22067호 분류: `APPLICABLE` (2-3) — 카드 A 의 출처
 3. 카드마다 내용 확인 → 필요하면 수정 (3-4). 기획 확인 대기 항목이 남은 카드:

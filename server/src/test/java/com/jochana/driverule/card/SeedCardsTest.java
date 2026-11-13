@@ -33,6 +33,22 @@ class SeedCardsTest {
 				}));
 	}
 
+	/** seed.mjs 는 제목으로 이미 넣은 카드를 건너뛰고, 서버는 주제를 카드 1장에만 허용한다 (006). */
+	@org.junit.jupiter.api.Test
+	void titlesAndTopicsAreUniqueAndRevisionsExist() throws Exception {
+		JsonNode seed = JsonMapper.builder().build().readTree(Files.readString(Path.of("seed", "pt-cards.json")));
+		List<String> titles = seed.get("cards").valueStream().map(n -> n.get("title").asString()).toList();
+		List<String> topics = seed.get("cards").valueStream().filter(n -> n.has("topic"))
+				.map(n -> n.get("topic").asString()).toList();
+		List<String> lawNos = seed.get("lawRevisions").valueStream().map(n -> n.get("lawNo").asString()).toList();
+
+		assertThat(titles).doesNotHaveDuplicates();
+		assertThat(topics).doesNotHaveDuplicates();
+		assertThat(lawNos).doesNotHaveDuplicates();
+		seed.get("cards").valueStream().filter(n -> n.has("revisionLawNo"))
+				.forEach(n -> assertThat(lawNos).contains(n.get("revisionLawNo").asString()));
+	}
+
 	@TestFactory
 	Stream<DynamicTest> everyEventHasADemoCard() throws Exception {
 		JsonNode seed = JsonMapper.builder().build().readTree(Files.readString(Path.of("seed", "pt-cards.json")));

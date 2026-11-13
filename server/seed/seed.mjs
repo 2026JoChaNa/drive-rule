@@ -2,7 +2,9 @@
 //
 //   BASE_URL=http://localhost:8080 ADMIN_API_KEY=local node server/seed/seed.mjs
 //
-// 같은 공포 번호의 법령 개정이 이미 있으면(409) 그 행을 찾아 쓴다. 카드는 매번 새로 만든다 — 두 번 돌리면 중복된다.
+// 같은 공포 번호의 법령 개정이 이미 있으면(409) 그 행을 찾아 쓴다.
+// 같은 제목의 카드(회수된 것 제외)가 이미 있으면 건너뛴다 — 시드에 카드를 더한 뒤 다시 돌려도 새 카드만 들어간다.
+// 이미 들어간 카드의 내용을 시드에 맞춰 고치지는 않는다 (CMS 에서 고친 내용을 덮어쓰지 않으려고).
 import { readFile } from 'node:fs/promises';
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:8080';
@@ -36,7 +38,15 @@ for (const rev of seed.lawRevisions) {
   console.log(`법령 개정 ${rev.lawNo} → id ${res.body.id}`);
 }
 
+const existing = await admin('GET', '/cards');
+if (existing.status !== 200) throw new Error(`카드 목록: ${existing.status}`);
+const liveTitles = new Set(existing.body.filter((c) => c.status !== 'RETIRED').map((c) => c.title));
+
 for (const { _demo, revisionLawNo, ...card } of seed.cards) {
+  if (liveTitles.has(card.title)) {
+    console.log(`카드 ${_demo} — 같은 제목이 있어 건너뜀`);
+    continue;
+  }
   if (revisionLawNo) card.revisionId = revisionIdByLawNo[revisionLawNo];
   const res = await admin('POST', '/cards', card);
   if (res.status !== 201) {
