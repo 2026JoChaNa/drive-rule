@@ -40,7 +40,8 @@ class CardAdminControllerWebTest {
 			  "decision": { "schema": 2, "tables": [{ "key": "approach", "title": "진입 전",
 			    "conditions": ["front_traffic_light"],
 			    "rows": [{ "when": { "front_traffic_light": "red" }, "text": "멈춥니다", "tts": "멈춥니다" },
-			             { "when": { "front_traffic_light": "green" }, "text": "천천히", "tts": "천천히" }] }] } }
+			             { "when": { "front_traffic_light": "green" }, "text": "천천히", "tts": "천천히" },
+			             { "when": { "front_traffic_light": "yellow" }, "text": "멈춥니다", "tts": "멈춥니다" }] }] } }
 			""";
 
 	@Test

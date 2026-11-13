@@ -8,17 +8,19 @@ import java.util.Optional;
  * 공통 조건 목록 (결정 009 B-2). Gleo App Schema 의 {@code ask_rule} 파라미터와 1:1 — 이름과 값을 바꾸면
  * 앱 schema.json 도 바꿔 Pleos 심사를 다시 받아야 한다.
  * <p>
- * <b>초안</b>: 기획 v6 2-4 에서 뽑았다. App Schema 제출(11/16 주) 전 기획 확인 대기.
+ * 기획 v6 2-4 에서 뽑고, 노란불 · 녹색 점멸을 더했다 (결정 012 확인표 3 · 4, 2026-11-13 확정).
  * 질문 · 선택지 문구는 앱의 되묻기 화면(Figma 6)에 쓰도록 동기화로 함께 보낸다.
  */
 public enum RuleCondition {
 
 	RIGHT_TURN_TRAFFIC_LIGHT("right_turn_traffic_light", "우회전 신호등이 있었나요?",
 			List.of(new Option("yes", "있었어요"), new Option("no", "없었어요"))),
-	FRONT_TRAFFIC_LIGHT("front_traffic_light", "전방 신호가 빨간불이었나요?",
-			List.of(new Option("red", "빨간불이었어요"), new Option("green", "초록불이었어요"))),
+	FRONT_TRAFFIC_LIGHT("front_traffic_light", "전방 차량 신호는 무슨 색이었나요?",
+			List.of(new Option("red", "빨간불이었어요"), new Option("yellow", "노란불이었어요"),
+					new Option("green", "초록불이었어요"))),
 	CROSSWALK_LIGHT("crosswalk_light", "돌아선 뒤 횡단보도 보행 신호는 무슨 색이었나요?",
-			List.of(new Option("green", "초록불이었어요"), new Option("red", "빨간불이었어요"))),
+			List.of(new Option("green", "초록불이었어요"), new Option("green_flashing", "초록불이 깜빡였어요"),
+					new Option("red", "빨간불이었어요"))),
 	PEDESTRIAN_PRESENT("pedestrian_present", "건너거나 건너려는 사람이 있었나요?",
 			List.of(new Option("yes", "있었어요"), new Option("no", "없었어요")));
 

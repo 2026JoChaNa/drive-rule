@@ -80,7 +80,8 @@ App Schema 초안: [`spec/gleo-app-schema/schema.json`](../../spec/gleo-app-sche
   "retiredCardIds": [3],
   "conditions": [
     { "key": "crosswalk_light", "question": "돌아선 뒤 횡단보도 보행 신호는 무슨 색이었나요?",
-      "options": [ { "key": "green", "label": "초록불이었어요" }, { "key": "red", "label": "빨간불이었어요" } ] }
+      "options": [ { "key": "green", "label": "초록불이었어요" }, { "key": "green_flashing", "label": "초록불이 깜빡였어요" },
+                   { "key": "red", "label": "빨간불이었어요" } ] }
   ]
 }
 ```
@@ -151,16 +152,16 @@ App Schema 초안: [`spec/gleo-app-schema/schema.json`](../../spec/gleo-app-sche
 - 앱 구현은 [`spec/rule-matching/cases.json`](../../spec/rule-matching/cases.json) 의 케이스를 테스트로 돌려 서버와 같은 결과를 내는지 확인하세요
 - `schema` 가 2가 아니면 그 카드는 쓰지 말고 건너뜁니다 (형식이 바뀌면 서버가 토큰을 무효로 만들어 전체를 다시 보냅니다)
 
-### 공통 조건 (`conditions[]`) — 초안
+### 공통 조건 (`conditions[]`)
 
 | `key` | 선택지 `key` |
 |---|---|
 | `right_turn_traffic_light` | `yes` · `no` |
-| `front_traffic_light` | `red` · `green` |
-| `crosswalk_light` | `green` · `red` |
+| `front_traffic_light` | `red` · `yellow` · `green` |
+| `crosswalk_light` | `green` · `green_flashing` · `red` |
 | `pedestrian_present` | `yes` · `no` |
 
-Gleo App Schema `ASK_RULE` 파라미터와 1:1입니다 (스키마 초안: [`spec/gleo-app-schema/schema.json`](../../spec/gleo-app-schema/schema.json), 결정 012). **기획 확인 전 초안**이라 App Schema 제출(11/16 주) 전에 바뀔 수 있습니다 — 노란불(`yellow`) 값 추가를 제안해 두었습니다. 화면 문구는 응답의 `question` · `label` 을 쓰고, 키는 하드코딩하지 말고 응답을 기준으로 삼으세요.
+Gleo App Schema `ASK_RULE` 파라미터와 1:1입니다 (스키마 초안: [`spec/gleo-app-schema/schema.json`](../../spec/gleo-app-schema/schema.json), 결정 012). 2026-11-13 확정했습니다 — 노란불(`yellow`) · 녹색 점멸(`green_flashing`)을 더했습니다. 화면 문구는 응답의 `question` · `label` 을 쓰고, 키는 하드코딩하지 말고 응답을 기준으로 삼으세요.
 
 ---
 

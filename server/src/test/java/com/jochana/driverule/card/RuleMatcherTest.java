@@ -20,7 +20,8 @@ class RuleMatcherTest {
 				new Row(Map.of("right_turn_traffic_light", "no"), "a.no", "a.no", null)));
 		SubTable b = new SubTable("b", "b", List.of("front_traffic_light"), List.of(
 				new Row(Map.of("front_traffic_light", "red"), "b.red", "b.red", null),
-				new Row(Map.of("front_traffic_light", "green"), "b.green", "b.green", null)));
+				new Row(Map.of("front_traffic_light", "green"), "b.green", "b.green", null),
+				new Row(Map.of("front_traffic_light", "yellow"), "b.yellow", "b.yellow", null)));
 		SubTable c = new SubTable("c", "c", List.of("pedestrian_present"), List.of(
 				new Row(Map.of("pedestrian_present", "yes"), "c.yes", "c.yes", null),
 				new Row(Map.of("pedestrian_present", "no"), "c.no", "c.no", null)));

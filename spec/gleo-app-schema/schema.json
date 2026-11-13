@@ -64,12 +64,12 @@
             "front_traffic_light": {
               "type": "string",
               "description": "Color of the vehicle traffic light facing the driver before turning.",
-              "enum": ["red", "green"]
+              "enum": ["red", "yellow", "green"]
             },
             "crosswalk_light": {
               "type": "string",
               "description": "Color of the pedestrian light at the crosswalk the driver meets right after turning.",
-              "enum": ["green", "red"]
+              "enum": ["green", "green_flashing", "red"]
             },
             "pedestrian_present": {
               "type": "string",
