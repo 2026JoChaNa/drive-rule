@@ -35,7 +35,7 @@ Kotlin·Jetpack Compose 기반의 차량 앱이다. 현재 MVVM/UDF 구조에서
 
 기본 주소는 `http://13.124.175.42:8080/`이며 `BuildConfig.API_BASE_URL`로 관리한다. `-PdriveRuleApiBaseUrl=http://10.0.2.2:8080/`로 에뮬레이터에서 개발 PC의 서버를 선택할 수 있다. 주소는 인증 정보·query·하위 경로가 없는 origin이어야 한다. 평문 허용은 운영 IP 하나에 한정하고 debug에만 `10.0.2.2`, `127.0.0.1`, `localhost`를 추가했다. 새 HTTP host를 사용하려면 해당 variant의 `network_security_config.xml`에도 명시한다. 앱 전체 평문 허용이나 인증서 검증 해제는 사용하지 않는다.
 
-통신 조합은 OkHttp 4.12.0 / Retrofit 2.11.0 / kotlinx.serialization 1.8.1이다. 알 수 없는 JSON 필드는 무시하고 wire enum은 문자열로 보존한다. 회수 처리·지원 카드 유형/결정 schema 검증·토큰과 카드의 원자적 저장·재시도 스케줄은 아직 연결 전이다. `decision`은 schema 2 계약을 기준으로 후속 mapper에서 검증한다. [연동 준비와 검증 기록](../docs/android/backend-api-preparation-2026-11-13.md)을 참고한다.
+통신 조합은 OkHttp 4.12.0 / Retrofit 2.11.0 / kotlinx.serialization 1.8.1이다. 알 수 없는 JSON 필드는 무시하고 wire enum은 문자열로 보존한다. 회수 처리·지원 카드 유형/결정 schema 검증·토큰과 카드의 원자적 저장·재시도 스케줄은 아직 연결 전이다. `decision`은 schema 2 계약을 기준으로 후속 mapper에서 검증한다. [연동 준비와 검증 기록](../docs/android/history/backend-api-preparation-2026-11-13.md)을 참고한다.
 
 ## 최초 설정과 음성 이름 입력
 
@@ -45,18 +45,18 @@ Kotlin·Jetpack Compose 기반의 차량 앱이다. 현재 MVVM/UDF 구조에서
 
 음성 adapter는 [SpeechToText 3.3.1의 `ON_DEVICE` 모드](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/intro)와 [`Locale.KOREA`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/set-locale)를 사용한다. 서버 인식으로 전환하지 않는다. 앱은 백엔드 API 준비를 위해 `INTERNET` 권한을 선언하지만 음성 adapter는 계속 `Mode.ON_DEVICE`만 사용한다. [`pleos.car.permission.STT_SERVICE`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/declaring-permissions)는 대상 Pleos 환경의 normal 권한으로 별도 OS 허용 팝업이 없다. 권한 안내는 사용 범위를 설명하는 앱 화면이며 권한 부여 결과를 나타내지 않는다. 알림·차량 속도/기어 연동은 준비 중이고 Gleo 질의는 별도 후속 기능이다.
 
-음성 입력 코드의 연결과 실제 차량에서의 한국어 인식 성공·품질은 구분한다. 이번 변경의 빌드·테스트·장치 검증 결과는 [권한 안내·음성 입력 검증](../docs/android/onboarding-permissions-speech-2026-11-12.md)에서 관리한다.
+음성 입력 코드의 연결과 실제 차량에서의 한국어 인식 성공·품질은 구분한다. 이번 변경의 빌드·테스트·장치 검증 결과는 [권한 안내·음성 입력 검증](../docs/android/history/onboarding-permissions-speech-2026-11-12.md)에서 관리한다.
 
 ## 개발 문서
 
 1. [Codex 작업 지침](AGENTS.md)
 2. [개발 컨벤션](CODEX_CONVENTIONS.md)
 3. [화면·주행 안내·플랫폼의 구조와 실행 수명](../docs/android/architecture.md)
-4. [Pleos·Figma·GitHub 출처 확인 기록](../docs/android/source-check-2026-11-12.md)
-5. [디자인 가이드 준수 점검과 남은 UI 검증](../docs/android/design-compliance-2026-11-12.md)
-6. [결정 008: 화면과 주행 안내의 책임·수명 분리](../docs/android/decisions/008-android-guidance-architecture.md)
-7. [결정 009: 로컬 프로필과 화면 시연 범위](../docs/android/decisions/009-local-profile-and-ui-demo.md)
-8. [최초 설정·샘플 홈 구현 및 검증 기록](../docs/android/ui-implementation-2026-11-12.md)
+4. [Pleos·Figma·GitHub 출처 확인 기록](../docs/android/history/source-check-2026-11-12.md)
+5. [디자인 가이드 준수 점검과 남은 UI 검증](../docs/android/history/design-compliance-2026-11-12.md)
+6. [결정 A01: 화면과 주행 안내의 책임·수명 분리](../docs/android/decisions/A01-android-guidance-architecture.md)
+7. [결정 A02: 로컬 프로필과 화면 시연 범위](../docs/android/decisions/A02-local-profile-and-ui-demo.md)
+8. [최초 설정·샘플 홈 구현 및 검증 기록](../docs/android/history/ui-implementation-2026-11-12.md)
 
 이름 등록·출발 전 화면은 MVVM/UDF로 구현한다. 향후 주행 안내는 `domain/event`·`domain/guidance`의 순수 판단, `app/guidance`의 실행 조정, `core/platform`의 SDK adapter로 나눈다. `app/guidance`에 순수 coordinator를 구현했다. Debug 서비스는 샘플 이벤트를 처리하며 공식 시스템 알림을 선택적으로 게시한다. 실제 차량 신호·TTS·외부 사용자 정의 카드 표시는 후속 검증 대상이다.
 
@@ -119,13 +119,13 @@ Pleos에서 앱 프로세스는 실행됐지만 기존 task가 정상 앱 slot�
 # 장치가 여러 개면 -Serial emulator-5554 등 실제 serial 지정
 ```
 
-스크립트는 현재 Android 사용자를 조회한다. 앱 데이터 삭제나 에뮬레이터 초기화는 하지 않는다. 원인 관측·아이콘 출처·실행 검증은 [런처 점검 기록](../docs/android/launcher-verification-2026-11-12.md)을 참고한다.
+스크립트는 현재 Android 사용자를 조회한다. 앱 데이터 삭제나 에뮬레이터 초기화는 하지 않는다. 원인 관측·아이콘 출처·실행 검증은 [런처 점검 기록](../docs/android/history/launcher-verification-2026-11-12.md)을 참고한다.
 
 Manifest는 Automotive 기기를 대상으로 하며 이름 음성 입력용 `STT_SERVICE`를 선언한다. 아직 주행 중 조작 가능 앱으로 선언하지 않았고 차량·위치·overlay 권한을 요청하지 않는다. Debug에만 유한 샘플 세션용 foreground service와 선택적 알림 권한을 선언한다. 앱이 직접 마이크를 녹음하는 `RECORD_AUDIO` 경로는 사용하지 않는다.
 
 ## 검증과 CI
 
-JVM 테스트는 기존 출발 전 상태 처리에 더해 이름 검증, 프로필 흐름, 중복 저장 방지, UX 제한, 저장소 재시도와 테마 오류 복구를 대상으로 한다. Room 계측 테스트에는 동시 생성 상한·선택 보존·DB 재오픈 시나리오가 있다. 보고서는 `app/build/reports/tests/testDebugUnitTest/`와 `app/build/reports/lint-results-debug.html`에 생성된다. 새 기능의 실행 결과와 화면 검증은 [구현 기록](../docs/android/ui-implementation-2026-11-12.md)을 따른다.
+JVM 테스트는 기존 출발 전 상태 처리에 더해 이름 검증, 프로필 흐름, 중복 저장 방지, UX 제한, 저장소 재시도와 테마 오류 복구를 대상으로 한다. Room 계측 테스트에는 동시 생성 상한·선택 보존·DB 재오픈 시나리오가 있다. 보고서는 `app/build/reports/tests/testDebugUnitTest/`와 `app/build/reports/lint-results-debug.html`에 생성된다. 새 기능의 실행 결과와 화면 검증은 [구현 기록](../docs/android/history/ui-implementation-2026-11-12.md)을 따른다.
 
 [Android CI](../.github/workflows/android-ci.yml)는 Android 변경에서 lint, JVM 테스트, debug 빌드를 실행하도록 설정되어 있다. 원격 CI 실행·실제 차량 동작은 로컬 빌드와 별도로 검증한다. 연결된 기기의 계측 테스트는 `:app:connectedDebugAndroidTest`로 실행한다.
 
@@ -133,14 +133,14 @@ JVM 테스트는 기존 출발 전 상태 처리에 더해 이름 검증, 프로
 
 ## 2026-11-12 최초 scaffold 검증 — 과거 기록
 
-아래는 프로필·샘플 홈을 추가하기 전 결과이며 현재 변경의 통과 증거가 아니다. 최신 결과는 [최초 설정·샘플 홈 구현 기록](../docs/android/ui-implementation-2026-11-12.md)에 별도로 기록한다.
+아래는 프로필·샘플 홈을 추가하기 전 결과이며 현재 변경의 통과 증거가 아니다. 최신 결과는 [최초 설정·샘플 홈 구현 기록](../docs/android/history/ui-implementation-2026-11-12.md)에 별도로 기록한다.
 
 - JDK 17에서 `:app:lintDebug :app:testDebugUnitTest :app:assembleDebug` 성공.
 - ViewModel 테스트 5개 통과, 실패·오류·건너뛰기 0개.
 - lint 오류 0개. 버전 업데이트 권고 21건(7개 대상이 분석 변형별로 반복)만 남아 있다. 경고를 숨기지 않았으며 초기 SDK34 호환 조합을 유지한다.
 - debug APK 생성 확인. 에뮬레이터 설치·화면 실행·실차 및 Pleos SDK 동작은 아직 검증하지 않았다.
-- 초기 로컬 검증 당시에는 GitHub 원격 CI 실행·커밋·푸시를 수행하지 않았다. 이후 원격 연결 재확인은 [출처 확인 기록](../docs/android/source-check-2026-11-12.md)의 추가 점검을 참고한다.
+- 초기 로컬 검증 당시에는 GitHub 원격 CI 실행·커밋·푸시를 수행하지 않았다. 이후 원격 연결 재확인은 [출처 확인 기록](../docs/android/history/source-check-2026-11-12.md)의 추가 점검을 참고한다.
 
 ## 백그라운드 이벤트 테스트
 
-Debug 앱을 열면 10분짜리 샘플 세션이 자동 시작된다. 첫 이벤트는 10초 뒤, 이후 30초마다 발생한다. 다른 앱으로 전환한 뒤 돌아오면 홈에서 전체/백그라운드 수신 수를 확인할 수 있다. 알림 권한이 없어도 수신은 계속되며, 중지한 세션은 직접 다시 시작할 때까지 중지 상태를 유지한다. 실제 차량 이벤트와 음성 출력은 아직 연결하지 않았다. [구조·공식 근거·검증 기록](../docs/android/background-events-2026-11-13.md)을 참고한다.
+Debug 앱을 열면 10분짜리 샘플 세션이 자동 시작된다. 첫 이벤트는 10초 뒤, 이후 30초마다 발생한다. 다른 앱으로 전환한 뒤 돌아오면 홈에서 전체/백그라운드 수신 수를 확인할 수 있다. 알림 권한이 없어도 수신은 계속되며, 중지한 세션은 직접 다시 시작할 때까지 중지 상태를 유지한다. 실제 차량 이벤트와 음성 출력은 아직 연결하지 않았다. [구조·공식 근거·검증 기록](../docs/android/history/background-events-2026-11-13.md)을 참고한다.

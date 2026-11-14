@@ -1,11 +1,11 @@
-# 008. Android 화면과 주행 안내의 책임·수명 분리
+# A01. Android 화면과 주행 안내의 책임·수명 분리
 
 - 날짜: 2026-11-12
 - 상태: 결정 (Android 구조). 실제 Pleos 실행 host/표시 surface와 제품 정책 수치는 검증 대기.
 - 근거: 사용자의 MVVM 대안 검토 후 프로젝트에 맞춘 구조 설계 요청.
 - 상세: [Android 구조](../architecture.md), [개발 컨벤션](../../../android/CODEX_CONVENTIONS.md).
 
-이 문서는 Android 전용 결정이다. 작업 범위를 정리하면서 공유 `docs/decisions/`에서 `docs/android/decisions/`로 옮겼으며 기존 참조 번호 008은 유지한다. 공유 결정 001~007의 위치나 상태를 바꾸지 않는다.
+이 문서는 Android 전용 결정이다. 작업 범위를 정리하면서 공유 `docs/decisions/`에서 `docs/android/decisions/`로 옮겼으며 번호는 공유 결정과 겹치지 않도록 A01로 바꿨다(이전 번호 008). 공유 결정 001~007의 위치나 상태를 바꾸지 않는다.
 
 ## 배경
 

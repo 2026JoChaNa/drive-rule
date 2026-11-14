@@ -13,7 +13,7 @@
 
 ## 디자인
 
-[Figma 최초 설정](https://www.figma.com/design/dltRYbBH0KHuBe86A6Vr2G/?node-id=1844-33051), [야간 홈](https://www.figma.com/design/dltRYbBH0KHuBe86A6Vr2G/?node-id=1844-32262), [주간 홈](https://www.figma.com/design/dltRYbBH0KHuBe86A6Vr2G/?node-id=1870-31102)을 대조했다. 원본 Asta Sans 4개 weight와 주·야간 SVG 18개를 로컬 번들에 넣었다. 출처·OFL·slot 대응·대비 계산은 [에셋 기록](figma-assets.md)에 있다.
+[Figma 최초 설정](https://www.figma.com/design/dltRYbBH0KHuBe86A6Vr2G/?node-id=1844-33051), [야간 홈](https://www.figma.com/design/dltRYbBH0KHuBe86A6Vr2G/?node-id=1844-32262), [주간 홈](https://www.figma.com/design/dltRYbBH0KHuBe86A6Vr2G/?node-id=1870-31102)을 대조했다. 원본 Asta Sans 4개 weight와 주·야간 SVG 18개를 로컬 번들에 넣었다. 출처·OFL·slot 대응·대비 계산은 [에셋 기록](../figma-assets.md)에 있다.
 
 계기판·차량 시스템 dock·내비 지도는 앱에서 그리지 않는다. 창 너비와 글자 배율에 따라 header/상태 배지/footer를 재배치하고, 긴 내용은 주차 상태에서 스크롤한다. 원본에 없는 테마 선택과 샘플 표시를 추가했다. STT 미연결 상태의 막대는 정적이다.
 
@@ -38,7 +38,7 @@
 
 `src/release/.../AppEnvironment`는 더미 목록을 포함하지 않고 기존 `UnavailableUxRestrictionProvider`를 사용한다. 실제 `CarUxRestrictions` adapter가 연결되기 전에는 입력·상세 화면을 열지 않는다. UI 테스트는 가짜 provider가 Restricted/Unknown으로 바뀔 때 입력과 열린 상세를 제거하는지 확인하며, 실제 차량 신호 연동 검증과 구분한다.
 
-Room 스키마는 `android/app/schemas/`에 버전 관리한다. 최초 v1이므로 이전 버전 migration은 아직 없다. 선택 상태의 Android 전용 테이블 추가는 공유 서버 ERD 변경을 뜻하지 않는다. [결정 009](decisions/009-local-profile-and-ui-demo.md)를 따른다.
+Room 스키마는 `android/app/schemas/`에 버전 관리한다. 최초 v1이므로 이전 버전 migration은 아직 없다. 선택 상태의 Android 전용 테이블 추가는 공유 서버 ERD 변경을 뜻하지 않는다. [결정 A02](../decisions/A02-local-profile-and-ui-demo.md)를 따른다.
 
 ## 검증 환경과 결과
 
@@ -71,7 +71,7 @@ adb -s emulator-5554 shell am instrument --user 10 -w -r com.jochana.driverule.t
 # OK (11 tests)
 ```
 
-기본 Gradle 검증 방법은 [Android README](../../android/README.md)를 따른다. 최종 APK 위치는 `android/app/build/outputs/apk/debug/app-debug.apk`다. release는 Kotlin 컴파일만 확인했으며 서명 배포·실차 인증을 수행하지 않았다. 이번 구현 변경은 커밋·푸시하지 않았다.
+기본 Gradle 검증 방법은 [Android README](../../../android/README.md)를 따른다. 최종 APK 위치는 `android/app/build/outputs/apk/debug/app-debug.apk`다. release는 Kotlin 컴파일만 확인했으며 서명 배포·실차 인증을 수행하지 않았다. 이번 구현 변경은 커밋·푸시하지 않았다.
 
 기기 테스트의 프로필 저장소는 UI 테스트용 메모리 구현이고, Room 테스트는 별도 임시 DB로 동시 생성 한도·입력 검증·없는 ID 선택·DB 재오픈/시계 역행 시 선택 복원을 확인한다. 실제 MainActivity의 Room/DataStore 복원은 위 수동 실행으로 추가 확인했다. 더미 홈을 조회하거나 상세를 닫아도 실제 안내 이력/확인 기록을 만들지 않는다.
 
@@ -81,13 +81,13 @@ adb -s emulator-5554 shell am instrument --user 10 -w -r com.jochana.driverule.t
 
 | 최초 설정 · 라이트 | 최초 설정 · 다크 |
 |---|---|
-| ![최초 설정 라이트](assets/onboarding-home/onboarding-light.png) | ![최초 설정 다크](assets/onboarding-home/onboarding-dark.png) |
+| ![최초 설정 라이트](../screenshots/onboarding-home/onboarding-light.png) | ![최초 설정 다크](../screenshots/onboarding-home/onboarding-dark.png) |
 
 | 샘플 홈 · 라이트 | 샘플 홈 · 다크 |
 |---|---|
-| ![홈 라이트](assets/onboarding-home/home-light.png) | ![홈 다크](assets/onboarding-home/home-dark.png) |
+| ![홈 라이트](../screenshots/onboarding-home/home-light.png) | ![홈 다크](../screenshots/onboarding-home/home-dark.png) |
 
-[540dp·큰 글자·긴 이름 화면](assets/onboarding-home/home-compact-large-font.png)
+[540dp·큰 글자·긴 이름 화면](../screenshots/onboarding-home/home-compact-large-font.png)
 
 원본과 비교한 항목은 앱 영역, header/입력/목록/상태 배지/하단 버튼 배치, 주·야간 배경과 글자색, SVG 표시와 비율, 한글 줄바꿈이다. 실제 차량의 1/2 window 배치 변경과 물리 글자 높이·밝기 검증은 별도로 남긴다.
 
@@ -121,7 +121,7 @@ adb -s emulator-5554 shell am instrument --user 10 -w -r com.jochana.driverule.t
 
 ### 실제 앱 창 확인
 
-![Pleos 앱 창의 운전자 변경 시트](assets/driver-sheet/driver-sheet-device.png)
+![Pleos 앱 창의 운전자 변경 시트](../screenshots/driver-sheet/driver-sheet-device.png)
 
 
 ### 시트 주·야간 및 작은 창 캡처
@@ -130,9 +130,9 @@ adb -s emulator-5554 shell am instrument --user 10 -w -r com.jochana.driverule.t
 
 | 라이트 | 다크 |
 |---|---|
-| ![운전자 시트 라이트](assets/driver-sheet/driver-sheet-light.png) | ![운전자 시트 다크](assets/driver-sheet/driver-sheet-dark.png) |
+| ![운전자 시트 라이트](../screenshots/driver-sheet/driver-sheet-light.png) | ![운전자 시트 다크](../screenshots/driver-sheet/driver-sheet-dark.png) |
 
-[540dp·글자 배율 1.3·긴 이름 시트](assets/driver-sheet/driver-sheet-compact-large-font.png)
+[540dp·글자 배율 1.3·긴 이름 시트](../screenshots/driver-sheet/driver-sheet-compact-large-font.png)
 
 
 ## 후속 수정: 하단 모서리와 최초 진입 흐름
@@ -148,7 +148,7 @@ release는 차량 UX adapter 연결 전까지 `Unknown`으로 제한되므로 �
 
 | 하단 직각 · 라이트 | 하단 직각 · 다크 |
 |---|---|
-| ![라이트 상단 둥근 시트](assets/driver-sheet/driver-sheet-light-top-rounded.png) | ![다크 상단 둥근 시트](assets/driver-sheet/driver-sheet-dark-top-rounded.png) |
+| ![라이트 상단 둥근 시트](../screenshots/driver-sheet/driver-sheet-light-top-rounded.png) | ![다크 상단 둥근 시트](../screenshots/driver-sheet/driver-sheet-dark-top-rounded.png) |
 
 
 ## 후속 구현: 최초 권한 안내와 Pleos 음성 이름 입력

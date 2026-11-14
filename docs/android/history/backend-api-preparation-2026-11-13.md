@@ -11,11 +11,11 @@
 ## 확인한 자료
 
 - 사용자 첨부 `1-app-api.md`: 차량 앱용 API v1, 기준일 2026-11-12.
-- 저장소 [차량 앱용 API](../api/app-api.md): 기준일 2026-11-13. 첨부와 앱 API 경로·인증·프로필 비전송 원칙은 같으며, Gleo function 설명과 현재 서버 상태가 보강되어 있다.
+- 저장소 [차량 앱용 API](../../api/app-api.md): 기준일 2026-11-13. 첨부와 앱 API 경로·인증·프로필 비전송 원칙은 같으며, Gleo function 설명과 현재 서버 상태가 보강되어 있다.
 - 운영 [OpenAPI JSON](http://13.124.175.42:8080/v3/api-docs): 2026-11-13에 인증 헤더 없는 GET으로 HTTP 200 확인. OpenAPI 3.1.0, `DRIVE RULE API`, v1.
-- 공유 [서버 결정 008](../decisions/008-server-api-v1.md): 처음 설정은 차량 DB, 앱은 식별자 없이 호출하므로 인증하지 않는다고 명시한다. 과거 `questions` API·`since` 동기화 설명은 현재 컨트롤러와 다른 이전 결정이다.
-- 공유 [서버 결정 009](../decisions/009-core-features-v6-alignment.md): 자유 질문 API 삭제·앱 사본 기반 답변·`syncToken` 방향을 설명한다. 문서 자체의 초안·기획 확인 대기 표시는 유지한다.
-- Android [결정 008](decisions/008-android-guidance-architecture.md), [결정 009](decisions/009-local-profile-and-ui-demo.md): 화면/도메인/adapter 경계와 로컬 프로필 보관 원칙. 공유 결정 008/009와 번호가 같지만 별개의 문서다.
+- 공유 [서버 결정 008](../../decisions/008-server-api-v1.md): 처음 설정은 차량 DB, 앱은 식별자 없이 호출하므로 인증하지 않는다고 명시한다. 과거 `questions` API·`since` 동기화 설명은 현재 컨트롤러와 다른 이전 결정이다.
+- 공유 [서버 결정 009](../../decisions/009-core-features-v6-alignment.md): 자유 질문 API 삭제·앱 사본 기반 답변·`syncToken` 방향을 설명한다. 문서 자체의 초안·기획 확인 대기 표시는 유지한다.
+- Android [결정 A01](../decisions/A01-android-guidance-architecture.md), [결정 A02](../decisions/A02-local-profile-and-ui-demo.md): 화면/도메인/adapter 경계와 로컬 프로필 보관 원칙. 공유 결정 008/009와 번호가 같지만 별개의 문서다.
 - [Android Network Security Configuration](https://developer.android.com/privacy-and-security/security-config): manifest의 설정 파일 연결과 `domain-config`의 호스트별 평문 허용 근거. debug의 로컬 HTTP 예외는 debug 소스 세트의 별도 XML로 적용한다.
 - [kotlinx.serialization 1.8.1 공식 릴리스](https://github.com/Kotlin/kotlinx.serialization/releases/tag/v1.8.1): 해당 릴리스가 Kotlin 2.1.20으로 갱신되었음을 확인했다. 현재 Kotlin 버전과의 선택 근거이며 Android 통합 빌드 성공을 대신하지 않는다.
 

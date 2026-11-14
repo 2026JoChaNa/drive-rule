@@ -43,7 +43,7 @@ Pleos Connect v2.1.0 / Android API34 / x86_64 / RAM4GB, CAAS4.2.10(4002010), 에
 
 일반 병렬 빌드는 개발 PC의 메모리 예약 실패로 중단됐다. 프로젝트 설정을 변경하지 않고 검증 실행에만 `--max-workers=1`, Gradle 1GB·SerialGC, Kotlin in-process, 테스트 JVM 256MB·SerialGC를 적용해 완료했다. JVM 진단 로그는 저장소 밖 로컬 작업 폴더에 보관했다.
 
-![실제 Pleos 서비스가 자동으로 듣는 화면](assets/onboarding-permissions/voice-name-listening.png)
+![실제 Pleos 서비스가 자동으로 듣는 화면](../screenshots/onboarding-permissions/voice-name-listening.png)
 
 이 캡처는 실제 SDK 준비 콜백의 UI 반영을 보여준다. 사람이 말한 이름의 최종 인식 결과나 인식 정확도를 증명하는 캡처는 아니다.
 
@@ -53,10 +53,10 @@ Pleos Connect v2.1.0 / Android API34 / x86_64 / RAM4GB, CAAS4.2.10(4002010), 에
 
 | 라이트 | 다크 |
 |---|---|
-| ![권한 안내 라이트](assets/onboarding-permissions/permission-guide-light.png) | ![권한 안내 다크](assets/onboarding-permissions/permission-guide-dark.png) |
+| ![권한 안내 라이트](../screenshots/onboarding-permissions/permission-guide-light.png) | ![권한 안내 다크](../screenshots/onboarding-permissions/permission-guide-dark.png) |
 
-- [작은 창·큰 글자 권한 안내](assets/onboarding-permissions/permission-guide-compact-large-font.png)
-- [음성 최종 결과 확인 UI](assets/onboarding-permissions/voice-name-confirmation.png)
+- [작은 창·큰 글자 권한 안내](../screenshots/onboarding-permissions/permission-guide-compact-large-font.png)
+- [음성 최종 결과 확인 UI](../screenshots/onboarding-permissions/voice-name-confirmation.png)
 
 ## 직접 확인 순서
 
@@ -72,4 +72,4 @@ PC 마이크 입력은 [공식 에뮬레이터 마이크 설정](https://documen
 - [초기화·해제](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/initialization-and-release)
 - [결과 리스너](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/result-listeners)
 - [시작·정지](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/start-and-stop)
-- [Figma 출처와 의도적 차이](figma-assets.md#01-3-권한-안내-화면)
+- [Figma 출처와 의도적 차이](../figma-assets.md#01-3-권한-안내-화면)
