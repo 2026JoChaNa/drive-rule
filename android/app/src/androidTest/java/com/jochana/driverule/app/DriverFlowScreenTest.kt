@@ -382,7 +382,10 @@ class DriverFlowScreenTest {
 
         compose.onNodeWithTag("sample_entry_sample-camera").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("changes_button").performScrollTo().assertIsDisplayed().performClick()
-        compose.onNodeWithText(context.getString(R.string.sample_changes_title)).assertIsDisplayed()
+        // The button now opens the 00-1 monthly screen instead of the sample dialog.
+        compose.onNodeWithTag("rule_changes_screen").assertIsDisplayed()
+        compose.onNodeWithTag("rule_changes_home").performClick()
+        compose.onNodeWithTag("home_screen").assertIsDisplayed()
         compose.runOnIdle { assertEquals(longName, fixture.profiles.snapshot.value.activeProfile?.name) }
     }
 
