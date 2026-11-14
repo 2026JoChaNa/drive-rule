@@ -28,6 +28,7 @@ class AppContainer(context: Context) {
     val uxRestrictionProvider: UxRestrictionProvider = AppEnvironment.createUxProvider()
     val previewEntries = AppEnvironment.previewEntries()
     val cardDetails = AppEnvironment.cardDetails()
+    val ruleChanges = AppEnvironment.ruleChanges()
     // Resolving the client lazily keeps app start free of network setup.
     val cardErrorReportRepository: CardErrorReportRepository = BackendCardErrorReportRepository { backendApi }
 }

@@ -51,8 +51,10 @@ import com.jochana.driverule.domain.repository.CardReportOutcome
 import com.jochana.driverule.feature.card.CardDetailPreview
 import com.jochana.driverule.feature.card.CardDetailScreen
 import com.jochana.driverule.feature.card.CardErrorReportViewModel
+import com.jochana.driverule.feature.changes.RuleChangePreview
+import com.jochana.driverule.feature.changes.RuleChangesScreen
+import com.jochana.driverule.feature.changes.upcomingRulesBanner
 import com.jochana.driverule.feature.home.HomePreviewEntry
-import com.jochana.driverule.feature.home.HomePreviewStatus
 import com.jochana.driverule.feature.home.HomeScreen
 import com.jochana.driverule.feature.profile.DriverChangeSheet
 import com.jochana.driverule.feature.profile.DriverFlowUiState
@@ -90,7 +92,8 @@ fun DriveRuleApp(
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             DriverFlowContent(state, model, appContainer.previewEntries,
                 Modifier.safeDrawingPadding().imePadding().fillMaxSize(), speechEngineFactory,
-                backgroundControls, appContainer.cardDetails, appContainer.cardErrorReportRepository)
+                backgroundControls, appContainer.cardDetails, appContainer.cardErrorReportRepository,
+                appContainer.ruleChanges)
         }
     }
 }
@@ -105,6 +108,7 @@ internal fun DriverFlowContent(
     backgroundControls: @Composable () -> Unit = {},
     cardDetails: Map<String, CardDetailPreview> = emptyMap(),
     cardErrorReports: CardErrorReportRepository = CardErrorReportRepository { CardReportOutcome.RetryLater },
+    ruleChanges: List<RuleChangePreview> = emptyList(),
 ) {
     if (state.vehicleUxState != VehicleUxState.Unrestricted) {
         StatusScreen(stringResource(if (state.vehicleUxState == VehicleUxState.Restricted)
@@ -124,19 +128,25 @@ internal fun DriverFlowContent(
     }
     // Conditional scope removes dialogs and input focus immediately when UX becomes restricted.
     AllowedDriverContent(state, model, entries, modifier, speechEngineFactory, backgroundControls,
-        cardDetails, cardErrorReports)
+        cardDetails, cardErrorReports, ruleChanges)
 }
 
 @Composable
 private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowViewModel,
     entries: List<HomePreviewEntry>, modifier: Modifier, speechEngineFactory: (() -> NameSpeechEngine)?,
     backgroundControls: @Composable () -> Unit, cardDetails: Map<String, CardDetailPreview>,
-    cardErrorReports: CardErrorReportRepository) {
+    cardErrorReports: CardErrorReportRepository, ruleChanges: List<RuleChangePreview>) {
     var showTheme by remember { mutableStateOf(false) }
     var showDrivers by remember { mutableStateOf(false) }
     var showGleo by remember { mutableStateOf(false) }
     var showChanges by remember { mutableStateOf(false) }
-    var selectedEntry by remember { mutableStateOf<HomePreviewEntry?>(null) }
+    var selectedCardId by remember { mutableStateOf<String?>(null) }
+    // Rows without a card detail keep the sample explanation dialog.
+    var sampleDetailTitle by remember { mutableStateOf<String?>(null) }
+    val openRow: (String?, String) -> Unit = { cardId, title ->
+        if (cardId != null && cardDetails.containsKey(cardId)) selectedCardId = cardId else sampleDetailTitle = title
+    }
+    val upcomingBanner = remember(ruleChanges) { upcomingRulesBanner(ruleChanges) }
     val themeLabel = stringResource(themeLabelId(state.themeMode))
     val error = profileError(state.error)
     val active = state.activeProfile
@@ -159,18 +169,28 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
                     onThemeClick = { showTheme = true }, themeLabel = themeLabel,
                     busy = state.saving, error = error, modifier = Modifier.weight(1f),
                 )
-            } else if (selectedEntry?.let { cardDetails[it.id] } != null) {
-                val card = requireNotNull(cardDetails[requireNotNull(selectedEntry).id])
-                CardDetailRoute(card, cardErrorReports, onClose = { selectedEntry = null },
+            } else if (selectedCardId?.let { cardDetails[it] } != null) {
+                // Closing returns to the screen that opened it (home or the monthly list).
+                val card = requireNotNull(cardDetails[requireNotNull(selectedCardId)])
+                CardDetailRoute(card, cardErrorReports, onClose = { selectedCardId = null },
                     modifier = Modifier.weight(1f))
+            } else if (showChanges) {
+                RuleChangesScreen(
+                    changes = ruleChanges,
+                    onHome = { showChanges = false },
+                    onChangeClick = { openRow(it.cardId, it.title) },
+                    sample = ruleChanges.isNotEmpty(),
+                    modifier = Modifier.weight(1f),
+                )
             } else {
                 if (error != null) Text(error, Modifier.padding(horizontal = 24.dp), color = MaterialTheme.colorScheme.error)
                 HomeScreen(active.name, entries,
                     onChangeDriver = { if (!state.saving) showDrivers = true },
-                    onEntryClick = { selectedEntry = it }, onGleoClick = { showGleo = true },
+                    onEntryClick = { openRow(it.id, it.title) }, onGleoClick = { showGleo = true },
                     onChangesClick = { showChanges = true }, onThemeClick = { showTheme = true },
                     themeLabel = themeLabel, modifier = Modifier.weight(1f),
-                    backgroundControls = backgroundControls)
+                    backgroundControls = backgroundControls,
+                    upcomingBanner = upcomingBanner)
             }
         }
         if (showDrivers && !state.permissionGuidePending) DriverChangeSheet(
@@ -210,11 +230,8 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
                 } }, confirmButton = { TextButton(onClick = { showTheme = false }) { Text(stringResource(R.string.close)) } },
             )
             if (showGleo) InfoDialog(stringResource(R.string.gleo_coming_title), stringResource(R.string.gleo_coming_body)) { showGleo = false }
-            if (showChanges) InfoDialog(stringResource(R.string.sample_changes_title),
-                entries.filter { it.status == HomePreviewStatus.Scheduled }.joinToString("\n") { it.title } +
-                    "\n\n" + stringResource(R.string.sample_details_body)) { showChanges = false }
-            selectedEntry?.takeIf { cardDetails[it.id] == null }?.let { entry ->
-                InfoDialog(entry.title, stringResource(R.string.sample_details_body)) { selectedEntry = null }
+            sampleDetailTitle?.let { title ->
+                InfoDialog(title, stringResource(R.string.sample_details_body)) { sampleDetailTitle = null }
             }
         }
     }

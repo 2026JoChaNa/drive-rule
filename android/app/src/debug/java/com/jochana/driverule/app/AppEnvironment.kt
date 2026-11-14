@@ -9,6 +9,9 @@ import com.jochana.driverule.feature.card.CardDetailPreview
 import com.jochana.driverule.feature.card.CardEventTag
 import com.jochana.driverule.feature.card.CardEvidencePreview
 import com.jochana.driverule.feature.card.CardScene
+import com.jochana.driverule.feature.changes.RuleChangeIcon
+import com.jochana.driverule.feature.changes.RuleChangePreview
+import java.time.LocalDate
 import com.jochana.driverule.feature.home.HomePreviewEntry
 import com.jochana.driverule.feature.home.HomePreviewIcon
 import com.jochana.driverule.feature.home.HomePreviewStatus
@@ -80,6 +83,27 @@ object AppEnvironment {
             ),
         ),
     ).associateBy { it.id }
+
+    /**
+     * Figma 00-1 sample rows in the design order. Design copy only, not reviewed law data.
+     * `alreadyHeard` stands in for the home list so the 00-b banner matches the design.
+     */
+    fun ruleChanges(): List<RuleChangePreview> = listOf(
+        RuleChangePreview("change-drink-assist", "음주운전 조장 금지", LocalDate.of(2027, 6, 3), "제21728호",
+            HomePreviewStatus.Scheduled, RuleChangeIcon.Drink),
+        RuleChangePreview("change-repeat-fine", "상습 위반자 가중 과태료", LocalDate.of(2027, 6, 3), "제21728호",
+            HomePreviewStatus.Scheduled, RuleChangeIcon.Calendar),
+        RuleChangePreview("change-highway-camera", "고속도로 정차·주차 무인단속", LocalDate.of(2027, 4, 14), "제22067호",
+            HomePreviewStatus.Scheduled, RuleChangeIcon.Camera, cardId = "sample-camera", alreadyHeard = true),
+        RuleChangePreview("change-drug-definition", "약물 운전의 '약물' 정의 명확화", LocalDate.of(2026, 7, 1), "제21246호",
+            HomePreviewStatus.Active, RuleChangeIcon.Drug),
+        RuleChangePreview("change-drug-penalty", "약물 운전 처벌 강화", LocalDate.of(2026, 4, 2), "제20864호",
+            HomePreviewStatus.Active, RuleChangeIcon.Drug),
+        RuleChangePreview("change-license-renewal", "운전면허 갱신기간 변경", LocalDate.of(2026, 1, 1), "제21016호",
+            HomePreviewStatus.Active, RuleChangeIcon.License),
+        RuleChangePreview("change-breath-test", "음주측정 방해 행위 금지", LocalDate.of(2025, 6, 4), "제20544호",
+            HomePreviewStatus.Active, RuleChangeIcon.Drink),
+    )
 
     fun previewEntries(): List<HomePreviewEntry> = listOf(
         HomePreviewEntry("sample-parking", "어린이보호구역 주정차 금지", "주정차 · 오늘 18:21", HomePreviewStatus.Active, HomePreviewIcon.Parking),

@@ -14,7 +14,6 @@
     <string name="add_driver_count">+  운전자 추가 (%1$d / 3)</string>
     <string name="gleo_coming_title">Gleo 연결 준비 중</string>
     <string name="gleo_coming_body">질문으로 법령 정보를 찾는 기능은 다음 단계에서 제공됩니다.</string>
-    <string name="sample_changes_title">달라지는 교통법규 · 샘플</string>
     <string name="sample_details_body">디자인 확인을 위한 샘플입니다.\n실제 법령·시행일 및 주행 중 들은 기록이 아닙니다.\n검수된 법령과 상세 근거는 API 연결 후 제공됩니다.</string>
     <string name="profile_error_empty">운전자 이름을 입력해 주세요.</string>
     <string name="profile_error_long">이름은 20자 이내로 입력해 주세요.</string>

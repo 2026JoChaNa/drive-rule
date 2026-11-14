@@ -3,13 +3,10 @@ package com.jochana.driverule.feature.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -23,6 +20,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.jochana.driverule.feature.changes.UpcomingRulesBanner
 import com.jochana.driverule.R
 import com.jochana.driverule.ui.components.DemoLabel
 import com.jochana.driverule.ui.components.DriveRuleButton
@@ -30,6 +29,7 @@ import com.jochana.driverule.ui.components.DriveRuleHeader
 import com.jochana.driverule.ui.components.DriveRuleWindow
 import com.jochana.driverule.ui.components.FigmaIcon
 import com.jochana.driverule.ui.components.LocalDriveRuleLayout
+import com.jochana.driverule.ui.components.RuleRow
 import com.jochana.driverule.ui.theme.LocalDriveRuleColors
 
 @Composable
@@ -44,6 +44,8 @@ fun HomeScreen(
     themeLabel: String,
     modifier: Modifier = Modifier,
     backgroundControls: @Composable () -> Unit = {},
+    upcomingBanner: UpcomingRulesBanner? = null,
+    onUpcomingBannerClick: () -> Unit = onChangesClick,
 ) {
     DriveRuleWindow(modifier.testTag("home_screen")) {
         val layout = LocalDriveRuleLayout.current
@@ -63,6 +65,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(layout.space(32f)),
         ) {
             backgroundControls()
+            upcomingBanner?.let { UpcomingRulesBannerRow(it, onUpcomingBannerClick) }
             Column(
                 modifier = Modifier.fillMaxWidth()
                     .background(colors.surface, RoundedCornerShape(layout.space(42.667f)))
@@ -88,7 +91,19 @@ fun HomeScreen(
                     Text(stringResource(R.string.ui_sample_empty), style = layout.text(40f, 20f), color = colors.textSecondary)
                 }
                 entries.forEach { entry ->
-                    GuidancePreviewRow(entry, onClick = { onEntryClick(entry) })
+                    RuleRow(
+                        title = entry.title,
+                        subtitle = entry.subtitle,
+                        status = entry.status,
+                        icon = when (entry.icon) {
+                            HomePreviewIcon.Parking -> "parking"
+                            HomePreviewIcon.Crosswalk -> "crosswalk"
+                            HomePreviewIcon.Turn -> "turn"
+                            HomePreviewIcon.Camera -> "camera"
+                        },
+                        onClick = { onEntryClick(entry) },
+                        modifier = Modifier.testTag("sample_entry_${entry.id}"),
+                    )
                 }
             }
             if (layout.compact) {
@@ -120,55 +135,41 @@ private fun HomeActions(onGleoClick: () -> Unit, onChangesClick: () -> Unit, mod
     )
 }
 
+/** Figma 00-b `곧 바뀌는 규칙` (1862:30505). Opens the monthly list (00-1). */
 @Composable
-private fun GuidancePreviewRow(entry: HomePreviewEntry, onClick: () -> Unit) {
+private fun UpcomingRulesBannerRow(banner: UpcomingRulesBanner, onClick: () -> Unit) {
     val layout = LocalDriveRuleLayout.current
     val colors = LocalDriveRuleColors.current
+    val date = banner.effectiveOn
     Row(
         modifier = Modifier.fillMaxWidth()
-            .heightIn(min = layout.space(112f).coerceAtLeast(64.dp))
-            .clip(RoundedCornerShape(layout.space(20f)))
+            .clip(RoundedCornerShape(layout.space(42.667f)))
+            .background(colors.border)
             .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = layout.space(24f), vertical = layout.space(4f))
-            .testTag("sample_entry_${entry.id}"),
+            .padding(horizontal = layout.space(40f), vertical = layout.space(28f))
+            .testTag("upcoming_rules_banner"),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(layout.space(20f)),
+        horizontalArrangement = Arrangement.spacedBy(layout.space(24f)),
     ) {
-        Box(
-            Modifier.size(layout.space(64f).coerceAtLeast(32.dp))
-                .background(colors.accentSoft, RoundedCornerShape(layout.space(16f))),
-            contentAlignment = Alignment.Center,
-        ) {
-            val icon = when (entry.icon) {
-                HomePreviewIcon.Parking -> "parking"
-                HomePreviewIcon.Crosswalk -> "crosswalk"
-                HomePreviewIcon.Turn -> "turn"
-                HomePreviewIcon.Camera -> "camera"
-            }
-            FigmaIcon(icon, layout.space(32f).coerceAtLeast(16.dp))
-        }
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(layout.space(4f))) {
-            Text(entry.title, style = layout.text(40f, 20f, FontWeight.SemiBold), color = colors.textPrimary)
-            Text(entry.subtitle, style = layout.text(35f, 16f), color = colors.textSecondary)
-            if (layout.compact) StatusBadge(entry.status)
-        }
-        if (!layout.compact) StatusBadge(entry.status)
-        FigmaIcon("chevron", layout.space(32f).coerceAtLeast(16.dp))
+        Text(
+            stringResource(R.string.changes_banner_badge, banner.items.size),
+            modifier = Modifier
+                .background(colors.scheduledSoft, RoundedCornerShape(layout.space(16f)))
+                .padding(horizontal = layout.space(21.333f), vertical = layout.space(10.667f)),
+            style = layout.text(34.667f, 16f, FontWeight.Bold).copy(letterSpacing = layout.space(1.3867f).value.sp),
+            color = colors.scheduled,
+            maxLines = 1,
+        )
+        Text(
+            stringResource(
+                R.string.changes_banner_summary,
+                banner.items.joinToString(" · ") { it.title },
+                date.year, date.monthValue, date.dayOfMonth,
+            ),
+            modifier = Modifier.weight(1f),
+            style = layout.text(37.33f, 18f, FontWeight.SemiBold),
+            color = colors.textPrimary,
+        )
+        FigmaIcon("banner_chevron", layout.space(43f).coerceAtLeast(20.dp))
     }
-}
-
-@Composable
-private fun StatusBadge(status: HomePreviewStatus) {
-    val layout = LocalDriveRuleLayout.current
-    val colors = LocalDriveRuleColors.current
-    val active = status == HomePreviewStatus.Active
-    Text(
-        stringResource(if (active) R.string.ui_status_active else R.string.ui_status_scheduled),
-        modifier = Modifier.background(
-            if (active) colors.greenSoft else colors.scheduledSoft,
-            RoundedCornerShape(layout.space(12f)),
-        ).padding(horizontal = layout.space(16f), vertical = layout.space(8f)),
-        style = layout.text(35f, 16f, FontWeight.Bold),
-        color = if (active) colors.green else colors.scheduled,
-    )
 }

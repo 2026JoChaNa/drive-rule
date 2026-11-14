@@ -39,7 +39,6 @@ class CardDetailScreenTest {
     @Test
     fun cardShowsBadgesSceneAndClosesAfterTheAutoCloseTime() {
         var closed by mutableIntStateOf(0)
-        compose.mainClock.autoAdvance = false
         setScreen(highway, onClose = { closed++ }, autoCloseMillis = 2_000)
 
         compose.onNodeWithTag("card_stage_scheduled").assertIsDisplayed()
@@ -56,7 +55,6 @@ class CardDetailScreenTest {
     @Test
     fun evidenceStopsAutoCloseAndShowsTheThreeRows() {
         var closed by mutableIntStateOf(0)
-        compose.mainClock.autoAdvance = false
         setScreen(highway, onClose = { closed++ }, autoCloseMillis = 2_000)
 
         compose.mainClock.advanceTimeBy(500)
@@ -81,6 +79,7 @@ class CardDetailScreenTest {
     fun sampleCardCannotReportOrOpenSource() {
         setScreen(highway, reportState = CardReportState.Unavailable)
         compose.onNodeWithTag("card_evidence_button").performClick()
+        settle()
 
         compose.onNodeWithTag("evidence_report").assertIsNotEnabled()
         compose.onNodeWithTag("evidence_law_source").assertIsNotEnabled()
@@ -98,6 +97,7 @@ class CardDetailScreenTest {
         )
         setScreen(published, reportState = CardReportState.Idle, onReport = { reports++ })
         compose.onNodeWithTag("card_evidence_button").performClick()
+        settle()
 
         compose.onNodeWithTag("evidence_law_source").assertIsEnabled()
         compose.onNodeWithTag("evidence_report").assertIsEnabled().performClick()
@@ -108,6 +108,7 @@ class CardDetailScreenTest {
     fun destinationSceneKeepsItsAspectAndLegendInACompactWindow() {
         val destination = highway.copy(scene = CardScene.SchoolZoneDestination, legend = "반경 300m")
         setScreen(destination, width = 420, height = 760)
+        settle()
 
         compose.onNodeWithTag("card_scene_SchoolZoneDestination").assertIsDisplayed()
         compose.onNodeWithTag("card_scene_legend").assertIsDisplayed()
@@ -121,8 +122,10 @@ class CardDetailScreenTest {
         onClose: () -> Unit = {},
         autoCloseMillis: Int = 60_000,
         width: Int = 840,
-        height: Int = 1190,
+        height: Int = 1000,
     ) {
+        // The auto-close animation keeps Compose busy; every test drives the clock manually.
+        compose.mainClock.autoAdvance = false
         compose.setContent {
             DriveRuleTheme(darkTheme = true) {
                 Box(Modifier.width(width.dp).height(height.dp)) {
@@ -138,5 +141,11 @@ class CardDetailScreenTest {
                 }
             }
         }
+        compose.mainClock.advanceTimeByFrame()
+    }
+
+    private fun settle() {
+        compose.mainClock.advanceTimeBy(100)
+        compose.waitForIdle()
     }
 }

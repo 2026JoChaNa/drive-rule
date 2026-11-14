@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="changes_title">달라지는 교통법규</string>
+    <string name="changes_subtitle">법령 개정을 시행일 기준으로 달마다 모았습니다</string>
+    <string name="changes_home">홈으로</string>
+    <string name="changes_upcoming">시행 예정</string>
+    <string name="changes_recent">최근 시행</string>
+    <string name="changes_month">%1$d년 %2$d월</string>
+    <string name="changes_row_subtitle">%1$d월 %2$d일 시행 · 법률 %3$s</string>
+    <string name="changes_empty">표시할 법규 변경이 없습니다</string>
+    <string name="changes_banner_badge">곧 바뀌는 규칙 %1$d건</string>
+    <string name="changes_banner_summary">%1$s (%2$d년 %3$d월 %4$d일 시행)</string>
+</resources>
