@@ -105,6 +105,16 @@ class CardDetailScreenTest {
     }
 
     @Test
+    fun crosswalkCardPlaysTheLayeredFigmaScene() {
+        setScreen(highway.copy(scene = CardScene.UnsignalizedCrosswalk))
+        settle()
+
+        compose.onNodeWithTag("card_scene_motion_UnsignalizedCrosswalk").assertIsDisplayed()
+        compose.mainClock.advanceTimeBy(3_300)
+        compose.onNodeWithTag("card_scene_motion_UnsignalizedCrosswalk").assertIsDisplayed()
+    }
+
+    @Test
     fun destinationSceneKeepsItsAspectAndLegendInACompactWindow() {
         val destination = highway.copy(scene = CardScene.SchoolZoneDestination, legend = "반경 300m")
         setScreen(destination, width = 420, height = 760)
@@ -145,7 +155,8 @@ class CardDetailScreenTest {
     }
 
     private fun settle() {
-        compose.mainClock.advanceTimeBy(100)
+        // Past the 250 ms sheet enter transition.
+        compose.mainClock.advanceTimeBy(400)
         compose.waitForIdle()
     }
 }

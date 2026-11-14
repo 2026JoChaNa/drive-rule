@@ -5,6 +5,12 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -66,6 +72,7 @@ import com.jochana.driverule.feature.profile.VoiceDriverOnboarding
 import com.jochana.driverule.feature.profile.PermissionGuideScreen
 import com.jochana.driverule.domain.speech.NameSpeechEngine
 import com.jochana.driverule.feature.profile.ProfileInputError
+import com.jochana.driverule.ui.components.DriveRuleMotion
 import com.jochana.driverule.ui.theme.DriveRuleTheme
 
 @Composable
@@ -163,53 +170,78 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
         Column(Modifier.fillMaxSize()) {
             if (state.themeError) Text(stringResource(R.string.theme_save_failed),
                 Modifier.padding(horizontal = 24.dp), color = MaterialTheme.colorScheme.error)
-            if (active == null || state.addingProfile) {
-                VoiceDriverOnboarding(
-                    state = state, model = model, error = error,
-                    onThemeClick = { showTheme = true }, themeLabel = themeLabel,
-                    engineFactory = speechEngineFactory, modifier = Modifier.weight(1f),
-                )
-            } else if (state.permissionGuidePending) {
-                PermissionGuideScreen(
-                    onAllow = model::completePermissionGuide,
-                    onLater = model::completePermissionGuide,
-                    onThemeClick = { showTheme = true }, themeLabel = themeLabel,
-                    busy = state.saving, error = error, modifier = Modifier.weight(1f),
-                )
-            } else if (selectedCardId?.let { cardDetails[it] } != null) {
-                // Closing returns to the screen that opened it (home or the monthly list).
-                val card = requireNotNull(cardDetails[requireNotNull(selectedCardId)])
-                CardDetailRoute(card, cardErrorReports, onClose = { selectedCardId = null },
-                    modifier = Modifier.weight(1f))
-            } else if (showChanges) {
-                RuleChangesScreen(
-                    changes = ruleChanges,
-                    onHome = { showChanges = false },
-                    onChangeClick = { openRow(it.cardId, it.title) },
-                    sample = ruleChanges.isNotEmpty(),
-                    modifier = Modifier.weight(1f),
-                )
-            } else {
-                // App start stands in for ignition: the first home of this process claims the alert.
-                LaunchedEffect(Unit) {
-                    if (alertChange != null && preDepartureAlertGate.claim()) showAlert = true
+            val screen = when {
+                active == null || state.addingProfile -> AppScreen.Onboarding
+                state.permissionGuidePending -> AppScreen.PermissionGuide
+                selectedCardId?.let { cardDetails[it] } != null -> AppScreen.Card(requireNotNull(selectedCardId))
+                showChanges -> AppScreen.RuleChanges
+                else -> AppScreen.Home
+            }
+            // Short crossfade between screens (app default; Figma defines no screen transitions).
+            AnimatedContent(
+                targetState = screen,
+                transitionSpec = { fadeIn(DriveRuleMotion.screen()) togetherWith fadeOut(DriveRuleMotion.exit()) },
+                contentKey = { it.key },
+                label = "app-screen",
+                modifier = Modifier.weight(1f),
+            ) { target ->
+                when (target) {
+                    AppScreen.Onboarding -> VoiceDriverOnboarding(
+                        state = state, model = model, error = error,
+                        onThemeClick = { showTheme = true }, themeLabel = themeLabel,
+                        engineFactory = speechEngineFactory, modifier = Modifier.fillMaxSize(),
+                    )
+                    AppScreen.PermissionGuide -> PermissionGuideScreen(
+                        onAllow = model::completePermissionGuide,
+                        onLater = model::completePermissionGuide,
+                        onThemeClick = { showTheme = true }, themeLabel = themeLabel,
+                        busy = state.saving, error = error, modifier = Modifier.fillMaxSize(),
+                    )
+                    // Closing returns to the screen that opened it (home or the monthly list).
+                    is AppScreen.Card -> cardDetails[target.id]?.let { card ->
+                        CardDetailRoute(card, cardErrorReports, onClose = { selectedCardId = null },
+                            modifier = Modifier.fillMaxSize())
+                    }
+                    AppScreen.RuleChanges -> RuleChangesScreen(
+                        changes = ruleChanges,
+                        onHome = { showChanges = false },
+                        onChangeClick = { openRow(it.cardId, it.title) },
+                        sample = ruleChanges.isNotEmpty(),
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                    AppScreen.Home -> Column(Modifier.fillMaxSize()) {
+                        // App start stands in for ignition: the first home of this process claims the alert.
+                        LaunchedEffect(Unit) {
+                            if (alertChange != null && preDepartureAlertGate.claim()) showAlert = true
+                        }
+                        if (error != null) Text(error, Modifier.padding(horizontal = 24.dp), color = MaterialTheme.colorScheme.error)
+                        // `active` is non-null whenever Home is the target; keep the last name while fading out.
+                        val name = active?.name.orEmpty()
+                        HomeScreen(name, entries,
+                            onChangeDriver = { if (!state.saving) showDrivers = true },
+                            onEntryClick = { openRow(it.id, it.title) }, onGleoClick = { showGleo = true },
+                            onChangesClick = { showChanges = true }, onThemeClick = { showTheme = true },
+                            themeLabel = themeLabel, modifier = Modifier.weight(1f),
+                            backgroundControls = backgroundControls,
+                            upcomingBanner = upcomingBanner)
+                    }
                 }
-                if (error != null) Text(error, Modifier.padding(horizontal = 24.dp), color = MaterialTheme.colorScheme.error)
-                HomeScreen(active.name, entries,
-                    onChangeDriver = { if (!state.saving) showDrivers = true },
-                    onEntryClick = { openRow(it.id, it.title) }, onGleoClick = { showGleo = true },
-                    onChangesClick = { showChanges = true }, onThemeClick = { showTheme = true },
-                    themeLabel = themeLabel, modifier = Modifier.weight(1f),
-                    backgroundControls = backgroundControls,
-                    upcomingBanner = upcomingBanner)
             }
         }
         val homeShowing = active != null && !state.addingProfile && !state.permissionGuidePending &&
             selectedCardId == null && !showChanges
         // Leaving home ends the alert; it is not shown again in this process.
         LaunchedEffect(homeShowing) { if (!homeShowing) showAlert = false }
-        if (showAlert && homeShowing && alertChange != null) {
-            PreDepartureAlert(alertChange, active.name, onDismiss = { showAlert = false })
+        // Rises slightly and fades in; fades out when it closes (app default, see DriveRuleMotion).
+        AnimatedVisibility(
+            visible = showAlert && homeShowing && alertChange != null,
+            enter = fadeIn(DriveRuleMotion.enter()) + slideInVertically(DriveRuleMotion.enter()) { (it * 0.04f).toInt() },
+            exit = fadeOut(DriveRuleMotion.exit()),
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            alertChange?.let { change ->
+                PreDepartureAlert(change, active?.name.orEmpty(), onDismiss = { showAlert = false })
+            }
         }
         if (showDrivers && !state.permissionGuidePending) DriverChangeSheet(
             profiles = state.profiles,
@@ -317,4 +349,14 @@ private fun profileError(error: ProfileInputError?): String? = error?.let {
         ProfileInputError.NotFound -> R.string.profile_error_not_found
         ProfileInputError.Storage -> R.string.profile_error_storage
     })
+}
+
+/** Top-level screens of the driver flow, used to key the screen transition. */
+private sealed interface AppScreen {
+    val key: String
+    data object Onboarding : AppScreen { override val key = "onboarding" }
+    data object PermissionGuide : AppScreen { override val key = "permission" }
+    data object Home : AppScreen { override val key = "home" }
+    data object RuleChanges : AppScreen { override val key = "changes" }
+    data class Card(val id: String) : AppScreen { override val key = "card:$id" }
 }
