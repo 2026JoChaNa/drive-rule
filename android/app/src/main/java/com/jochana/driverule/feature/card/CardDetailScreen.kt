@@ -5,8 +5,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -312,7 +312,9 @@ private fun EvidenceSheet(
     Box(
         Modifier.fillMaxSize()
             .background(Color.Black.copy(alpha = 0.5f))
-            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onDismiss)
+            // Tapping the dim closes the sheet. A pointer handler (not clickable) keeps the sheet's
+            // rows out of a merged accessibility node; '닫기' remains the accessible close action.
+            .pointerInput(onDismiss) { detectTapGestures { onDismiss() } }
             .testTag("evidence_dim"),
     ) {
         Column(
@@ -323,8 +325,9 @@ private fun EvidenceSheet(
                 .align(Alignment.TopCenter)
                 .shadow(layout.space(26.667f), RoundedCornerShape(layout.space(32f)))
                 .background(colors.surface, RoundedCornerShape(layout.space(32f)))
-                // Taps inside the sheet must not reach the dim behind it.
-                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}
+                // Taps inside the sheet must not reach the dim behind it. A pointer handler keeps the
+                // sheet's rows as separate accessibility nodes (an empty clickable would merge them).
+                .pointerInput(Unit) { detectTapGestures { } }
                 .padding(
                     start = layout.space(37f),
                     end = layout.space(37f),

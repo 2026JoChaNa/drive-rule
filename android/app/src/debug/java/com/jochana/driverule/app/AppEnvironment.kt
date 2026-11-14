@@ -90,7 +90,8 @@ object AppEnvironment {
      */
     fun ruleChanges(): List<RuleChangePreview> = listOf(
         RuleChangePreview("change-drink-assist", "음주운전 조장 금지", LocalDate.of(2027, 6, 3), "제21728호",
-            HomePreviewStatus.Scheduled, RuleChangeIcon.Drink),
+            HomePreviewStatus.Scheduled, RuleChangeIcon.Drink,
+            alertMessage = "술을 마신 사람에게는\n차 키를 건네지 않습니다"),
         RuleChangePreview("change-repeat-fine", "상습 위반자 가중 과태료", LocalDate.of(2027, 6, 3), "제21728호",
             HomePreviewStatus.Scheduled, RuleChangeIcon.Calendar),
         RuleChangePreview("change-highway-camera", "고속도로 정차·주차 무인단속", LocalDate.of(2027, 4, 14), "제22067호",
