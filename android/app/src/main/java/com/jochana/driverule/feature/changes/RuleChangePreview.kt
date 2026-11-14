@@ -32,6 +32,8 @@ data class RuleChangePreview(
      * will replace it; the banner must not repeat rules the driver already heard.
      */
     val alreadyHeard: Boolean = false,
+    /** Short reviewed sentence for the pre-departure alert (Figma 02). `null` = not alerted. */
+    val alertMessage: String? = null,
 )
 
 data class RuleChangeMonth(val year: Int, val month: Int, val items: List<RuleChangePreview>)
@@ -63,3 +65,10 @@ fun upcomingRulesBanner(changes: List<RuleChangePreview>): UpcomingRulesBanner? 
     val next = unheard.minOfOrNull { it.effectiveOn } ?: return null
     return UpcomingRulesBanner(next, unheard.filter { it.effectiveOn == next })
 }
+
+/**
+ * Figma 02 pre-departure alert: one rule from the same group as the 00-b banner (the next
+ * effective date among unheard scheduled changes) that has a short alert sentence.
+ */
+fun preDepartureAlert(changes: List<RuleChangePreview>): RuleChangePreview? =
+    upcomingRulesBanner(changes)?.items?.firstOrNull { it.alertMessage != null }

@@ -25,6 +25,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -53,7 +54,9 @@ import com.jochana.driverule.feature.card.CardDetailScreen
 import com.jochana.driverule.feature.card.CardErrorReportViewModel
 import com.jochana.driverule.feature.changes.RuleChangePreview
 import com.jochana.driverule.feature.changes.RuleChangesScreen
+import com.jochana.driverule.feature.changes.preDepartureAlert
 import com.jochana.driverule.feature.changes.upcomingRulesBanner
+import com.jochana.driverule.feature.predeparture.PreDepartureAlert
 import com.jochana.driverule.feature.home.HomePreviewEntry
 import com.jochana.driverule.feature.home.HomeScreen
 import com.jochana.driverule.feature.profile.DriverChangeSheet
@@ -93,7 +96,7 @@ fun DriveRuleApp(
             DriverFlowContent(state, model, appContainer.previewEntries,
                 Modifier.safeDrawingPadding().imePadding().fillMaxSize(), speechEngineFactory,
                 backgroundControls, appContainer.cardDetails, appContainer.cardErrorReportRepository,
-                appContainer.ruleChanges)
+                appContainer.ruleChanges, appContainer.preDepartureAlertGate)
         }
     }
 }
@@ -109,6 +112,7 @@ internal fun DriverFlowContent(
     cardDetails: Map<String, CardDetailPreview> = emptyMap(),
     cardErrorReports: CardErrorReportRepository = CardErrorReportRepository { CardReportOutcome.RetryLater },
     ruleChanges: List<RuleChangePreview> = emptyList(),
+    preDepartureAlertGate: PreDepartureAlertGate = remember { PreDepartureAlertGate() },
 ) {
     if (state.vehicleUxState != VehicleUxState.Unrestricted) {
         StatusScreen(stringResource(if (state.vehicleUxState == VehicleUxState.Restricted)
@@ -128,14 +132,15 @@ internal fun DriverFlowContent(
     }
     // Conditional scope removes dialogs and input focus immediately when UX becomes restricted.
     AllowedDriverContent(state, model, entries, modifier, speechEngineFactory, backgroundControls,
-        cardDetails, cardErrorReports, ruleChanges)
+        cardDetails, cardErrorReports, ruleChanges, preDepartureAlertGate)
 }
 
 @Composable
 private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowViewModel,
     entries: List<HomePreviewEntry>, modifier: Modifier, speechEngineFactory: (() -> NameSpeechEngine)?,
     backgroundControls: @Composable () -> Unit, cardDetails: Map<String, CardDetailPreview>,
-    cardErrorReports: CardErrorReportRepository, ruleChanges: List<RuleChangePreview>) {
+    cardErrorReports: CardErrorReportRepository, ruleChanges: List<RuleChangePreview>,
+    preDepartureAlertGate: PreDepartureAlertGate) {
     var showTheme by remember { mutableStateOf(false) }
     var showDrivers by remember { mutableStateOf(false) }
     var showGleo by remember { mutableStateOf(false) }
@@ -147,6 +152,8 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
         if (cardId != null && cardDetails.containsKey(cardId)) selectedCardId = cardId else sampleDetailTitle = title
     }
     val upcomingBanner = remember(ruleChanges) { upcomingRulesBanner(ruleChanges) }
+    val alertChange = remember(ruleChanges) { preDepartureAlert(ruleChanges) }
+    var showAlert by remember { mutableStateOf(false) }
     val themeLabel = stringResource(themeLabelId(state.themeMode))
     val error = profileError(state.error)
     val active = state.activeProfile
@@ -183,6 +190,10 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
                     modifier = Modifier.weight(1f),
                 )
             } else {
+                // App start stands in for ignition: the first home of this process claims the alert.
+                LaunchedEffect(Unit) {
+                    if (alertChange != null && preDepartureAlertGate.claim()) showAlert = true
+                }
                 if (error != null) Text(error, Modifier.padding(horizontal = 24.dp), color = MaterialTheme.colorScheme.error)
                 HomeScreen(active.name, entries,
                     onChangeDriver = { if (!state.saving) showDrivers = true },
@@ -192,6 +203,13 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
                     backgroundControls = backgroundControls,
                     upcomingBanner = upcomingBanner)
             }
+        }
+        val homeShowing = active != null && !state.addingProfile && !state.permissionGuidePending &&
+            selectedCardId == null && !showChanges
+        // Leaving home ends the alert; it is not shown again in this process.
+        LaunchedEffect(homeShowing) { if (!homeShowing) showAlert = false }
+        if (showAlert && homeShowing && alertChange != null) {
+            PreDepartureAlert(alertChange, active.name, onDismiss = { showAlert = false })
         }
         if (showDrivers && !state.permissionGuidePending) DriverChangeSheet(
             profiles = state.profiles,

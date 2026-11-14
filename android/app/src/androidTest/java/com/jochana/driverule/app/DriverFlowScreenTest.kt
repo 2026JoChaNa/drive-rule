@@ -33,6 +33,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.performTextReplacement
 import com.jochana.driverule.domain.speech.NameSpeechEngine
+import com.jochana.driverule.feature.changes.RuleChangeIcon
+import com.jochana.driverule.feature.changes.RuleChangePreview
+import com.jochana.driverule.feature.home.HomePreviewStatus
+import java.time.LocalDate
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -390,6 +394,26 @@ class DriverFlowScreenTest {
     }
 
     @Test
+    fun preDepartureAlertAppearsOnceOnFirstHomeAndNotAfterReturning() {
+        val change = RuleChangePreview(
+            "alert", "알림 규칙", LocalDate.of(2027, 6, 3), "제1호", HomePreviewStatus.Scheduled,
+            RuleChangeIcon.Drink, alertMessage = "알림 문장",
+        )
+        val gate = PreDepartureAlertGate()
+        showFlow(listOf(DriverProfile(1, "테스트 운전자")), ruleChanges = listOf(change), alertGate = gate)
+
+        compose.onNodeWithTag("pre_departure_alert").assertIsDisplayed()
+        compose.onNodeWithText("드라이브룰 · 테스트 운전자 님").assertIsDisplayed()
+
+        compose.onNodeWithTag("changes_button").performScrollTo().performClick()
+        compose.onNodeWithTag("pre_departure_alert").assertDoesNotExist()
+        compose.onNodeWithTag("rule_changes_home").performClick()
+        compose.onNodeWithTag("home_screen").assertIsDisplayed()
+        compose.onNodeWithTag("pre_departure_alert").assertDoesNotExist()
+        compose.runOnIdle { assertEquals(false, gate.claim()) }
+    }
+
+    @Test
     fun wideHeaderReservesBrandAndThemeWhenDriverNameIsLong() {
         val longName = "가나다라마바사아자차카타파하가나다라마바"
         val fixture = showFlow(listOf(DriverProfile(1, longName)), width = 720.dp)
@@ -575,6 +599,8 @@ class DriverFlowScreenTest {
         height: Dp? = null,
         fontScale: Float = 1f,
         speechEngineFactory: (() -> NameSpeechEngine)? = { FakeSpeechEngine() },
+        ruleChanges: List<RuleChangePreview> = emptyList(),
+        alertGate: PreDepartureAlertGate = PreDepartureAlertGate(),
     ): Fixture {
         val fixture = Fixture(initialProfiles)
         lateinit var model: DriverFlowViewModel
@@ -609,6 +635,8 @@ class DriverFlowScreenTest {
                                 entries = sampleEntries,
                                 speechEngineFactory = speechEngineFactory,
                                 modifier = Modifier.safeDrawingPadding().imePadding().fillMaxSize(),
+                                ruleChanges = ruleChanges,
+                                preDepartureAlertGate = alertGate,
                             )
                         }
                     }

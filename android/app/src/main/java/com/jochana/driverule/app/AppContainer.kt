@@ -29,6 +29,8 @@ class AppContainer(context: Context) {
     val previewEntries = AppEnvironment.previewEntries()
     val cardDetails = AppEnvironment.cardDetails()
     val ruleChanges = AppEnvironment.ruleChanges()
+    // One gate per process: the pre-departure alert appears at most once per app start.
+    val preDepartureAlertGate = PreDepartureAlertGate()
     // Resolving the client lazily keeps app start free of network setup.
     val cardErrorReportRepository: CardErrorReportRepository = BackendCardErrorReportRepository { backendApi }
 }

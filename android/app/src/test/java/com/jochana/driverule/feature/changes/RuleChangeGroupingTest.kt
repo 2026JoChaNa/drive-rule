@@ -46,4 +46,17 @@ class RuleChangeGroupingTest {
         assertNull(upcomingRulesBanner(figmaOrder.map { it.copy(alreadyHeard = true) }))
         assertNull(upcomingRulesBanner(figmaOrder.filter { it.status == HomePreviewStatus.Active }))
     }
+
+    @Test
+    fun `pre-departure alert takes the first sentence from the banner group`() {
+        val withMessages = figmaOrder.map {
+            when (it.id) {
+                "repeat" -> it.copy(alertMessage = "반복")
+                "highway" -> it.copy(alertMessage = "이미 들음")
+                else -> it
+            }
+        }
+        assertEquals("repeat", preDepartureAlert(withMessages)?.id)
+        assertNull(preDepartureAlert(figmaOrder))
+    }
 }
