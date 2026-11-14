@@ -1,6 +1,13 @@
 package com.jochana.driverule.feature.card
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
@@ -55,6 +62,7 @@ import com.jochana.driverule.R
 import com.jochana.driverule.feature.home.HomePreviewStatus
 import com.jochana.driverule.ui.components.DriveRuleBrand
 import com.jochana.driverule.ui.components.DriveRuleButton
+import com.jochana.driverule.ui.components.DriveRuleMotion
 import com.jochana.driverule.ui.components.DriveRuleWindow
 import com.jochana.driverule.ui.components.FigmaIcon
 import com.jochana.driverule.ui.components.FigmaImage
@@ -142,7 +150,14 @@ fun CardDetailScreen(
                 }
                 AutoCloseBar(progress.value, stopped = autoCloseStopped)
             }
-            if (evidenceOpen) {
+            // Children animate individually: the dim fades, the sheet slides up from the bottom.
+            // Fully qualified: the window lambda is a ColumnScope, whose overload would not fill the box.
+            androidx.compose.animation.AnimatedVisibility(
+                visible = evidenceOpen,
+                enter = EnterTransition.None,
+                exit = ExitTransition.None,
+                modifier = Modifier.fillMaxSize(),
+            ) {
                 EvidenceSheet(
                     evidence = card.evidence,
                     reportState = reportState,
@@ -238,13 +253,19 @@ private fun ColumnScope.CardScene(card: CardDetailPreview) {
     val shape = RoundedCornerShape(layout.space(20f))
     if (scene.fillsWindow) {
         // Figma `Scene (crop)` grows with the window and clips the export from the top.
+        val animate = scene.hasMotion() && !animationsDisabled()
         Box(Modifier.weight(1f).fillMaxWidth().clip(shape).testTag("card_scene_${scene.name}")) {
-            FigmaImage(
-                scene.asset,
-                Modifier.matchParentSize(),
-                contentScale = ContentScale.Crop,
-                alignment = Alignment.TopCenter,
-            )
+            if (animate) {
+                // Figma H-1 / I-1 motion (6.6 s loop). Without motion the static export is the same frame at rest.
+                AnimatedCardScene(scene, Modifier.matchParentSize())
+            } else {
+                FigmaImage(
+                    scene.asset,
+                    Modifier.matchParentSize(),
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.TopCenter,
+                )
+            }
         }
     } else {
         Box(
@@ -300,7 +321,7 @@ private fun AutoCloseBar(progress: Float, stopped: Boolean) {
 }
 
 @Composable
-private fun EvidenceSheet(
+private fun AnimatedVisibilityScope.EvidenceSheet(
     evidence: CardEvidencePreview,
     reportState: CardReportState,
     onReport: () -> Unit,
@@ -309,16 +330,22 @@ private fun EvidenceSheet(
 ) {
     val layout = LocalDriveRuleLayout.current
     val colors = LocalDriveRuleColors.current
-    Box(
-        Modifier.fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.5f))
-            // Tapping the dim closes the sheet. A pointer handler (not clickable) keeps the sheet's
-            // rows out of a merged accessibility node; '닫기' remains the accessible close action.
-            .pointerInput(onDismiss) { detectTapGestures { onDismiss() } }
-            .testTag("evidence_dim"),
-    ) {
+    Box(Modifier.fillMaxSize()) {
+        Box(
+            Modifier.matchParentSize()
+                .animateEnterExit(enter = fadeIn(DriveRuleMotion.enter()), exit = fadeOut(DriveRuleMotion.exit()))
+                .background(Color.Black.copy(alpha = 0.5f))
+                // Tapping the dim closes the sheet. A pointer handler (not clickable) keeps the sheet's
+                // rows out of a merged accessibility node; '닫기' remains the accessible close action.
+                .pointerInput(onDismiss) { detectTapGestures { onDismiss() } }
+                .testTag("evidence_dim"),
+        )
         Column(
             modifier = Modifier
+                .animateEnterExit(
+                    enter = slideInVertically(DriveRuleMotion.enter()) { it },
+                    exit = slideOutVertically(DriveRuleMotion.exit()) { it },
+                )
                 .fillMaxHeight()
                 .widthIn(max = layout.space(ONE_SLOT_WINDOW))
                 .fillMaxWidth()
