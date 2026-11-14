@@ -14,7 +14,7 @@ import android.os.Looper
 import android.util.Log
 
 /**
- * 확인용 코드(debug 전용). 제품 기능·안내 구조(결정 008)와 무관하다.
+ * 확인용 코드(debug 전용). 제품 기능·안내 구조(Android 결정 A01)와 무관하다.
  *
  * AAOS 차량 속성(기어 · 시동 · 주차 브레이크 · 차속)을 일반 앱 권한으로 읽을 수 있는지
  * 한 번 읽고, 기어 변경 콜백을 등록해 결과를 logcat 태그 [TAG]로만 남긴다.

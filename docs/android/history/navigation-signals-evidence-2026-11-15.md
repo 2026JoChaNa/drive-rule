@@ -48,7 +48,7 @@
 
 [Pleos BG→CCH 가이드](https://document.pleos.ai/docs/pleos-only/vehicle-app-developer-guide/bg-to-cch-transition-guide)는 사용자에게 제공 중인 기능이 끝난 뒤 불필요한 FGS 상주를 금지한다. 앱 전환 자체만으로 기능이 끝난 것은 아니다. [Android FGS 유형](https://developer.android.com/develop/background-work/services/fgs/service-types)의 specialUse는 다른 적합 유형이 없는 유효한 사용례와 구체적 subtype 설명이 필요하며, 선언만으로 Pleos 배포 승인을 받은 것이 아니다. 단순 Car binder 접근을 connectedDevice로, 대기 중인 감지를 mediaPlayback으로 가장하지 않는다.
 
-공유 [앱 API](../api/app-api.md)의 이벤트 태그는 SCHOOL_ZONE_ENTRY/PARKING_DESTINATION/PARKING_HIGHWAY/RIGHT_TURN_CROSSWALK다. SDK enum을 이 태그로 자동 치환하지 않는다. 학교 시설 좌표 파일·로컬 복사본, 목적지 반경, 발화 거리·중복 정책은 다음 단계의 별도 계약이다. 현재 API에 OVERSPEED 카드 태그는 없다.
+공유 [앱 API](../../api/app-api.md)의 이벤트 태그는 SCHOOL_ZONE_ENTRY/PARKING_DESTINATION/PARKING_HIGHWAY/RIGHT_TURN_CROSSWALK다. SDK enum을 이 태그로 자동 치환하지 않는다. 학교 시설 좌표 파일·로컬 복사본, 목적지 반경, 발화 거리·중복 정책은 다음 단계의 별도 계약이다. 현재 API에 OVERSPEED 카드 태그는 없다.
 
 ## 검증 상태
 

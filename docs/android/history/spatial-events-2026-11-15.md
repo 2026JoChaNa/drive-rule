@@ -23,9 +23,9 @@ A의 주차 브레이크 신호는 기존 AAOS adapter가 `PARKING_BRAKE_ON`으�
 - [FusedLocation 1.1.3 공식 소스](https://nexus-playground.pleos.ai/repository/maven-releases/ai/pleos/playground/FusedLocation/1.1.3/FusedLocation-1.1.3-sources.jar): 연속 콜백, LocationData 필드, 초기화·해제·내부 재시도를 확인했다. timestamp clock과 confidence 단위는 미정의다. on-device 실측 확인이 남아 있다.
 - [NaviHelper 3.0.5 소스](https://nexus-playground.pleos.ai/repository/maven-releases/ai/pleos/playground/NaviHelper/3.0.5/NaviHelper-3.0.5-sources.jar), [navi-data 3.0.4 소스](https://nexus-playground.pleos.ai/repository/maven-releases/ai/pleos/playground/navi-data/3.0.4/navi-data-3.0.4-sources.jar): getDestinationInfo/onDestinationInfo와 좌표·remainDistance를 대조했다.
 - [Android location FGS](https://developer.android.com/develop/background-work/services/fgs/service-types#location): 서비스 유형, 권한, 시스템 위치 활성화와 while-in-use 시작 조건을 구현에 반영했다.
-- [기존 앱 API](../api/app-api.md), [공유 학교 데이터 결정010](../decisions/010-school-zone-dataset.md): manifest 기준 상대 URL, 압축 해제 SHA-256, 전체 사본 교체, 미보유 시 B/H 보류. 현재 파일은 same-origin만 허용한다. 향후 CDN origin을 추가하면 명시적 허용 정책을 함께 수정해야 한다.
+- [기존 앱 API](../../api/app-api.md), [공유 학교 데이터 결정010](../../decisions/010-school-zone-dataset.md): manifest 기준 상대 URL, 압축 해제 SHA-256, 전체 사본 교체, 미보유 시 B/H 보류. 현재 파일은 same-origin만 허용한다. 향후 CDN origin을 추가하면 명시적 허용 정책을 함께 수정해야 한다.
 
-정책과 대안은 [Android 결정012](decisions/012-school-and-destination-events.md)에 기록했다. 서버 endpoint·공유 기획·ERD·루트 README는 수정하지 않는다.
+정책과 대안은 [Android 결정 A05](../decisions/A05-school-and-destination-events.md)에 기록했다. 서버 endpoint·공유 기획·ERD·루트 README는 수정하지 않는다.
 
 ## 검증
 

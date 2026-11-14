@@ -28,7 +28,7 @@ Android Studio에서 `android/`를 열고 `app` 모듈의 `debug` 변형을 설�
 
 ## 아이콘
 
-사용자 제공 `Icon.svg` 원본은 [Android 디자인 에셋](../../android/design-assets/launcher/Icon.svg)에 보존했다. 80×80, 파란색 `#0082FF`, 흰색 신호등의 경로 4개와 stroke를 Android VectorDrawable로 옮겼다. adaptive 아이콘은 플랫폼 마스크에 맞게 배경과 전경을 분리하며 API 33 이상 monochrome 리소스도 제공한다. Manifest의 `icon`과 `roundIcon`은 `@mipmap/ic_drive_rule`을 참조한다.
+사용자 제공 `Icon.svg` 원본은 [Android 디자인 에셋](../../../android/design-assets/launcher/Icon.svg)에 보존했다. 80×80, 파란색 `#0082FF`, 흰색 신호등의 경로 4개와 stroke를 Android VectorDrawable로 옮겼다. adaptive 아이콘은 플랫폼 마스크에 맞게 배경과 전경을 분리하며 API 33 이상 monochrome 리소스도 제공한다. Manifest의 `icon`과 `roundIcon`은 `@mipmap/ic_drive_rule`을 참조한다.
 
 원본 SHA-256: `401919d4de3b1bcb2f9a85f5d271d54ef0cce3e877f78bb8812a848fdb8222c6`.
 
@@ -49,9 +49,9 @@ Android Studio에서 `android/`를 열고 `app` 모듈의 `debug` 변형을 설�
 
 앱 덮어 설치 직후 앱 목록에는 새 아이콘이 보였지만 독에는 이전 아이콘이 남았다. 에뮬레이터를 데이터 초기화 없이 재부팅한 뒤 독도 새 아이콘으로 갱신됐다. 그 독 아이콘을 직접 눌러 정상 앱 slot `[853,90]–[2535,1300]`에 홈이 표시되는 것과 기존 운전자·다크 테마가 유지되는 것을 확인했다. 재부팅 후 실행에는 복구 스크립트를 사용하지 않았다.
 
-![새 독 아이콘으로 실행한 홈](assets/launcher/recovered-home.png)
+![새 독 아이콘으로 실행한 홈](../screenshots/launcher/recovered-home.png)
 
-[앱 목록에서 확인한 새 아이콘](assets/launcher/app-grid-icon.png)
+[앱 목록에서 확인한 새 아이콘](../screenshots/launcher/app-grid-icon.png)
 
 Gradle 리소스 변형 통합 직후 증분 빌드에서 아이콘 참조 누락이 발생했으나 `:app:clean :app:lintDebug :app:testDebugUnitTest :app:assembleDebug`는 성공했다. JVM 테스트는 19개가 통과했다. 실제 앱 기능·Activity 실행 속성은 이번 점검에서 변경하지 않았다. 아이콘, 재실행 개발 도구, 검증 문서만 변경했다.
 

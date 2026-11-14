@@ -346,7 +346,7 @@ curl -s "${H[@]}" -X PATCH $BASE/review-requests/3 -d '{"status":"RESOLVED"}'
    - 우회전(id 5): 노란불 행 · 녹색 점멸 2행 · 보행 신호 적색 행은 **개발 초안**. 노란불 행은 시행규칙 별표 2 황색 등화 원문과 대조 ([012 '정한 것'](../decisions/012-gleo-app-schema-draft.md#정한-것-2026-11-13))
    - 면허 갱신(id 7): 미갱신 과태료 금액 '확인 필요' (시행령 별표 6)
    - id 6~10: 제목 · 안내 문장은 개발 초안 (기획 검수)
-   - 근거 대조: 시연 카드 [`pt-cards-legal-check.md`](../content/pt-cards-legal-check.md) · 바뀐 규칙 카드 [`rule-change-cards-legal-check.md`](../content/rule-change-cards-legal-check.md)
+   - 근거 대조: 시연 카드 [`pt-cards-legal-check.md`](../legal-check/pt-cards-legal-check.md) · 바뀐 규칙 카드 [`rule-change-cards-legal-check.md`](../legal-check/rule-change-cards-legal-check.md)
 4. 검수 요청 (3-5) → 검수자 2명이 각자 승인. 10장이면 승인 20번
 5. 대표 주제 확인 (3-7): 위 표의 5장에 붙어 있다. A · B · H · I 에 붙일지는 검수 때 정한다 (006)
 6. 동기화로 게시한 카드가 나오는지 확인 (3-6)
