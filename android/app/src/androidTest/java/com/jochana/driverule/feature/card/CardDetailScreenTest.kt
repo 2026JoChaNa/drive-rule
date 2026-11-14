@@ -155,8 +155,8 @@ class CardDetailScreenTest {
     }
 
     private fun settle() {
-        // Past the 250 ms sheet enter transition.
-        compose.mainClock.advanceTimeBy(400)
+        // Past the sheet spring (settles in about 0.5 s).
+        compose.mainClock.advanceTimeBy(700)
         compose.waitForIdle()
     }
 }

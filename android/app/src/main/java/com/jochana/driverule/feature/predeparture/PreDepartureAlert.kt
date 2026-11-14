@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,6 +28,9 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -64,6 +66,8 @@ fun PreDepartureAlert(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     durationMillis: Int = PRE_DEPARTURE_ALERT_MILLIS,
+    /** Applied to the card itself, e.g. enter/exit motion anchored at the card, not the window. */
+    cardModifier: Modifier = Modifier,
 ) {
     val message = change.alertMessage ?: return
     val progress = remember(change.id) { Animatable(0f) }
@@ -87,6 +91,7 @@ fun PreDepartureAlert(
                     .padding(start = layout.space(32f), end = layout.space(32f), bottom = layout.space(258f))
                     .widthIn(max = layout.space(720f))
                     .fillMaxWidth()
+                    .then(cardModifier)
                     .shadow(layout.space(26.667f), shape)
                     .background(colors.border, shape)
                     .border(BorderStroke(layout.space(2.667f).coerceAtLeast(1.dp), colors.controlBorder), shape)
@@ -131,14 +136,20 @@ fun PreDepartureAlert(
                     style = layout.text(64f, 26f, FontWeight.Bold),
                     color = colors.textPrimary,
                 )
+                // Read only while drawing, so the 8 s bar does not recompose the alert every frame.
                 Box(
                     Modifier.fillMaxWidth()
                         .height(layout.space(6f).coerceAtLeast(3.dp))
                         .clip(RoundedCornerShape(layout.space(3f)))
-                        .background(colors.secondaryButton),
-                ) {
-                    Box(Modifier.fillMaxHeight().fillMaxWidth(progress.value).background(colors.accent))
-                }
+                        .background(colors.secondaryButton)
+                        .drawBehind {
+                            drawRoundRect(
+                                colors.accent,
+                                size = Size(size.width * progress.value.coerceIn(0f, 1f), size.height),
+                                cornerRadius = CornerRadius(size.height / 2f),
+                            )
+                        },
+                )
             }
         }
     }

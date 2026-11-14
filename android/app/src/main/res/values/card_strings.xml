@@ -7,6 +7,7 @@
     <string name="card_tag_right_turn_crosswalk">우회전 후 횡단보도</string>
     <string name="card_auto_close_description">잠시 뒤 자동으로 닫힙니다</string>
     <string name="card_close">닫기</string>
+    <string name="card_scene_replay">장면 다시 보기</string>
     <string name="evidence_title">근거</string>
     <string name="evidence_law">법령</string>
     <string name="evidence_dates">공포일·시행일</string>

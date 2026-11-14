@@ -7,10 +7,8 @@ import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -42,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -177,10 +176,17 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
                 showChanges -> AppScreen.RuleChanges
                 else -> AppScreen.Home
             }
-            // Short crossfade between screens (app default; Figma defines no screen transitions).
+            // Shared axis inside home → list → card, fade through for setup steps (docs/android/motion-spec.md).
+            val axisPx = with(LocalDensity.current) { 30.dp.roundToPx() }
             AnimatedContent(
                 targetState = screen,
-                transitionSpec = { fadeIn(DriveRuleMotion.screen()) togetherWith fadeOut(DriveRuleMotion.exit()) },
+                transitionSpec = {
+                    if (initialState.depth >= AppScreen.HOME_DEPTH && targetState.depth >= AppScreen.HOME_DEPTH) {
+                        DriveRuleMotion.sharedAxisX(forward = targetState.depth > initialState.depth, distancePx = axisPx)
+                    } else {
+                        DriveRuleMotion.fadeThrough()
+                    }
+                },
                 contentKey = { it.key },
                 label = "app-screen",
                 modifier = Modifier.weight(1f),
@@ -232,15 +238,23 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
             selectedCardId == null && !showChanges
         // Leaving home ends the alert; it is not shown again in this process.
         LaunchedEffect(homeShowing) { if (!homeShowing) showAlert = false }
-        // Rises slightly and fades in; fades out when it closes (app default, see DriveRuleMotion).
+        // The card itself rises, grows from its corner and fades in; it drops and fades out (DriveRuleMotion).
+        val risePx = with(LocalDensity.current) { 24.dp.roundToPx() }
+        val dropPx = with(LocalDensity.current) { 8.dp.roundToPx() }
         AnimatedVisibility(
             visible = showAlert && homeShowing && alertChange != null,
-            enter = fadeIn(DriveRuleMotion.enter()) + slideInVertically(DriveRuleMotion.enter()) { (it * 0.04f).toInt() },
-            exit = fadeOut(DriveRuleMotion.exit()),
+            enter = EnterTransition.None,
+            exit = ExitTransition.None,
             modifier = Modifier.fillMaxSize(),
         ) {
             alertChange?.let { change ->
-                PreDepartureAlert(change, active?.name.orEmpty(), onDismiss = { showAlert = false })
+                PreDepartureAlert(
+                    change, active?.name.orEmpty(), onDismiss = { showAlert = false },
+                    cardModifier = Modifier.animateEnterExit(
+                        enter = DriveRuleMotion.alertEnter(risePx),
+                        exit = DriveRuleMotion.alertExit(dropPx),
+                    ),
+                )
             }
         }
         if (showDrivers && !state.permissionGuidePending) DriverChangeSheet(
@@ -354,9 +368,15 @@ private fun profileError(error: ProfileInputError?): String? = error?.let {
 /** Top-level screens of the driver flow, used to key the screen transition. */
 private sealed interface AppScreen {
     val key: String
-    data object Onboarding : AppScreen { override val key = "onboarding" }
-    data object PermissionGuide : AppScreen { override val key = "permission" }
-    data object Home : AppScreen { override val key = "home" }
-    data object RuleChanges : AppScreen { override val key = "changes" }
-    data class Card(val id: String) : AppScreen { override val key = "card:$id" }
+    /** Setup steps are below [HOME_DEPTH]; home, list and card form one navigation axis above it. */
+    val depth: Int
+    data object Onboarding : AppScreen { override val key = "onboarding"; override val depth = 0 }
+    data object PermissionGuide : AppScreen { override val key = "permission"; override val depth = 1 }
+    data object Home : AppScreen { override val key = "home"; override val depth = HOME_DEPTH }
+    data object RuleChanges : AppScreen { override val key = "changes"; override val depth = HOME_DEPTH + 1 }
+    data class Card(val id: String) : AppScreen { override val key = "card:$id"; override val depth = HOME_DEPTH + 2 }
+
+    companion object {
+        const val HOME_DEPTH = 10
+    }
 }
