@@ -51,7 +51,7 @@ Figma의 Asta Sans를 [42dot 공식 저장소의 TTF](https://github.com/42dot/A
 
 ## 대비 확인
 
-설정 배지와 현재 운전자 라벨은 `accentText`로 대비를 보정했다. 이후 UI 재점검에서 선택된 운전자 아바타와 음성 상태 막대도 보정했으며, 현재 전체 검토 결과는 [디자인 점검](design-compliance-2026-11-12.md)을 따른다. 로고 배경과 입력 테두리는 원본 accent 값을 유지한다. 불투명 sRGB 상대 휘도 계산 결과이며 장치 밝기·물리 글자 높이 검증과 구분한다.
+설정 배지와 현재 운전자 라벨은 `accentText`로 대비를 보정했다. 이후 UI 재점검에서 선택된 운전자 아바타와 음성 상태 막대도 보정했으며, 현재 전체 검토 결과는 [디자인 점검](history/design-compliance-2026-11-12.md)을 따른다. 로고 배경과 입력 테두리는 원본 accent 값을 유지한다. 불투명 sRGB 상대 휘도 계산 결과이며 장치 밝기·물리 글자 높이 검증과 구분한다.
 
 | 요소 | 주간 전경/배경·대비 | 야간 전경/배경·대비 |
 |---|---|---|
@@ -66,7 +66,7 @@ Figma의 Asta Sans를 [42dot 공식 저장소의 TTF](https://github.com/42dot/A
 
 ### 구현 검증 기록
 
-주·야간 화면과 작은 창/큰 글자의 확인 결과는 [UI 구현 검증](ui-implementation-2026-11-12.md)에 있다. Material 다이얼로그의 야간 액션 글자는 `#60A5FF / #313236`(5.07:1)로 보정하고, 다이얼로그 글자·최소 터치 영역도 앱 창 크기에 맞췄다. 비활성 버튼과 이름 placeholder에는 secondary 글자색을 적용했다.
+주·야간 화면과 작은 창/큰 글자의 확인 결과는 [UI 구현 검증](history/ui-implementation-2026-11-12.md)에 있다. Material 다이얼로그의 야간 액션 글자는 `#60A5FF / #313236`(5.07:1)로 보정하고, 다이얼로그 글자·최소 터치 영역도 앱 창 크기에 맞췄다. 비활성 버튼과 이름 placeholder에는 secondary 글자색을 적용했다.
 
 ## 01-3 권한 안내 화면
 
@@ -94,8 +94,8 @@ Figma의 Asta Sans를 [42dot 공식 저장소의 TTF](https://github.com/42dot/A
 - 기존 테마 선택을 유지한다. 좁은 창과 큰 글자에서는 배지·설명을 세로로 배치하고 하단 버튼을 전체 너비로 표시한다. 본문과 하단 액션은 함께 스크롤되어 높이가 부족해도 접근할 수 있다.
 - `get_motion_context`에서 주·야간 모두 숨겨진 Voice level 그룹 안의 5개 막대에 3초 반복 모션을 확인했다. 해당 그룹은 실제 `visible=false`이므로 표시하거나 애니메이션을 실행하지 않는다.
 
-구현 파일·문자열 XML 및 SVG 원본 크기·비어 있지 않음을 확인했다. 통합 후 권한 안내의 라이트·다크·작은 창 캡처와 흐름 검사, 실제 Pleos 서비스 검사 범위는 [권한 안내·음성 입력 검증](onboarding-permissions-speech-2026-11-12.md)에 기록했다. 서비스 연결 검사를 실제 한국어 이름 인식 정확도 검증으로 해석하지 않는다.
+구현 파일·문자열 XML 및 SVG 원본 크기·비어 있지 않음을 확인했다. 통합 후 권한 안내의 라이트·다크·작은 창 캡처와 흐름 검사, 실제 Pleos 서비스 검사 범위는 [권한 안내·음성 입력 검증](history/onboarding-permissions-speech-2026-11-12.md)에 기록했다. 서비스 연결 검사를 실제 한국어 이름 인식 정확도 검증으로 해석하지 않는다.
 
 ### 현재 Figma 변수 재대조
 
-홈 주·야간 `get_variable_defs`에서 시행 예정 배지의 `signal/pink`와 `signal/pink-soft`를 확인해 `scheduled/scheduledSoft`로 적용했다. 버튼의 `border/subtle`은 야간 `#44464E`, 주간 `#E0E1E6`이며, 앱 외곽·구분선의 `bg/surface-2`와 분리했다. outlined 버튼의 최소 폭 218.182px·가로 padding 39.273px·아이콘 간격 15.273px, 홈 카드 상하 padding 56px·행 좌우 padding 24px를 앱 창 배율에 맞춰 적용했다. 원본 SVG는 변경하지 않았다. 최신 캡처는 [현재 UI 점검](design-compliance-2026-11-12.md)에 있다.
+홈 주·야간 `get_variable_defs`에서 시행 예정 배지의 `signal/pink`와 `signal/pink-soft`를 확인해 `scheduled/scheduledSoft`로 적용했다. 버튼의 `border/subtle`은 야간 `#44464E`, 주간 `#E0E1E6`이며, 앱 외곽·구분선의 `bg/surface-2`와 분리했다. outlined 버튼의 최소 폭 218.182px·가로 padding 39.273px·아이콘 간격 15.273px, 홈 카드 상하 padding 56px·행 좌우 padding 24px를 앱 창 배율에 맞춰 적용했다. 원본 SVG는 변경하지 않았다. 최신 캡처는 [현재 UI 점검](history/design-compliance-2026-11-12.md)에 있다.

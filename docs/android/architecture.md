@@ -1,6 +1,6 @@
 # DRIVE RULE Android 구조
 
-2026-11-13 · [결정 008](decisions/008-android-guidance-architecture.md) · [결정 009](decisions/009-local-profile-and-ui-demo.md) · 단일 `:app` 모듈
+2026-11-13 · [결정 A01](decisions/A01-android-guidance-architecture.md) · [결정 A02](decisions/A02-local-profile-and-ui-demo.md) · 단일 `:app` 모듈
 
 앱 코드·빌드·개발 README는 `android/`, 설계·검증·Android 전용 결정은 `docs/android/`에서 관리한다. 공유 루트 README의 통합 작성은 마지막 단계로 남긴다.
 
@@ -20,7 +20,7 @@
 | 순수 coordinator·debug FGS 샘플·이벤트 수신/알림 게시 분리 | 실제 내비 앱·절전·실차 이벤트 수신 검증 |
 | 단일 app 빌드와 CI 설정, JVM·Room 계측 테스트 작성 | 현재 변경의 검증 결과는 별도 구현 기록에서 관리 |
 
-현재 UI·저장 범위와 검증 결과는 [구현 기록](ui-implementation-2026-11-12.md)을 따른다. 아래 주행 안내 흐름도와 상태표는 설계다. 이름이 등장하는 타입을 모두 미리 생성하지 않으며, 현재 연결되지 않은 기능의 실행을 보장하지 않는다.
+현재 UI·저장 범위와 검증 결과는 [구현 기록](history/ui-implementation-2026-11-12.md)을 따른다. 아래 주행 안내 흐름도와 상태표는 설계다. 이름이 등장하는 타입을 모두 미리 생성하지 않으며, 현재 연결되지 않은 기능의 실행을 보장하지 않는다.
 
 ## 서비스에 맞춘 책임
 
@@ -102,7 +102,7 @@ Route/앱 조립 화면은 ViewModel 생성·연결과 lifecycle에 맞춘 상�
 
 `AppContainer`는 `NameSpeechEngine` factory를 제공하고 `core/platform/speech/PleosNameSpeechEngine`이 Pleos SDK 타입을 감춘다. `VoiceDriverOnboarding`은 화면 수명의 `NameSpeechController`를 만들고, controller는 연결·수음·최종 결과 대기·오류 상태와 취소를 관리한다. 음성 이름 입력은 아래의 장기 주행 안내 coordinator와 별개인 짧은 화면 작업이다.
 
-최초·추가 등록의 빈 이름 화면은 `RESUMED`와 UX 허용 조건을 만족할 때 화면 세션당 한 번 인식을 자동 시작한다. 직접 입력한 이름은 자동 인식으로 덮어쓰지 않는다. 중간 텍스트는 상태 영역에 표시하고 최종 결과만 `changeName`에 전달한다. 인식 결과가 곧 프로필 저장을 뜻하지 않으며 사용자가 ‘다음’을 눌러 확정한다. 취소·직접 입력·이름 화면 이탈·앱 `ON_PAUSE`/`ON_STOP`·UX 제한 전환에서 세션을 종료하고, 세대가 지난 callback은 입력값을 바꾸지 못한다. 같은 화면 세션에서 복귀해도 자동 재개하지 않고 중지·타임아웃 뒤에는 ‘다시 말하기’로 명시적으로 재시도한다. 미지원·권한 실패·무음·타임아웃은 오류 상태로 제공하며 직접 입력을 유지한다. 로컬 엔진 준비는 최대 45초, 첫 ready 이후 청취는 최대 20초로 분리하고 중복 ready는 시간을 연장하지 않는다. 에뮬레이터 냉시작의 약 26초 준비 관측과 검증 범위는 [권한 안내·음성 입력 검증](onboarding-permissions-speech-2026-11-12.md)에 기록했다.
+최초·추가 등록의 빈 이름 화면은 `RESUMED`와 UX 허용 조건을 만족할 때 화면 세션당 한 번 인식을 자동 시작한다. 직접 입력한 이름은 자동 인식으로 덮어쓰지 않는다. 중간 텍스트는 상태 영역에 표시하고 최종 결과만 `changeName`에 전달한다. 인식 결과가 곧 프로필 저장을 뜻하지 않으며 사용자가 ‘다음’을 눌러 확정한다. 취소·직접 입력·이름 화면 이탈·앱 `ON_PAUSE`/`ON_STOP`·UX 제한 전환에서 세션을 종료하고, 세대가 지난 callback은 입력값을 바꾸지 못한다. 같은 화면 세션에서 복귀해도 자동 재개하지 않고 중지·타임아웃 뒤에는 ‘다시 말하기’로 명시적으로 재시도한다. 미지원·권한 실패·무음·타임아웃은 오류 상태로 제공하며 직접 입력을 유지한다. 로컬 엔진 준비는 최대 45초, 첫 ready 이후 청취는 최대 20초로 분리하고 중복 ready는 시간을 연장하지 않는다. 에뮬레이터 냉시작의 약 26초 준비 관측과 검증 범위는 [권한 안내·음성 입력 검증](history/onboarding-permissions-speech-2026-11-12.md)에 기록했다.
 
 adapter는 [SpeechToText 3.3.1의 `Mode.ON_DEVICE`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/intro)와 [`Locale.KOREA`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/set-locale)를 사용한다. SDK 기본값인 HYBRID 또는 서버 인식으로 전환하지 않는다. [`request()`/`stop()`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/start-and-stop), [최종 결과 구분](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/result-listeners), [listener 제거·release](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/initialization-and-release)를 adapter 내부에서 처리한다.
 
@@ -112,7 +112,7 @@ adapter는 [SpeechToText 3.3.1의 `Mode.ON_DEVICE`](https://document.pleos.ai/do
 
 `AppContainer.backendApi` → `core/data/remote/BackendApiClient` → Retrofit/OkHttp 순서로 통신한다. 클라이언트 생성만으로 요청하지 않으며 ViewModel이나 `RoomDriverProfileRepository`에는 연결하지 않았다. 2026-11-13 사용자 확인에 따라 등록은 차량 내부 Room 저장으로 유지한다. 현행 서버에는 사용자 등록 API가 없으며 이름·프로필 ID를 전송하지 않는다. 프로필 DB 스키마·migration·입력/권한 안내 흐름은 유지한다.
 
-DTO는 wire 형식이며 domain 모델이 아니다. JSON 추가 필드는 무시하고 enum 문자열 및 decision JSON을 보존하지만, 알 수 없는 카드 유형·schema를 실제 안내에 사용할 수 있다는 뜻은 아니다. 후속 mapper와 원자적 캐시 갱신을 구현하기 전 `ruleCardRepository`는 계속 Unavailable이며 홈은 더미다. 자세한 API 목록·전송 정책·검증 결과는 [연동 준비 기록](backend-api-preparation-2026-11-13.md)을 따른다.
+DTO는 wire 형식이며 domain 모델이 아니다. JSON 추가 필드는 무시하고 enum 문자열 및 decision JSON을 보존하지만, 알 수 없는 카드 유형·schema를 실제 안내에 사용할 수 있다는 뜻은 아니다. 후속 mapper와 원자적 캐시 갱신을 구현하기 전 `ruleCardRepository`는 계속 Unavailable이며 홈은 더미다. 자세한 API 목록·전송 정책·검증 결과는 [연동 준비 기록](history/backend-api-preparation-2026-11-13.md)을 따른다.
 
 ## 주행 안내 흐름과 실행 수명
 
@@ -188,7 +188,7 @@ coordinator는 실행 host가 제공하는 명시적인 scope와 시작/종료 �
 ## 참고와 빌드 기준
 
 - [Android 아키텍처 권장 사항](https://developer.android.com/topic/architecture/recommendations), [UI/UDF](https://developer.android.com/topic/architecture/ui-layer), [선택적 domain layer](https://developer.android.com/topic/architecture/domain-layer). 이 프로젝트의 순수 domain과 실행 coordinator 구분은 프로젝트 설계이며 공식 UseCase 수명 모델과 동일하다고 주장하지 않는다.
-- [개발 컨벤션](../../android/CODEX_CONVENTIONS.md), [디자인 점검](design-compliance-2026-11-12.md), [Pleos 근거 및 지원 확인 기록](source-check-2026-11-12.md).
+- [개발 컨벤션](../../android/CODEX_CONVENTIONS.md), [디자인 점검](history/design-compliance-2026-11-12.md), [Pleos 근거 및 지원 확인 기록](history/source-check-2026-11-12.md).
 - [AGP 8.7](https://developer.android.com/build/releases/agp-8-7-0-release-notes): Gradle 8.9와 JDK 17 기준. 현재 AGP 8.7.2.
 - [Kotlin 호환성](https://kotlinlang.org/docs/gradle-configure-project.html), [Compose compiler](https://kotlinlang.org/docs/compose-compiler-migration-guide.html): Kotlin/Compose plugin 2.1.20.
 - [Compose BOM 2024.12.01](https://dl.google.com/dl/android/maven2/androidx/compose/compose-bom/2024.12.01/compose-bom-2024.12.01.pom): Compose 1.7.6/Material 3 1.3.1, AndroidX minCompileSdk 34 확인.
@@ -201,4 +201,4 @@ coordinator는 실행 host가 제공하는 명시적인 scope와 시작/종료 �
 
 최초 구현은 debug 전용 `SampleGuidanceService`가 `GuidanceCoordinator`와 타이머 출처를 소유한다. MainActivity.onStart의 host가 한 번 시작하며 Activity.onStop이나 Compose 재구독은 세션을 끝내거나 새로 만들지 않는다. 읽기 전용 runtime은 전체 수신·앱 화면 부재 중 수신·알림 게시를 구분한다. 알림 권한 거부가 이벤트 처리를 중단시키지 않는다.
 
-서비스는 10분 샘플 세션 또는 명시 중지로 종료한다. 실제 차량 신호·TTS·운전 상황 정책·법령 캐시는 아직 연결하지 않았다. 과거 문서의 전체 주행 엔진·플랫폼 출력 구상과 이번 작은 구현을 구분한다. [상세 실행·검증](background-events-2026-11-13.md).
+서비스는 10분 샘플 세션 또는 명시 중지로 종료한다. 실제 차량 신호·TTS·운전 상황 정책·법령 캐시는 아직 연결하지 않았다. 과거 문서의 전체 주행 엔진·플랫폼 출력 구상과 이번 작은 구현을 구분한다. [상세 실행·검증](history/background-events-2026-11-13.md).

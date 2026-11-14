@@ -21,7 +21,7 @@
 | 01-3 권한 안내 | [앱 창 1844:32191](https://www.figma.com/design/dltRYbBH0KHuBe86A6Vr2G/?node-id=1844-32191) | [앱 창 1870:30812](https://www.figma.com/design/dltRYbBH0KHuBe86A6Vr2G/?node-id=1870-30812) |
 | 09 운전자 변경 | [시트 1844:33168](https://www.figma.com/design/dltRYbBH0KHuBe86A6Vr2G/?node-id=1844-33168) | [시트 1870:31149](https://www.figma.com/design/dltRYbBH0KHuBe86A6Vr2G/?node-id=1870-31149) |
 
-원본 SVG 24개(홈·이름 공용 18개, 권한 안내 6개)와 Asta Sans 4개 weight를 로컬 번들로 사용한다. SVG의 root width/height/viewBox를 유지하고 `ContentScale.Fit`으로 표시한다. 앱 실행 중 임시 Figma URL이나 원격 폰트를 불러오지 않는다. 에셋 대응, 출처 및 OFL은 [에셋 기록](figma-assets.md)에 있다.
+원본 SVG 24개(홈·이름 공용 18개, 권한 안내 6개)와 Asta Sans 4개 weight를 로컬 번들로 사용한다. SVG의 root width/height/viewBox를 유지하고 `ContentScale.Fit`으로 표시한다. 앱 실행 중 임시 Figma URL이나 원격 폰트를 불러오지 않는다. 에셋 대응, 출처 및 OFL은 [에셋 기록](../figma-assets.md)에 있다.
 
 ## 공식 가이드 기준과 현재 근거
 
@@ -100,7 +100,7 @@ Pleos Connect 2.1.0 API 34, emulator-5554, 사용자 10, 디스플레이 2560×1
 
 최종 캡처 검토에서 다크 시트 한 장이 창 표시 직전 프레임을 담은 것을 발견했다. 캡처 동기화를 보완한 뒤 시트의 주·야간 및 작은 창 검사 2개를 추가로 실행해 통과하고 해당 3장의 캡처를 교체했다. 앱 제품 코드는 동일하다.
 
-색상과 간격을 수정한 최종 APK를 설치했다. 실제 사용자 DB를 초기화하거나 앱을 삭제하지 않았다. 검사 후 `restart-app.ps1`로 MainActivity를 다시 열어 기존 ‘운전자 1’과 라이트 테마가 유지되는 것을 [실제 앱 화면](assets/ui-audit/main-restored.png)에서 확인했다. 수정 전·후 캡처를 섞지 않도록 이번 결과는 `assets/ui-audit/`에 별도로 보관했다.
+색상과 간격을 수정한 최종 APK를 설치했다. 실제 사용자 DB를 초기화하거나 앱을 삭제하지 않았다. 검사 후 `restart-app.ps1`로 MainActivity를 다시 열어 기존 ‘운전자 1’과 라이트 테마가 유지되는 것을 [실제 앱 화면](../screenshots/ui-audit/main-restored.png)에서 확인했다. 수정 전·후 캡처를 섞지 않도록 이번 결과는 `screenshots/ui-audit/`에 별도로 보관했다.
 
 `git diff --check`를 통과했으며 이번 수정 파일은 `android/`와 `docs/android/` 안에 있다.
 
@@ -108,13 +108,13 @@ Pleos Connect 2.1.0 API 34, emulator-5554, 사용자 10, 디스플레이 2560×1
 
 | 화면 | 라이트 | 다크 |
 |---|---|---|
-| 이름 등록 | [라이트](assets/ui-audit/onboarding-light.png) | [다크](assets/ui-audit/onboarding-dark.png) |
-| 권한 안내 | [라이트](assets/ui-audit/permission-guide-light.png) | [다크](assets/ui-audit/permission-guide-dark.png) |
-| 홈 | [라이트](assets/ui-audit/home-light.png) | [다크](assets/ui-audit/home-dark.png) |
-| 운전자 변경 | [라이트](assets/ui-audit/driver-sheet-light.png) | [다크](assets/ui-audit/driver-sheet-dark.png) |
-| 720dp 긴 이름 | [라이트](assets/ui-audit/home-720dp-long-name.png) | [다크](assets/ui-audit/home-720dp-long-name-dark.png) |
+| 이름 등록 | [라이트](../screenshots/ui-audit/onboarding-light.png) | [다크](../screenshots/ui-audit/onboarding-dark.png) |
+| 권한 안내 | [라이트](../screenshots/ui-audit/permission-guide-light.png) | [다크](../screenshots/ui-audit/permission-guide-dark.png) |
+| 홈 | [라이트](../screenshots/ui-audit/home-light.png) | [다크](../screenshots/ui-audit/home-dark.png) |
+| 운전자 변경 | [라이트](../screenshots/ui-audit/driver-sheet-light.png) | [다크](../screenshots/ui-audit/driver-sheet-dark.png) |
+| 720dp 긴 이름 | [라이트](../screenshots/ui-audit/home-720dp-long-name.png) | [다크](../screenshots/ui-audit/home-720dp-long-name-dark.png) |
 
-[400×600dp·큰 글자 이름 등록](assets/ui-audit/onboarding-400x600-large-font.png), [540dp 홈](assets/ui-audit/home-compact-large-font.png), [540dp 시트](assets/ui-audit/driver-sheet-compact-large-font.png), [540dp 권한 안내](assets/ui-audit/permission-guide-compact-large-font.png).
+[400×600dp·큰 글자 이름 등록](../screenshots/ui-audit/onboarding-400x600-large-font.png), [540dp 홈](../screenshots/ui-audit/home-compact-large-font.png), [540dp 시트](../screenshots/ui-audit/driver-sheet-compact-large-font.png), [540dp 권한 안내](../screenshots/ui-audit/permission-guide-compact-large-font.png).
 
 ## 남아 있는 장치 검증
 

@@ -2,7 +2,7 @@
 
 - 날짜: 2026-11-11
 - 상태: **초안** — 11/18 기술 검증 결과 대기, ERD 미반영 (`favorite_place` 아직 있음)
-- 요청: `docs/ERD 보완 요청 · 화면 대조 결과 (v5.2 기준).md` 7번 · '동작 결정 > 목적지'
+- 요청: `docs/requests/2026-11-11-erd-screen-check-v5-2.md` 7번 · '동작 결정 > 목적지'
 - 관련: `favorite_place` · `destination_briefing` · `local_school_zone`
 
 ## 배경

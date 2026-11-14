@@ -2,7 +2,7 @@
 
 작성일: 2026-11-12 · 적용 위치: `android/` · 상태: 개발 기준 v1.5 (2026-11-13 앱 API v1 통신 준비 반영)
 
-이 문서는 사용자 최신 요청과 저장소의 채택된 결정을 연결한다. **확정 요구**, **이번에 정한 개발 기준**, **검증 대기**를 구분한다. 근거와 접근 결과는 [출처 및 검증 기록](../docs/android/source-check-2026-11-12.md)에 있다.
+이 문서는 사용자 최신 요청과 저장소의 채택된 결정을 연결한다. **확정 요구**, **이번에 정한 개발 기준**, **검증 대기**를 구분한다. 근거와 접근 결과는 [출처 및 검증 기록](../docs/android/history/source-check-2026-11-12.md)에 있다.
 
 ## 1. 제품 목표와 구현 범위
 
@@ -27,13 +27,13 @@ DRIVE RULE은 검수한 교통 법령 정보를 운전 상황에 맞춰 미리 �
 
 프로젝트 요구사항 해석은 최신 사용자 명시 요청 → 채택된 결정 문서 → 현재 구현·계약 → 기획/디자인 → 참고 자료 순으로 대조한다. 이 순서는 시스템·개발자 지침이나 플랫폼 제약을 덮어쓰지 않는다. 충돌은 관련 결정 문서에 근거를 남겨 해결한다.
 
-- 2026-11-12에 이름 최초 설정·Room 프로필 추가/선택·DataStore 테마·더미 홈에 이어 최초 권한 안내와 Pleos 음성 이름 입력 adapter를 추가했다. 현재 범위와 빌드 방법은 [README](README.md), 의존성 방향은 [구조 문서](../docs/android/architecture.md), 검증 결과는 [UI 구현 기록](../docs/android/ui-implementation-2026-11-12.md)을 따른다. 실제 법령 캐시·주행 안내, 차량 신호·TTS·카드 표시 adapter는 아직 구현 전이다.
-- 서버 앱용 계약은 [앱 API v1](../docs/api/app-api.md)과 운영 OpenAPI를 기준으로 한다. 2026-11-13 공통 통신 client/DTO를 준비했으나 캐시·홈 연결은 아직 전이다. 사용자 등록 API는 없고 기존 Room 등록을 유지한다. 상세 범위는 [연동 준비](../docs/android/backend-api-preparation-2026-11-13.md)를 따른다.
+- 2026-11-12에 이름 최초 설정·Room 프로필 추가/선택·DataStore 테마·더미 홈에 이어 최초 권한 안내와 Pleos 음성 이름 입력 adapter를 추가했다. 현재 범위와 빌드 방법은 [README](README.md), 의존성 방향은 [구조 문서](../docs/android/architecture.md), 검증 결과는 [UI 구현 기록](../docs/android/history/ui-implementation-2026-11-12.md)을 따른다. 실제 법령 캐시·주행 안내, 차량 신호·TTS·카드 표시 adapter는 아직 구현 전이다.
+- 서버 앱용 계약은 [앱 API v1](../docs/api/app-api.md)과 운영 OpenAPI를 기준으로 한다. 2026-11-13 공통 통신 client/DTO를 준비했으나 캐시·홈 연결은 아직 전이다. 사용자 등록 API는 없고 기존 Room 등록을 유지한다. 상세 범위는 [연동 준비](../docs/android/history/backend-api-preparation-2026-11-13.md)를 따른다.
 - 설계 기준은 [erd.data.mjs](../docs/db/erd.data.mjs)다. 구현 후 Room Entity/Flyway SQL과 함께 유지한다. 생성물 `ERD.drawio`를 직접 수정하지 않는다.
 - [001](../docs/decisions/001-remove-driving-context.md)~[005](../docs/decisions/005-screen-check-v5-2.md)는 채택된 결정이다. [006](../docs/decisions/006-topic-primary-card.md)은 서버 대표 topic UQ 유지 결정이며 [007](../docs/decisions/007-remove-favorite-place.md)은 여전히 초안이다.
 - 서버 `rule_card.topic`의 UNIQUE 유지 정책은 바꾸지 않는다. `is_primary`/`topic_group` 도입과 `favorite_place` 삭제를 임의로 확정하지 않는다. 앱 Room `cached_card.topic`에는 UNIQUE를 두지 않는다. 회수된 사본에는 이전 topic이 남을 수 있으므로 대표 조회는 `WHERE topic = ? AND is_retired = 0`을 따른다([앱 API v1](../docs/api/app-api.md)).
-- [008](../docs/android/decisions/008-android-guidance-architecture.md)은 Android 구조 결정이다. 기존 제품/데이터 결정을 바꾸지 않으며 실제 주행 안내 엔진·SDK host는 아직 구현 전이다.
-- [009](../docs/android/decisions/009-local-profile-and-ui-demo.md)는 현재 로컬 프로필·테마와 샘플 UI의 범위를 정한다. debug의 주차 상태 가정·법령 표시 샘플은 release에서 사용하지 않는다.
+- [A01](../docs/android/decisions/A01-android-guidance-architecture.md)은 Android 구조 결정이다. 기존 제품/데이터 결정을 바꾸지 않으며 실제 주행 안내 엔진·SDK host는 아직 구현 전이다.
+- [A02](../docs/android/decisions/A02-local-profile-and-ui-demo.md)는 현재 로컬 프로필·테마와 샘플 UI의 범위를 정한다. debug의 주차 상태 가정·법령 표시 샘플은 release에서 사용하지 않는다.
 
 ## 3. Android 기술 및 코드 규칙 — 신규 개발 기준
 
@@ -188,9 +188,9 @@ Pleos/AAOS/Fake 신호 → 정규화·유효성 → 이벤트 후보
 
 ## 9. 디자인과 첨부 이미지
 
-확인한 디자인: [멋사멋사 / 현대차 v6.0 · 12.9인치 · 이벤트 안내 A·B·H·I](https://www.figma.com/design/dltRYbBH0KHuBe86A6Vr2G/?node-id=1844-31772). 2026-11-12에 metadata·실제 텍스트·스크린샷을 읽었다. 최초 확인의 상세 node 목록과 요구 차이는 [검증 기록](../docs/android/source-check-2026-11-12.md)에 있다. 최초 설정·홈의 구현 시 확인한 token과 원본 차이는 [UI 구현 기록](../docs/android/ui-implementation-2026-11-12.md)에서 관리한다. 이후 다른 화면도 해당 node의 token을 확인한 뒤 구현한다.
+확인한 디자인: [멋사멋사 / 현대차 v6.0 · 12.9인치 · 이벤트 안내 A·B·H·I](https://www.figma.com/design/dltRYbBH0KHuBe86A6Vr2G/?node-id=1844-31772). 2026-11-12에 metadata·실제 텍스트·스크린샷을 읽었다. 최초 확인의 상세 node 목록과 요구 차이는 [검증 기록](../docs/android/history/source-check-2026-11-12.md)에 있다. 최초 설정·홈의 구현 시 확인한 token과 원본 차이는 [UI 구현 기록](../docs/android/history/ui-implementation-2026-11-12.md)에서 관리한다. 이후 다른 화면도 해당 node의 token을 확인한 뒤 구현한다.
 
-![사용자 제공 주행 카드 예시 — 문구와 시행일은 데모](../docs/android/assets/driving-card-reference.png)
+![사용자 제공 주행 카드 예시 — 문구와 시행일은 데모](../docs/android/screenshots/driving-card-reference.png)
 
 이미지에서 참고할 구조는 브랜드/아이콘, 상태·상황 태그, 짧은 제목, 상황 그림, 자동 종료 진행 표시다. Figma의 A-1(`1849:27324`) 주차 상세 화면과 대응하며 주행 중 팝업의 완성 명세는 아니다. 속도계·지도·하단 시스템 영역 전체는 DRIVE RULE 앱이 구현할 화면이라는 뜻이 아니다.
 
@@ -202,7 +202,7 @@ Pleos/AAOS/Fake 신호 → 정규화·유효성 → 이벤트 후보
 
 ### 공식 디자인 가이드 적용과 완료 판정
 
-공식 [Pleos 디자인 가이드](https://document.pleos.ai/docs/connect/guide/docs-design/Introduction/intro)를 Figma와 함께 적용한다. 현재 이름·권한 안내·홈·운전자 시트의 항목별 결과는 [디자인 준수 점검](../docs/android/design-compliance-2026-11-12.md)에 기록했다. 기본 Material 테마와 빌드 성공만으로 디자인 준수를 선언하지 않는다.
+공식 [Pleos 디자인 가이드](https://document.pleos.ai/docs/connect/guide/docs-design/Introduction/intro)를 Figma와 함께 적용한다. 현재 이름·권한 안내·홈·운전자 시트의 항목별 결과는 [디자인 준수 점검](../docs/android/history/design-compliance-2026-11-12.md)에 기록했다. 기본 Material 테마와 빌드 성공만으로 디자인 준수를 선언하지 않는다.
 
 - 텍스트·아이콘·의미를 전달하는 이미지의 전경/배경 대비를 4.5:1 이상으로 검증한다. 주·야간, 상태색, 투명도와 실제 배경을 포함한다.
 - 중요한 정보의 글자 높이는 실제 화면에서 5mm 이상, 보조 정보는 3mm 이상인지 검증한다. Figma px, Android dp/sp와 실제 글리프 높이를 구분한다. Typography 문서의 160dpi 예시를 차량 공통 변환식으로 사용하지 않는다.
@@ -255,4 +255,4 @@ Android 검증은 `.github/workflows/android-ci.yml`에서 lint·JVM 테스트·
 
 ### 2026-11-13 백그라운드 샘플 구현 범위
 
-`GuidanceCoordinator`와 debug 전용 `SampleGuidanceService`를 추가했다. 앱 실행 시 10분 세션을 시작하고 다른 앱에서도 타이머 샘플 이벤트를 처리한다. 수신·백그라운드 수신·알림 게시를 구분하며 알림 거부가 수신을 막지 않는다. 실제 차량 이벤트·TTS·법령 정책·외부 사용자 정의 카드 지원은 검증 전이다. 자세한 범위와 공식 근거는 [백그라운드 이벤트 기록](../docs/android/background-events-2026-11-13.md)을 따른다.
+`GuidanceCoordinator`와 debug 전용 `SampleGuidanceService`를 추가했다. 앱 실행 시 10분 세션을 시작하고 다른 앱에서도 타이머 샘플 이벤트를 처리한다. 수신·백그라운드 수신·알림 게시를 구분하며 알림 거부가 수신을 막지 않는다. 실제 차량 이벤트·TTS·법령 정책·외부 사용자 정의 카드 지원은 검증 전이다. 자세한 범위와 공식 근거는 [백그라운드 이벤트 기록](../docs/android/history/background-events-2026-11-13.md)을 따른다.

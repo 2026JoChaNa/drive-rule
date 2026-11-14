@@ -2,7 +2,7 @@
 
 확인일: 2026-11-12 (KST). 이 문서는 당시 조회 결과이며 SDK/정책 변경 시 해당 공식 문서를 다시 확인한다. 앱 구현 또는 실차 시험 결과를 뜻하지 않는다.
 
-> 이 기록은 Android 기본 구조를 추가하기 전의 점검이다. 이후 추가한 MVVM 구조와 로컬 빌드 결과는 [Android README](../../android/README.md)와 [구조 문서](architecture.md)를 참고한다.
+> 이 기록은 Android 기본 구조를 추가하기 전의 점검이다. 이후 추가한 MVVM 구조와 로컬 빌드 결과는 [Android README](../../../android/README.md)와 [구조 문서](../architecture.md)를 참고한다.
 
 ## 1. 저장소와 GitHub
 
@@ -22,7 +22,7 @@
 
 다음 연결 점검은 GitHub 앱의 해당 저장소 접근 범위와 로컬 Git Credential Manager 인증 상태를 확인한 뒤 `git ls-remote --symref origin HEAD`로 수행한다. 이 작업에서는 토큰을 만들거나 권한·remote를 변경하지 않았고 커밋·푸시하지 않았다.
 
-검토한 기존 자료: 루트/Android README, `docs/decisions/001`~`007`, [v5.2 화면 대조 요청](<../ERD 보완 요청 · 화면 대조 결과 (v5.2 기준).md>), [ERD 원본](../db/erd.data.mjs), [배포 문서](../deploy.md), 현재 서버/CI 구성. 006·007은 초안이며 기존 결정 상태를 바꾸지 않았다.
+검토한 기존 자료: 루트/Android README, `docs/decisions/001`~`007`, [v5.2 화면 대조 요청](<../ERD 보완 요청 · 화면 대조 결과 (v5.2 기준).md>), [ERD 원본](../../db/erd.data.mjs), [배포 문서](../../deploy.md), 현재 서버/CI 구성. 006·007은 초안이며 기존 결정 상태를 바꾸지 않았다.
 
 ### 2026-11-12 푸시 준비 중 추가 점검
 
@@ -108,8 +108,8 @@
 
 ## 6. 첨부 자료와 보정
 
-- [사용자 제공 SDK 상황 신호 정리 원본 사본](references/pleos-sdk-signals-2026-11-11.md): 내용은 원본 그대로 보관. 작성일 2026-11-11.
-- [사용자 제공 화면 이미지](assets/driving-card-reference.png): 앱 카드 시각 참조용. 법령·날짜·금액은 운영 데이터로 승인되지 않음.
+- [사용자 제공 SDK 상황 신호 정리 원본 사본](../references/pleos-sdk-signals-2026-11-11.md): 내용은 원본 그대로 보관. 작성일 2026-11-11.
+- [사용자 제공 화면 이미지](../screenshots/driving-card-reference.png): 앱 카드 시각 참조용. 법령·날짜·금액은 운영 데이터로 승인되지 않음.
 
 첨부 문서의 ‘확실’은 실제 법적 상황 확정과 구분한다. TBT는 예정 회전 안내, 근접 알림은 좌표 반경 접근 신호다. 첨부의 ‘오프라인 TTS 미확인’은 공식 문서상 지원 확인으로 보정하되 장치 시험은 남아 있다. FusedLocation은 전용 dangerous 권한을 확인했으며 일반 위치 권한만으로 구현하지 않는다. 첨부가 언급한 결정 007은 여전히 초안이다.
 
