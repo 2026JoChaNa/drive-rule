@@ -124,35 +124,50 @@ internal object SceneScripts {
         }
     }
 
-    // I-1 우회전 후 횡단보도: car waits at the stop mark while the pedestrian crosses, then goes straight on.
+    // I-1 우회전 후 횡단보도: the car turns right off the northbound lane, stops part-way through the
+    // turn at the red stop mark while the pedestrian crosses, then completes the turn and leaves east.
     object RightTurn {
-        const val TOTAL_MS = 6_100
-        /** `Car` box centre at rest, facing east (inner scene offset -420, 59.164 applied). */
+        const val TOTAL_MS = 6_200
+        /** Figma frame: `Car` box centre facing east (inner scene offset -420, 59.164 applied). */
         val rest = Pose(339.21f, 405.97f, 90f)
         /** `Pedestrian` centre at rest, on the east crosswalk. */
         const val PEDESTRIAN_X = 464.6f
         const val PEDESTRIAN_REST_Y = 304.6f
+        const val PEDESTRIAN_RADIUS = 44.8f
         private const val PEDESTRIAN_START_Y = 183f
         private const val PEDESTRIAN_END_Y = 510f
-        private val approach = ScenePath(rest.x - 500f, rest.y, 90f).forward(500f)
-        private val proceed = ScenePath(rest.x, rest.y, 90f).forward(520f)
+        /** Half the car length: node centre to bumper. */
+        const val CAR_HALF_LENGTH = 77.2f
+
+        // Northbound lane, kept toward the centre line (x 297) so the turning car clears the crosswalk (x ~420).
+        private const val LANE_X = 352f
+        private const val TURN_RADIUS = 90f
+        /** The arc ends facing east in the eastbound lane (rest.y). */
+        private const val TURN_START_Y = 405.97f + TURN_RADIUS
+        private const val STOP_DEGREES = 15f
+        private val path = ScenePath(LANE_X, TURN_START_Y + 300f, 0f)
+            .forward(300f).turnRight(TURN_RADIUS, 90f).forward(450f)
+        private val stopDistance = 300f + (TURN_RADIUS * STOP_DEGREES * Math.PI / 180.0).toFloat()
+
+        /** Where the car waits: 15° into the turn (shallow, so its front corner stays clear of the crosswalk), front bumper just short of the stop mark. */
+        val stopPose: Pose get() = path.poseAt(stopDistance)
 
         fun car(t: Float): Pose = when {
-            t < 1_500 -> approach.poseAt(approach.length * phase(t, 0, 1_500, SceneEasing.Brake))
-            t < 3_800 -> rest
-            t < 5_600 -> proceed.poseAt(proceed.length * phase(t, 3_800, 5_600, SceneEasing.PullAway))
+            t < 1_800 -> path.poseAt(stopDistance * phase(t, 0, 1_800, SceneEasing.Brake))
+            t < 3_900 -> stopPose
+            t < 5_700 -> path.poseAt(stopDistance + (path.length - stopDistance) * phase(t, 3_900, 5_700, SceneEasing.PullAway))
             else -> rest
         }
 
-        fun carAlpha(t: Float): Float = if (t < 5_600) 1f else phase(t, 5_700, TOTAL_MS)
+        fun carAlpha(t: Float): Float = if (t < 5_700) 1f else phase(t, 5_800, TOTAL_MS)
 
         fun pedestrianY(t: Float): Float = when {
-            t < 5_600 -> lerp(PEDESTRIAN_START_Y, PEDESTRIAN_END_Y, phase(t, 1_300, 3_700, SceneEasing.Standard))
+            t < 5_700 -> lerp(PEDESTRIAN_START_Y, PEDESTRIAN_END_Y, phase(t, 1_200, 3_800, SceneEasing.Standard))
             else -> PEDESTRIAN_REST_Y
         }
 
         fun pedestrianAlpha(t: Float): Float = when {
-            t < 5_600 -> 1f
+            t < 5_700 -> 1f
             t < 5_800 -> 0f
             else -> phase(t, 5_800, TOTAL_MS)
         }

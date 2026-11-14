@@ -52,7 +52,7 @@ class SceneScriptTest {
     @Test
     fun `cars arrive exactly at their stop pose without a jump`() {
         assertPose(SceneScripts.Crosswalk.rest, SceneScripts.Crosswalk.car(1_499.9f))
-        assertPose(SceneScripts.RightTurn.rest, SceneScripts.RightTurn.car(1_499.9f))
+        assertPose(SceneScripts.RightTurn.stopPose, SceneScripts.RightTurn.car(1_799.9f))
         // The shoulder swerve is two opposite arcs and must land on the rest pose by construction.
         assertPose(SceneScripts.Highway.rest, SceneScripts.Highway.approachEnd)
         assertPose(SceneScripts.Highway.rest, SceneScripts.Highway.car(1_799.9f))
@@ -81,11 +81,33 @@ class SceneScriptTest {
     }
 
     @Test
-    fun `pedestrian crosses north to south while the car waits`() {
+    fun `right-turn car comes up the northbound lane, waits mid-turn, then completes the turn east`() {
+        val s = SceneScripts.RightTurn
+        // Approaching: heading north, below the stop.
+        assertEquals(0f, s.car(300f).heading, eps)
+        // Waiting part-way through the right turn, front bumper short of the red stop mark (x 421.5).
+        assertEquals(15f, s.stopPose.heading, 0.5f)
+        val frontX = s.stopPose.x + s.CAR_HALF_LENGTH * kotlin.math.sin(Math.toRadians(s.stopPose.heading.toDouble())).toFloat()
+        assertTrue("front $frontX past the stop mark", frontX < 421.5f)
+        // Leaving: the turn is completed, facing east.
+        assertEquals(90f, s.car(5_500f).heading, eps)
+    }
+
+    @Test
+    fun `pedestrian crosses north to south while the car waits and never touches it`() {
         val s = SceneScripts.RightTurn
         assertTrue(s.pedestrianY(1_000f) < s.pedestrianY(2_500f))
-        assertTrue(s.pedestrianY(2_500f) < s.pedestrianY(3_700f))
-        // The car is still at the stop mark until the crossing is done.
-        assertPose(s.rest, s.car(3_700f))
+        assertTrue(s.pedestrianY(2_500f) < s.pedestrianY(3_800f))
+        // The car is still waiting until the crossing is done.
+        assertPose(s.stopPose, s.car(3_800f))
+        val h = Math.toRadians(s.stopPose.heading.toDouble())
+        val frontX = s.stopPose.x + s.CAR_HALF_LENGTH * kotlin.math.sin(h).toFloat()
+        val frontY = s.stopPose.y - s.CAR_HALF_LENGTH * kotlin.math.cos(h).toFloat()
+        var t = 1_200f
+        while (t <= 3_800f) {
+            val gap = hypot(frontX - s.PEDESTRIAN_X, frontY - s.pedestrianY(t)) - s.PEDESTRIAN_RADIUS
+            assertTrue("pedestrian touches the car at $t ms (gap $gap)", gap > 0f)
+            t += 50f
+        }
     }
 }
