@@ -4,10 +4,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
@@ -45,7 +41,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -148,7 +147,7 @@ fun CardDetailScreen(
                         color = LocalDriveRuleColors.current.textTertiary,
                     )
                 }
-                AutoCloseBar(progress.value, stopped = autoCloseStopped)
+                AutoCloseBar({ progress.value }, stopped = autoCloseStopped)
             }
             // Children animate individually: the dim fades, the sheet slides up from the bottom.
             // Fully qualified: the window lambda is a ColumnScope, whose overload would not fill the box.
@@ -251,12 +250,13 @@ private fun ColumnScope.CardScene(card: CardDetailPreview) {
     val layout = LocalDriveRuleLayout.current
     val scene = card.scene
     val shape = RoundedCornerShape(layout.space(20f))
+    // With animations off the static Figma export is shown; it equals each story's last frame.
+    val animate = !animationsDisabled()
     if (scene.fillsWindow) {
         // Figma `Scene (crop)` grows with the window and clips the export from the top.
-        val animate = scene.hasMotion() && !animationsDisabled()
         Box(Modifier.weight(1f).fillMaxWidth().clip(shape).testTag("card_scene_${scene.name}")) {
             if (animate) {
-                // Figma H-1 / I-1 motion (6.6 s loop). Without motion the static export is the same frame at rest.
+                // App-designed scene story (docs/android/motion-spec.md); it settles on the Figma frame.
                 AnimatedCardScene(scene, Modifier.matchParentSize())
             } else {
                 FigmaImage(
@@ -274,7 +274,11 @@ private fun ColumnScope.CardScene(card: CardDetailPreview) {
                 .clip(shape)
                 .testTag("card_scene_${scene.name}"),
         ) {
-            FigmaImage(scene.asset, Modifier.matchParentSize(), contentScale = ContentScale.FillBounds)
+            if (animate) {
+                AnimatedCardScene(scene, Modifier.matchParentSize())
+            } else {
+                FigmaImage(scene.asset, Modifier.matchParentSize(), contentScale = ContentScale.FillBounds)
+            }
         }
         card.legend?.let { SceneLegend(it) }
         Spacer(Modifier.weight(1f))
@@ -301,7 +305,8 @@ private fun SceneLegend(label: String) {
 }
 
 @Composable
-private fun AutoCloseBar(progress: Float, stopped: Boolean) {
+/** [progress] is read only while drawing, so the bar animates without recomposing the card. */
+private fun AutoCloseBar(progress: () -> Float, stopped: Boolean) {
     val layout = LocalDriveRuleLayout.current
     val colors = LocalDriveRuleColors.current
     val description = stringResource(R.string.card_auto_close_description)
@@ -313,11 +318,16 @@ private fun AutoCloseBar(progress: Float, stopped: Boolean) {
             .testTag(if (stopped) "card_auto_close_stopped" else "card_auto_close_running")
             .semantics {
                 if (!stopped) contentDescription = description
-                progressBarRangeInfo = ProgressBarRangeInfo(progress, 0f..1f)
+                progressBarRangeInfo = ProgressBarRangeInfo(progress(), 0f..1f)
+            }
+            .drawBehind {
+                drawRoundRect(
+                    colors.accent,
+                    size = Size(size.width * progress().coerceIn(0f, 1f), size.height),
+                    cornerRadius = CornerRadius(size.height / 2f),
+                )
             },
-    ) {
-        Box(Modifier.fillMaxHeight().fillMaxWidth(progress).background(colors.accent))
-    }
+    )
 }
 
 @Composable
@@ -333,7 +343,7 @@ private fun AnimatedVisibilityScope.EvidenceSheet(
     Box(Modifier.fillMaxSize()) {
         Box(
             Modifier.matchParentSize()
-                .animateEnterExit(enter = fadeIn(DriveRuleMotion.enter()), exit = fadeOut(DriveRuleMotion.exit()))
+                .animateEnterExit(enter = DriveRuleMotion.scrimEnter, exit = DriveRuleMotion.scrimExit)
                 .background(Color.Black.copy(alpha = 0.5f))
                 // Tapping the dim closes the sheet. A pointer handler (not clickable) keeps the sheet's
                 // rows out of a merged accessibility node; '닫기' remains the accessible close action.
@@ -342,10 +352,7 @@ private fun AnimatedVisibilityScope.EvidenceSheet(
         )
         Column(
             modifier = Modifier
-                .animateEnterExit(
-                    enter = slideInVertically(DriveRuleMotion.enter()) { it },
-                    exit = slideOutVertically(DriveRuleMotion.exit()) { it },
-                )
+                .animateEnterExit(enter = DriveRuleMotion.sheetEnter, exit = DriveRuleMotion.sheetExit)
                 .fillMaxHeight()
                 .widthIn(max = layout.space(ONE_SLOT_WINDOW))
                 .fillMaxWidth()
