@@ -400,17 +400,29 @@ class DriverFlowScreenTest {
             RuleChangeIcon.Drink, alertMessage = "알림 문장",
         )
         val gate = PreDepartureAlertGate()
+        // The 8 s alert runs to completion inside showFlow's idle wait; its drawing is covered by
+        // PreDepartureAlertTest. Here we check that the first home claimed it exactly once.
         showFlow(listOf(DriverProfile(1, "테스트 운전자")), ruleChanges = listOf(change), alertGate = gate)
-
-        compose.onNodeWithTag("pre_departure_alert").assertIsDisplayed()
-        compose.onNodeWithText("드라이브룰 · 테스트 운전자 님").assertIsDisplayed()
+        compose.runOnIdle { assertEquals(false, gate.claim()) }
 
         compose.onNodeWithTag("changes_button").performScrollTo().performClick()
-        compose.onNodeWithTag("pre_departure_alert").assertDoesNotExist()
+        compose.onNodeWithTag("rule_changes_screen").assertIsDisplayed()
         compose.onNodeWithTag("rule_changes_home").performClick()
         compose.onNodeWithTag("home_screen").assertIsDisplayed()
         compose.onNodeWithTag("pre_departure_alert").assertDoesNotExist()
-        compose.runOnIdle { assertEquals(false, gate.claim()) }
+    }
+
+    @Test
+    fun preDepartureAlertIsNotClaimedWithoutAnAlertSentence() {
+        val change = RuleChangePreview(
+            "plain", "문장 없는 규칙", LocalDate.of(2027, 6, 3), "제1호", HomePreviewStatus.Scheduled,
+            RuleChangeIcon.Drink,
+        )
+        val gate = PreDepartureAlertGate()
+        showFlow(listOf(DriverProfile(1, "테스트 운전자")), ruleChanges = listOf(change), alertGate = gate)
+
+        compose.onNodeWithTag("pre_departure_alert").assertDoesNotExist()
+        compose.runOnIdle { assertEquals(true, gate.claim()) }
     }
 
     @Test
