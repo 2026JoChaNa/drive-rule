@@ -1,0 +1,4 @@
+# 단일 운영자 로컬 개발: 승인 한 번으로 게시한다. 기본 환경은 2인 승인을 유지한다.
+driverule:
+  admin:
+    required-approvals: 1

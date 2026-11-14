@@ -241,6 +241,21 @@ class CardServiceTest {
 		}
 
 		@Test
+		void singleReviewerConfigurationPublishesAfterOneApproval() {
+			Clock clock = Clock.fixed(ZonedDateTime.of(NOW, SEOUL).toInstant(), SEOUL);
+			CardService singleReviewerService = new CardService(cards, revisions, reviewers, reviews,
+					new DecisionTableJson(JsonMapper.builder().build()), clock, 1);
+			stored(1, CardStatus.IN_REVIEW, 1, null, false);
+			when(reviews.countByCardIdAndCardVersionAndDecision(1L, 1, ReviewDecision.APPROVE)).thenReturn(1L);
+
+			RuleCard card = singleReviewerService.review(1L, 7L, ReviewDecision.APPROVE);
+
+			assertThat(card.getStatus()).isEqualTo(CardStatus.PUBLISHED);
+			assertThat(card.getVerifiedAt()).isEqualTo(NOW);
+			verify(reviews).save(any(CardReview.class));
+		}
+
+		@Test
 		void rejectionReturnsToDraft() {
 			stored(1, CardStatus.IN_REVIEW, 1, null, false);
 

@@ -11,6 +11,8 @@ import com.jochana.driverule.review.ReviewerRepository;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
  * 카드 혼자 판단하는 규칙(상태별 허용 동작 · 버전 · 게시 · 주제 잠금)은 {@link RuleCard} 에 있다.
  *
  * <pre>
- * DRAFT ──submit──▶ IN_REVIEW ──승인 2건──▶ PUBLISHED
+ * DRAFT ──submit──▶ IN_REVIEW ──필요 승인 수 충족──▶ PUBLISHED
  *   ▲                  │ 반려                 │ 수정
  *   └──────────────────┴──────────────────────┘
  * (RETIRED 외 어느 상태에서든) ──retire──▶ RETIRED (끝)
@@ -39,15 +41,27 @@ public class CardService {
 	private final CardReviewRepository reviews;
 	private final DecisionTableJson decisionJson;
 	private final Clock clock;
+	private final int requiredApprovals;
 
 	public CardService(RuleCardRepository cards, LawRevisionRepository revisions, ReviewerRepository reviewers,
 			CardReviewRepository reviews, DecisionTableJson decisionJson, Clock clock) {
+		this(cards, revisions, reviewers, reviews, decisionJson, clock, RuleCard.REQUIRED_APPROVALS);
+	}
+
+	@Autowired
+	public CardService(RuleCardRepository cards, LawRevisionRepository revisions, ReviewerRepository reviewers,
+			CardReviewRepository reviews, DecisionTableJson decisionJson, Clock clock,
+			@Value("${driverule.admin.required-approvals:2}") int requiredApprovals) {
+		if (requiredApprovals < 1 || requiredApprovals > RuleCard.REQUIRED_APPROVALS) {
+			throw new IllegalArgumentException("driverule.admin.required-approvals must be 1 or 2");
+		}
 		this.cards = cards;
 		this.revisions = revisions;
 		this.reviewers = reviewers;
 		this.reviews = reviews;
 		this.decisionJson = decisionJson;
 		this.clock = clock;
+		this.requiredApprovals = requiredApprovals;
 	}
 
 	@Transactional
@@ -89,7 +103,7 @@ public class CardService {
 		long approvals = decision == ReviewDecision.APPROVE
 				? reviews.countByCardIdAndCardVersionAndDecision(card.getId(), card.getVersion(), ReviewDecision.APPROVE)
 				: 0;
-		card.applyReview(decision, approvals, now);
+		card.applyReview(decision, approvals, requiredApprovals, now);
 		return card;
 	}
 

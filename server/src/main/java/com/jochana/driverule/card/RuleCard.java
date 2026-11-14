@@ -171,11 +171,16 @@ public class RuleCard {
 	 * @param approvalsAtVersion 방금 저장한 검수를 포함한, 이 버전의 승인 수
 	 */
 	void applyReview(ReviewDecision decision, long approvalsAtVersion, LocalDateTime now) {
+		applyReview(decision, approvalsAtVersion, REQUIRED_APPROVALS, now);
+	}
+
+	/** 환경별 검수 정책을 반영한다. 기본 정책은 2인, 로컬 개발은 1인이다. */
+	void applyReview(ReviewDecision decision, long approvalsAtVersion, int requiredApprovals, LocalDateTime now) {
 		ensureReviewable();
 		if (decision == ReviewDecision.REJECT) {
 			changeStatus(CardStatus.DRAFT, now);
 		}
-		else if (approvalsAtVersion >= REQUIRED_APPROVALS) {
+		else if (approvalsAtVersion >= requiredApprovals) {
 			verifiedAt = now;
 			changeStatus(CardStatus.PUBLISHED, now);
 		}
