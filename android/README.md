@@ -144,7 +144,7 @@ JVM 테스트는 이름·프로필·UX·저장소와 실제 신호의 가용성�
 
 [Android CI](../.github/workflows/android-ci.yml)는 Android 변경에서 lint, JVM 테스트, debug 빌드를 실행하도록 설정되어 있다. 원격 CI 실행·실제 차량 동작은 로컬 빌드와 별도로 검증한다. 연결된 기기의 계측 테스트는 `:app:connectedDebugAndroidTest`로 실행한다.
 
-서명 release APK는 제출 단계에서 루트 `apk/조차나_DRIVERULE_release.apk`에 준비한다. debug APK를 제출물로 복사하지 않으며 서명키는 저장소 밖에서 관리한다.
+서명 release APK는 제출 단계에서 루트 `apk/조차나_드라이브룰_release.apk`에 준비한다. debug APK를 제출물로 복사하지 않으며 서명키는 저장소 밖에서 관리한다.
 
 ## 2026-11-12 최초 scaffold 검증 — 과거 기록
 

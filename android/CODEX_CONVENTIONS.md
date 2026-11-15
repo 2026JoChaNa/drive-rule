@@ -248,7 +248,7 @@ Gradle 생성 후 `android/`에서:
 .\gradlew.bat :app:connectedDebugAndroidTest
 ```
 
-Android 검증은 `.github/workflows/android-ci.yml`에서 lint·JVM 테스트·debug APK 빌드를 수행하도록 구성했다. 서버 CI와 독립이며 원격 실행 결과는 별도 확인한다. 의도한 제출 단계에서만 서명 release APK를 `apk/조차나_DRIVERULE_release.apk`로 준비하며 서명키는 별도 관리한다.
+Android 검증은 `.github/workflows/android-ci.yml`에서 lint·JVM 테스트·debug APK 빌드를 수행하도록 구성했다. 서버 CI와 독립이며 원격 실행 결과는 별도 확인한다. 의도한 제출 단계에서만 서명 release APK를 `apk/조차나_드라이브룰_release.apk`로 준비하며 서명키는 별도 관리한다.
 
 ## 11. 현재 작업 순서와 아직 결정할 것
 
