@@ -38,6 +38,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -74,6 +77,7 @@ import com.jochana.driverule.feature.profile.PermissionGuideScreen
 import com.jochana.driverule.domain.speech.NameSpeechEngine
 import com.jochana.driverule.feature.profile.ProfileInputError
 import com.jochana.driverule.ui.components.DriveRuleMotion
+import com.jochana.driverule.ui.components.LocalSampleLabelsVisible
 import com.jochana.driverule.ui.theme.DriveRuleTheme
 
 @Composable
@@ -84,6 +88,9 @@ fun DriveRuleApp(
     backgroundBanner: @Composable (Modifier) -> Unit = {},
     onGuidanceSpeechAllowed: (Boolean) -> Unit = {},
     onRequestPermissions: (onComplete: () -> Unit) -> Unit = { it() },
+    /** Card ids to open as if their event just happened. Only the debug demo build emits any. */
+    cardOpenRequests: Flow<String> = emptyFlow(),
+    sampleLabelsVisible: Boolean = true,
 ) {
     val factory = remember(appContainer) {
         viewModelFactory {
@@ -103,16 +110,18 @@ fun DriveRuleApp(
     }
     SideEffect { onThemeChanged(dark) }
     DriveRuleTheme(darkTheme = dark) {
+        CompositionLocalProvider(LocalSampleLabelsVisible provides sampleLabelsVisible) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             Box(Modifier.fillMaxSize()) {
                 DriverFlowContent(state, model, appContainer.previewEntries,
                     Modifier.safeDrawingPadding().imePadding().fillMaxSize(), speechEngineFactory,
                     backgroundControls, appContainer.cardDetails, appContainer.cardErrorReportRepository,
                     appContainer.ruleChanges, appContainer.preDepartureAlertGate,
-                    onGuidanceSpeechAllowed, onRequestPermissions)
+                    onGuidanceSpeechAllowed, onRequestPermissions, cardOpenRequests)
                 backgroundBanner(Modifier.align(Alignment.BottomCenter)
                     .safeDrawingPadding().imePadding().padding(16.dp))
             }
+        }
         }
     }
 }
@@ -131,6 +140,7 @@ internal fun DriverFlowContent(
     preDepartureAlertGate: PreDepartureAlertGate = remember { PreDepartureAlertGate() },
     onGuidanceSpeechAllowed: (Boolean) -> Unit = {},
     onRequestPermissions: (onComplete: () -> Unit) -> Unit = { it() },
+    cardOpenRequests: Flow<String> = emptyFlow(),
 ) {
     val speechAllowed = when {
         state.storageError -> false
@@ -162,7 +172,8 @@ internal fun DriverFlowContent(
     }
     // Conditional scope removes dialogs and input focus immediately when UX becomes restricted.
     AllowedDriverContent(state, model, entries, modifier, speechEngineFactory, backgroundControls,
-        cardDetails, cardErrorReports, ruleChanges, preDepartureAlertGate, onRequestPermissions)
+        cardDetails, cardErrorReports, ruleChanges, preDepartureAlertGate, onRequestPermissions,
+        cardOpenRequests)
 }
 
 @Composable
@@ -171,7 +182,8 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
     backgroundControls: @Composable () -> Unit, cardDetails: Map<String, CardDetailPreview>,
     cardErrorReports: CardErrorReportRepository, ruleChanges: List<RuleChangePreview>,
     preDepartureAlertGate: PreDepartureAlertGate,
-    onRequestPermissions: (onComplete: () -> Unit) -> Unit) {
+    onRequestPermissions: (onComplete: () -> Unit) -> Unit,
+    cardOpenRequests: Flow<String>) {
     var showTheme by remember { mutableStateOf(false) }
     var showDrivers by remember { mutableStateOf(false) }
     var showGleo by remember { mutableStateOf(false) }
@@ -185,6 +197,20 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
     val upcomingBanner = remember(ruleChanges) { upcomingRulesBanner(ruleChanges) }
     val alertChange = remember(ruleChanges) { preDepartureAlert(ruleChanges) }
     var showAlert by remember { mutableStateOf(false) }
+    // Demo events open their card over whatever is showing, like the event card it stands in for.
+    // Re-requesting the open card closes it for a frame so its scene and auto-close restart.
+    LaunchedEffect(cardOpenRequests, cardDetails) {
+        cardOpenRequests.collect { id ->
+            if (!cardDetails.containsKey(id)) return@collect
+            showAlert = false
+            showDrivers = false
+            if (selectedCardId == id) {
+                selectedCardId = null
+                withFrameNanos { }
+            }
+            selectedCardId = id
+        }
+    }
     val themeLabel = stringResource(themeLabelId(state.themeMode))
     val error = profileError(state.error)
     val active = state.activeProfile

@@ -32,6 +32,7 @@ android {
         versionName = "0.1.0"
         buildConfigField("String", "API_BASE_URL", "\"$backendBaseUrl\"")
         buildConfigField("boolean", "SAMPLE_GUIDANCE", "false")
+        buildConfigField("boolean", "DEMO_MODE", "false")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -40,8 +41,13 @@ android {
     buildTypes {
         debug {
             // Explicit opt-in UI/sample mode; release always reads actual platform state.
-            buildConfigField("boolean", "SAMPLE_GUIDANCE",
-                providers.gradleProperty("driveRuleSampleMode").orElse("false").get().toBooleanStrict().toString())
+            // Demo mode (video recording) implies sample mode and replaces its test panel and
+            // timer events with adb-triggered card events (scripts/demo-event.ps1).
+            val demoMode = providers.gradleProperty("driveRuleDemoMode").orElse("false").get().toBooleanStrict()
+            val sampleMode = demoMode ||
+                providers.gradleProperty("driveRuleSampleMode").orElse("false").get().toBooleanStrict()
+            buildConfigField("boolean", "SAMPLE_GUIDANCE", sampleMode.toString())
+            buildConfigField("boolean", "DEMO_MODE", demoMode.toString())
         }
         release {
             isMinifyEnabled = true

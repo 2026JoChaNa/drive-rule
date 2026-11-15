@@ -50,6 +50,7 @@ import com.jochana.driverule.core.model.DriverProfile
 import com.jochana.driverule.domain.profile.ProfileNamePolicy
 import com.jochana.driverule.ui.components.DriveRuleLayout
 import com.jochana.driverule.ui.theme.LocalDriveRuleColors
+import com.jochana.driverule.ui.components.LocalSampleLabelsVisible
 import java.text.BreakIterator
 
 /** Figma 09. A modal inside the app window; it never draws over vehicle system UI. */
@@ -183,7 +184,8 @@ private fun DriverSheetRow(
                 val countStyle = layout.text(35f, 16f)
                 Text(
                     if (sampleGuidanceCount == null) stringResource(R.string.driver_guidance_unavailable)
-                    else stringResource(R.string.driver_guidance_sample, sampleGuidanceCount),
+                    else stringResource(if (LocalSampleLabelsVisible.current) R.string.driver_guidance_sample
+                        else R.string.driver_guidance_count, sampleGuidanceCount),
                     color = colors.textSecondary,
                     style = countStyle.copy(lineHeight = countStyle.fontSize * 1.229f),
                 )

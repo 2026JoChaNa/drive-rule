@@ -136,6 +136,23 @@ Pleos에서 앱 프로세스는 실행됐지만 기존 task가 정상 앱 slot�
 
 스크립트는 현재 Android 사용자를 조회한다. 앱 데이터 삭제나 에뮬레이터 초기화는 하지 않는다. 원인 관측·아이콘 출처·실행 검증은 [런처 점검 기록](../docs/android/launcher-verification-2026-11-12.md)을 참고한다.
 
+### 시연 영상 녹화용 빌드 (시연 모드)
+
+시연 영상을 찍을 때만 쓰는 debug 빌드다. release에는 들어가지 않는다.
+
+```powershell
+.\gradlew.bat :app:installDebug -PdriveRuleDemoMode=true
+.\scripts\restart-app.ps1
+.\scripts\demo-event.ps1 -Event turn   # school · parking · turn · highway
+```
+
+- 샘플 모드와 같이 주차 상태를 가정하고 샘플 화면 데이터를 쓴다
+- 홈의 개발용 테스트 패널과 30초 타이머 이벤트는 없다
+- 화면 곳곳의 '샘플' 표시를 숨긴다. 대신 영상 자막에 시연용 샘플 데이터라고 밝힌다
+- `demo-event.ps1`을 실행하면 앱이 앞으로 나오고, 해당 이벤트의 Figma 카드(H · B · I · A)가 열리며 카드 문장을 음성으로 읽는다
+  - 앱이 스스로 다른 앱 위로 나오는 것이 아니라 adb 명령이 앱을 띄운다. 실제 차량에서의 표시 방식이 아니다
+  - 카드와 음성 문장은 디자인 확인용 샘플이며 검수된 법령이 아니다. 들은 안내 이력으로 기록하지 않는다
+
 Manifest는 Automotive 기기를 대상으로 하며 STT/TTS, 차량 읽기 `CAR_SPEED`·`CAR_POWERTRAIN`, 내비 읽기 `NAVI_ROUTE`, 실제 host의 `specialUse` foreground service와 선택적 알림 권한을 선언한다. 기본 Debug와 Release 모두 실제 host를 사용한다. 주행 중 조작 가능한 DO 앱으로 선언하지 않았으며 실제 UX 제한을 따른다. 위치·overlay 권한과 직접 녹음용 `RECORD_AUDIO` 경로는 사용하지 않는다. 서비스 용도 선언은 Pleos 배포 승인이나 영구 실행 보장이 아니다.
 
 ## 검증과 CI

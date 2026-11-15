@@ -30,6 +30,7 @@ import com.jochana.driverule.ui.components.DriveRuleWindow
 import com.jochana.driverule.ui.components.FigmaIcon
 import com.jochana.driverule.ui.components.LocalDriveRuleLayout
 import com.jochana.driverule.ui.components.RuleRow
+import com.jochana.driverule.ui.components.LocalSampleLabelsVisible
 import com.jochana.driverule.ui.theme.LocalDriveRuleColors
 
 @Composable
@@ -81,7 +82,7 @@ fun HomeScreen(
                         style = layout.text(50.67f, 24f, FontWeight.SemiBold),
                         color = colors.textPrimary,
                     )
-                    Text(
+                    if (LocalSampleLabelsVisible.current) Text(
                         stringResource(R.string.ui_sample_explanation),
                         style = layout.text(34.67f, 16f),
                         color = colors.textTertiary,

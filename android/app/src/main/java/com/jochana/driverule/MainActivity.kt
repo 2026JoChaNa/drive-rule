@@ -1,5 +1,6 @@
 package com.jochana.driverule
 
+import android.content.Intent
 import android.os.Bundle
 import android.graphics.Color
 import androidx.activity.SystemBarStyle
@@ -22,6 +23,8 @@ class MainActivity : ComponentActivity() {
         val appContainer = (application as DriveRuleApplication).appContainer
         LawCardSyncScheduler.onAppEntered(applicationContext)
         SchoolZoneSyncScheduler.onAppEntered(applicationContext)
+        // Recreation keeps the old intent; only a fresh launch may carry a demo event.
+        if (savedInstanceState == null) AppEnvironment.handleLaunchIntent(this, intent)
         setContent {
             DriveRuleApp(appContainer = appContainer, onThemeChanged = { dark ->
                 val bars = if (dark) SystemBarStyle.dark(Color.TRANSPARENT)
@@ -30,8 +33,16 @@ class MainActivity : ComponentActivity() {
             }, backgroundControls = { backgroundGuidanceHost.Controls() },
                 backgroundBanner = { backgroundGuidanceHost.Banner(it) },
                 onGuidanceSpeechAllowed = backgroundGuidanceHost::onSpeechAllowed,
-                onRequestPermissions = backgroundGuidanceHost::requestPermissions)
+                onRequestPermissions = backgroundGuidanceHost::requestPermissions,
+                cardOpenRequests = AppEnvironment.cardOpenRequests,
+                sampleLabelsVisible = AppEnvironment.sampleLabelsVisible)
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        AppEnvironment.handleLaunchIntent(this, intent)
     }
 
     override fun onStart() {
