@@ -12,5 +12,7 @@ interface BackgroundGuidanceHost {
     /** Completion means the request finished, including denial; call back on the main thread. */
     fun requestPermissions(onComplete: () -> Unit) { onComplete() }
     @Composable fun Controls()
-    @Composable fun Banner(modifier: Modifier = Modifier) = Unit
+    // Keep the composable ABI explicit: every host supplies its own banner implementation.
+    // Interface defaults generate Compose default dispatch bridges across compilation units.
+    @Composable fun Banner(modifier: Modifier)
 }
