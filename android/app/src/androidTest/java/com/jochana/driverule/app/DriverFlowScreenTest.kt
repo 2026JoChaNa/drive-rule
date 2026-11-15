@@ -23,7 +23,9 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -77,6 +79,7 @@ import com.jochana.driverule.domain.repository.DriverProfileRepository
 import com.jochana.driverule.domain.repository.ThemePreferenceRepository
 import com.jochana.driverule.domain.vehicle.UxRestrictionProvider
 import com.jochana.driverule.feature.profile.DriverFlowViewModel
+import com.jochana.driverule.feature.profile.DriverFlowUiState
 import com.jochana.driverule.ui.theme.DriveRuleTheme
 import java.io.File
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -126,7 +129,8 @@ class DriverFlowScreenTest {
 
     @Test
     fun skippingFirstNameStillShowsGuideAndLaterOpensHome() {
-        val fixture = showFlow()
+        var permissionRequests = 0
+        val fixture = showFlow(onRequestPermissions = { permissionRequests++; it() })
         compose.onNodeWithTag("skip_driver").performClick()
 
         compose.onNodeWithTag("permission_guide_screen").assertIsDisplayed()
@@ -139,7 +143,186 @@ class DriverFlowScreenTest {
                 fixture.profiles.snapshot.value.activeProfile?.name,
             )
             assertEquals(1, fixture.profiles.snapshot.value.profiles.size)
+            assertEquals("Later must not launch a platform permission request", 0, permissionRequests)
         }
+    }
+
+    @Test
+    fun permissionGuideWaitsForRequestCompletionWithoutAssumingGrant() {
+        var completeRequest: (() -> Unit)? = null
+        var requests = 0
+        val fixture = showFlow(onRequestPermissions = { requests++; completeRequest = it })
+        compose.onNodeWithTag("skip_driver").performClick()
+        compose.onNodeWithTag("permission_allow").performScrollTo().performClick()
+        compose.onNodeWithTag("permission_allow").assertIsNotEnabled()
+        compose.onNodeWithTag("permission_later").assertIsNotEnabled()
+        compose.runOnIdle {
+            assertEquals(1, requests)
+            assertTrue(fixture.profiles.snapshot.value.permissionGuidePending)
+            // The host also invokes this callback after denial/cancellation, with no grant flag.
+            requireNotNull(completeRequest).invoke()
+        }
+        compose.onNodeWithTag("home_screen").assertIsDisplayed()
+        compose.runOnIdle { requireNotNull(completeRequest).invoke() }
+        compose.runOnIdle {
+            assertTrue(!fixture.profiles.snapshot.value.permissionGuidePending)
+            assertEquals("Repeated platform callbacks must not repeat persistence", 1, fixture.profiles.guideCompletions)
+        }
+    }
+
+    @Test
+    fun latePermissionCallbackCannotCompleteAfterUxRestrictionOrUnknownState() {
+        val callbacks = mutableListOf<() -> Unit>()
+        val fixture = showFlow(onRequestPermissions = { callbacks += it })
+        compose.onNodeWithTag("skip_driver").performClick()
+        listOf(VehicleUxState.Restricted, VehicleUxState.Unknown).forEach { ux ->
+            compose.onNodeWithTag("permission_allow").performScrollTo().performClick()
+            val obsolete = callbacks.last()
+            compose.runOnIdle { fixture.ux.current.value = ux }
+            compose.onNodeWithTag("permission_guide_screen").assertDoesNotExist()
+            compose.runOnIdle { obsolete() }
+            compose.runOnIdle {
+                assertTrue(fixture.profiles.snapshot.value.permissionGuidePending)
+                fixture.ux.current.value = VehicleUxState.Unrestricted
+            }
+            compose.onNodeWithTag("permission_guide_screen").assertIsDisplayed()
+            compose.runOnIdle { obsolete() }
+            compose.runOnIdle { assertEquals(0, fixture.profiles.guideCompletions) }
+        }
+        compose.onNodeWithTag("permission_allow").performScrollTo().performClick()
+        compose.runOnIdle { callbacks.last().invoke() }
+        compose.onNodeWithTag("home_screen").assertIsDisplayed()
+        compose.runOnIdle { assertEquals(1, fixture.profiles.guideCompletions) }
+    }
+
+    @Test
+    fun permissionCallbackForDisposedCompositionDoesNotCompleteSetup() {
+        val mounted = mutableStateOf(true)
+        var completeRequest: (() -> Unit)? = null
+        val fixture = showFlow(contentVisible = mounted, onRequestPermissions = { completeRequest = it })
+        compose.onNodeWithTag("skip_driver").performClick()
+        compose.onNodeWithTag("permission_allow").performScrollTo().performClick()
+        compose.runOnIdle { mounted.value = false }
+        compose.onNodeWithTag("permission_guide_screen").assertDoesNotExist()
+        compose.runOnIdle { requireNotNull(completeRequest).invoke() }
+        compose.runOnIdle {
+            assertTrue(fixture.profiles.snapshot.value.permissionGuidePending)
+            assertEquals(0, fixture.profiles.guideCompletions)
+            mounted.value = true
+        }
+        compose.onNodeWithTag("permission_guide_screen").assertIsDisplayed()
+        compose.onNodeWithTag("permission_later").performClick()
+        compose.onNodeWithTag("home_screen").assertIsDisplayed()
+    }
+
+    @Test
+    fun permissionCallbackForPreviousDriverDoesNotCompleteChangedProfileSetup() {
+        val callbacks = mutableListOf<() -> Unit>()
+        val fixture = showFlow(onRequestPermissions = { callbacks += it })
+        compose.onNodeWithTag("skip_driver").performClick()
+        compose.onNodeWithTag("permission_allow").performScrollTo().performClick()
+        val previousRequest = callbacks.single()
+        compose.runOnIdle {
+            fixture.profiles.snapshot.value = ProfileSnapshot(listOf(DriverProfile(2, "이서연")), 2,
+                permissionGuidePending = true)
+        }
+        compose.onNodeWithTag("permission_guide_screen").assertIsDisplayed()
+        compose.runOnIdle { previousRequest() }
+        compose.runOnIdle {
+            assertTrue(fixture.profiles.snapshot.value.permissionGuidePending)
+            assertEquals(0, fixture.profiles.guideCompletions)
+        }
+        compose.onNodeWithTag("permission_allow").performScrollTo().performClick()
+        compose.runOnIdle { callbacks.last().invoke() }
+        compose.onNodeWithTag("home_screen").assertIsDisplayed()
+        compose.runOnIdle {
+            assertEquals(2L, fixture.profiles.snapshot.value.activeProfile?.id)
+            assertEquals(1, fixture.profiles.guideCompletions)
+        }
+    }
+
+    @Test
+    fun guidanceSpeechWaitsForSetupAndStopsBeforeAdditionalNameListening() {
+        var guidanceAllowed = true
+        var nameStarts = 0
+        val engine = object : NameSpeechEngine {
+            override fun start(listener: NameSpeechEngine.Listener) {
+                assertTrue("Guidance must be suppressed before automatic name STT starts", !guidanceAllowed)
+                nameStarts++
+            }
+            override fun close() = Unit
+        }
+        showFlow(speechEngineFactory = { engine }, onGuidanceSpeechAllowed = { guidanceAllowed = it })
+        compose.runOnIdle {
+            assertTrue(!guidanceAllowed)
+            assertEquals(1, nameStarts)
+        }
+        compose.onNodeWithTag("skip_driver").performClick()
+        compose.onNodeWithTag("permission_guide_screen").assertIsDisplayed()
+        compose.runOnIdle { assertTrue(!guidanceAllowed) }
+        compose.onNodeWithTag("permission_later").performClick()
+        compose.onNodeWithTag("home_screen").assertIsDisplayed()
+        compose.runOnIdle { assertTrue(guidanceAllowed) }
+
+        compose.onNodeWithTag("change_driver").performClick()
+        compose.onNodeWithTag("add_driver").performScrollTo().performClick()
+        compose.onNodeWithTag("onboarding_screen").assertIsDisplayed()
+        compose.runOnIdle {
+            assertTrue(!guidanceAllowed)
+            assertEquals(2, nameStarts)
+        }
+    }
+
+    @Test
+    fun homeReadinessSurvivesCompositionDisposalAndRecreationLoading() {
+        val mounted = mutableStateOf(true)
+        val transientState = mutableStateOf<DriverFlowUiState?>(null)
+        var guidanceAllowed = false
+        val readinessChanges = mutableListOf<Boolean>()
+        showFlow(initialProfiles = listOf(DriverProfile(1, "김하늘")),
+            contentVisible = mounted, stateOverride = transientState,
+            onGuidanceSpeechAllowed = { guidanceAllowed = it; readinessChanges += it })
+        compose.onNodeWithTag("home_screen").assertIsDisplayed()
+        compose.runOnIdle {
+            assertTrue(guidanceAllowed)
+            readinessChanges.clear()
+            mounted.value = false
+        }
+        compose.onNodeWithTag("home_screen").assertDoesNotExist()
+        compose.runOnIdle {
+            assertTrue("Disposing a ready Activity must not mute its service", guidanceAllowed)
+            assertTrue(readinessChanges.isEmpty())
+            // A recreated Activity can initially have no profile snapshot while Room loads.
+            transientState.value = DriverFlowUiState(vehicleUxState = VehicleUxState.Unrestricted)
+            mounted.value = true
+        }
+        compose.onNodeWithTag("home_screen").assertDoesNotExist()
+        compose.runOnIdle {
+            assertTrue("Transient recreation loading must preserve known readiness", guidanceAllowed)
+            assertTrue(readinessChanges.isEmpty())
+            transientState.value = null
+        }
+        compose.onNodeWithTag("home_screen").assertIsDisplayed()
+        compose.runOnIdle {
+            assertTrue(guidanceAllowed)
+            assertTrue("Recreation must never emit an incomplete-setup state", readinessChanges.all { it })
+        }
+    }
+
+    @Test
+    fun profileStorageFailureSuppressesGuidanceAfterReadyHome() {
+        val transientState = mutableStateOf<DriverFlowUiState?>(null)
+        var guidanceAllowed = false
+        showFlow(initialProfiles = listOf(DriverProfile(1, "김하늘")), stateOverride = transientState,
+            onGuidanceSpeechAllowed = { guidanceAllowed = it })
+        compose.onNodeWithTag("home_screen").assertIsDisplayed()
+        compose.runOnIdle {
+            assertTrue(guidanceAllowed)
+            transientState.value = DriverFlowUiState(loading = false, storageError = true,
+                vehicleUxState = VehicleUxState.Unrestricted)
+        }
+        compose.onNodeWithText(context.getString(R.string.profile_load_failed)).assertIsDisplayed()
+        compose.runOnIdle { assertTrue("A confirmed profile read failure must suppress guidance", !guidanceAllowed) }
     }
 
     @Test
@@ -613,6 +796,10 @@ class DriverFlowScreenTest {
         speechEngineFactory: (() -> NameSpeechEngine)? = { FakeSpeechEngine() },
         ruleChanges: List<RuleChangePreview> = emptyList(),
         alertGate: PreDepartureAlertGate = PreDepartureAlertGate(),
+        onGuidanceSpeechAllowed: (Boolean) -> Unit = {},
+        contentVisible: State<Boolean>? = null,
+        stateOverride: State<DriverFlowUiState?>? = null,
+        onRequestPermissions: (onComplete: () -> Unit) -> Unit = { it() },
     ): Fixture {
         val fixture = Fixture(initialProfiles)
         lateinit var model: DriverFlowViewModel
@@ -641,14 +828,16 @@ class DriverFlowScreenTest {
                                 .testTag("driver_flow_test_root"),
                             color = MaterialTheme.colorScheme.background,
                         ) {
-                            DriverFlowContent(
-                                state = state,
+                            if (contentVisible?.value != false) DriverFlowContent(
+                                state = stateOverride?.value ?: state,
                                 model = model,
                                 entries = sampleEntries,
                                 speechEngineFactory = speechEngineFactory,
                                 modifier = Modifier.safeDrawingPadding().imePadding().fillMaxSize(),
                                 ruleChanges = ruleChanges,
                                 preDepartureAlertGate = alertGate,
+                                onGuidanceSpeechAllowed = onGuidanceSpeechAllowed,
+                                onRequestPermissions = onRequestPermissions,
                             )
                         }
                     }
@@ -757,6 +946,7 @@ class DriverFlowScreenTest {
     }
 
     private class MemoryProfiles(initialProfiles: List<DriverProfile>) : DriverProfileRepository {
+        var guideCompletions = 0
         val snapshot = MutableStateFlow(ProfileSnapshot(initialProfiles, initialProfiles.firstOrNull()?.id))
         override fun observeProfiles() = snapshot.asStateFlow()
 
@@ -779,6 +969,7 @@ class DriverFlowScreenTest {
         }
 
         override suspend fun completePermissionGuide(): ProfileMutationResult {
+            guideCompletions++
             val active = snapshot.value.activeProfile ?: return ProfileMutationResult.ProfileNotFound
             snapshot.value = snapshot.value.copy(permissionGuidePending = false)
             return ProfileMutationResult.Success(active)

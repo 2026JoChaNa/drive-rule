@@ -9,6 +9,6 @@
 - 시작/중단/자원 해제는 검증된 실행 host의 수명을 따른다. Application 객체나 CoroutineScope만으로 백그라운드 실행을 보장하지 않는다.
 - 실행 중단·회수·중복 방지·프로세스 복구 규칙은 저장소의 `docs/android/architecture.md`를 따른다.
 
-## 현재 구현 — 2026-11-13
+## 현재 구현 — 2026-11-15
 
-구현: `GuidanceCoordinator`가 외부 주입 scope/출력/시계를 사용해 단일 카드·중복·만료·취소와 최대 10분 세션을 관리한다. 현재 host는 debug `SampleGuidanceService`이며 실제 차량 listener·TTS는 연결 전이다.
+구현: `GuidanceCoordinator`가 외부 주입 scope/출력/시계를 사용해 단일 카드·중복·만료·취소와 최대 10분 세션을 관리한다. 카드와 독립된 음성 Job·결과를 추가했으며 교체·만료·종료 취소와 늦은 결과 차단을 수행한다. 현재 host는 debug `SampleGuidanceService`이고 Pleos ON_DEVICE TTS와 자동 종료 배너가 연결됐다. 실제 차량 listener·법령 선택과 제품용 host는 연결 전이다.

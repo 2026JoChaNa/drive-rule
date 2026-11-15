@@ -9,12 +9,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jochana.driverule.R
 import com.jochana.driverule.app.BackgroundGuidanceHost
 import com.jochana.driverule.feature.home.SampleGuidancePanel
+import com.jochana.driverule.feature.home.SampleGuidanceBanner
+import com.jochana.driverule.domain.guidance.GuidanceSpeechResult
 
 class SampleBackgroundGuidanceHost(private val activity: ComponentActivity) : BackgroundGuidanceHost {
     private var visible = false
@@ -35,6 +38,14 @@ class SampleBackgroundGuidanceHost(private val activity: ComponentActivity) : Ba
     }
 
     override fun onHidden() { visible = false; SampleGuidanceRuntime.appVisible = false } // Never stop the service for an app switch.
+    override fun onSpeechAllowed(allowed: Boolean) = SampleGuidanceRuntime.speechAllowed(allowed)
+
+    @Composable override fun Banner(modifier: Modifier) {
+        val state by SampleGuidanceRuntime.state.collectAsStateWithLifecycle()
+        // Do not cover name entry/permission controls. Becoming ready only reveals the
+        // current event's remaining lifetime; it never replays its speech or resets a timer.
+        if (state.speechAllowed) state.banner?.let { SampleGuidanceBanner(it.title, it.message, modifier) }
+    }
 
     private fun requestStart() {
         if (!visible || SampleGuidanceRuntime.state.value.status in setOf(SampleStatus.Running, SampleStatus.Starting)) return
@@ -64,6 +75,19 @@ class SampleBackgroundGuidanceHost(private val activity: ComponentActivity) : Ba
         }
         SampleGuidancePanel(stringResource(text), state.status == SampleStatus.Running, state.postedCount,
             state.receivedCount, state.backgroundEventCount, state.lastEventTitle,
+            speechCompletedCount = state.speechCompletedCount,
+            speechStatus = stringResource(when {
+                !state.speechAllowed -> R.string.bg_speech_setup_paused
+                state.speechState.inProgress -> R.string.bg_speech_attempting
+                else -> when (state.speechState.result) {
+                    GuidanceSpeechResult.Completed -> R.string.bg_speech_completed
+                    GuidanceSpeechResult.Unavailable -> R.string.bg_speech_unavailable
+                    GuidanceSpeechResult.FocusDenied -> R.string.bg_speech_focus_denied
+                    GuidanceSpeechResult.Interrupted -> R.string.bg_speech_interrupted
+                    GuidanceSpeechResult.Failed -> R.string.bg_speech_failed
+                    null -> R.string.bg_speech_waiting
+                }
+            }),
             onStart = { requestStart() },
             onStop = { SampleGuidanceRuntime.stop(activity) },
             onSample = {

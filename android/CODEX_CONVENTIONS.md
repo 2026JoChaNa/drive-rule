@@ -1,6 +1,6 @@
 # DRIVE RULE Android 개발 컨벤션
 
-작성일: 2026-11-12 · 적용 위치: `android/` · 상태: 개발 기준 v1.5 (2026-11-13 앱 API v1 통신 준비 반영)
+작성일: 2026-11-12 · 적용 위치: `android/` · 상태: 개발 기준 v1.10 (2026-11-15 Figma B/H/I 이벤트·학교 사본·위치 수명 반영)
 
 이 문서는 사용자 최신 요청과 저장소의 채택된 결정을 연결한다. **확정 요구**, **이번에 정한 개발 기준**, **검증 대기**를 구분한다. 근거와 접근 결과는 [출처 및 검증 기록](../docs/android/source-check-2026-11-12.md)에 있다.
 
@@ -15,7 +15,7 @@ DRIVE RULE은 검수한 교통 법령 정보를 운전 상황에 맞춰 미리 �
 | 주행 중 | 지원되는 상황 신호로 다가오는 이벤트를 판단해 짧은 음성과 카드를 제공한다. 카드는 자동으로 닫힌다. | 포함, 플랫폼 검증 필요 |
 | Gleo 질의응답 | Gleo가 질문을 정리하고 검수된 법령 정보를 조회해 전달한다. | 후속 기능 2 |
 
-사용자 예시는 과속, 어린이보호구역, 우회전·좌회전, 안전거리다. 모두 감지 가능하다는 뜻은 아니다. 첫 개발은 **가짜 신호로 이벤트 → 검수 카드 선택 → 음성/카드 → 자동 종료**의 전체 흐름을 만든 뒤 검증된 SDK adapter를 연결한다.
+사용자 예시는 과속, 어린이보호구역, 우회전·좌회전, 안전거리다. 모두 감지 가능하다는 뜻은 아니다. 4번에서 **신호 → 우회전 이벤트 후보 → 검수 카드 선택 → 시점·중복·우선순위 판단 → 출력**을 연결했다. 후속으로 FusedLocation·학교 좌표 사본·내비 목적지를 연결해 B/H/I를 지원한다. A 고속도로 주정차는 도로 분류 입력 확보 전 보류한다. 학교 시설 반경은 법적 구역 경계가 아니다. 샘플 출력이나 신호 수신을 실제 법령 안내 완료로 소개하지 않는다.
 
 첨부의 스쿨존·주정차·우회전 3개 분류와 Figma의 A·B·H·I는 기존 기획을 설명하는 후보 자료다. Figma에서 제시한 거리도 장치 검증 전 제품 고정값으로 사용하지 않는다. 안전거리 이벤트는 선행 차량 거리 등 필요한 입력을 확인하기 전 지원 목록에 넣지 않는다.
 
@@ -27,13 +27,16 @@ DRIVE RULE은 검수한 교통 법령 정보를 운전 상황에 맞춰 미리 �
 
 프로젝트 요구사항 해석은 최신 사용자 명시 요청 → 채택된 결정 문서 → 현재 구현·계약 → 기획/디자인 → 참고 자료 순으로 대조한다. 이 순서는 시스템·개발자 지침이나 플랫폼 제약을 덮어쓰지 않는다. 충돌은 관련 결정 문서에 근거를 남겨 해결한다.
 
-- 2026-11-12에 이름 최초 설정·Room 프로필 추가/선택·DataStore 테마·더미 홈에 이어 최초 권한 안내와 Pleos 음성 이름 입력 adapter를 추가했다. 현재 범위와 빌드 방법은 [README](README.md), 의존성 방향은 [구조 문서](../docs/android/architecture.md), 검증 결과는 [UI 구현 기록](../docs/android/ui-implementation-2026-11-12.md)을 따른다. 실제 법령 캐시·주행 안내, 차량 신호·TTS·카드 표시 adapter는 아직 구현 전이다.
-- 서버 앱용 계약은 [앱 API v1](../docs/api/app-api.md)과 운영 OpenAPI를 기준으로 한다. 2026-11-13 공통 통신 client/DTO를 준비했으나 캐시·홈 연결은 아직 전이다. 사용자 등록 API는 없고 기존 Room 등록을 유지한다. 상세 범위는 [연동 준비](../docs/android/backend-api-preparation-2026-11-13.md)를 따른다.
+- 2026-11-12에 이름 최초 설정·Room 프로필 추가/선택·DataStore 테마·더미 홈에 이어 최초 권한 안내와 Pleos 음성 이름 입력 adapter를 추가했다. 해당 날짜의 [UI 구현 기록](../docs/android/ui-implementation-2026-11-12.md)은 당시 검증 범위다. 현재 상태는 [README](README.md), 의존성은 [구조 문서](../docs/android/architecture.md)를 따른다.
+- 서버 앱용 계약은 [앱 API v1](../docs/api/app-api.md)과 운영 OpenAPI를 기준으로 한다. 2026-11-13 공통 통신 client/DTO에 이어 2026-11-15 별도 Room 법령 캐시와 WorkManager 동기화를 구현했다. 카드·회수·조건·토큰을 원자적으로 반영하지만 홈·상세·출발 전 안내 화면과 운전자별 이력에는 아직 연결하지 않았다. 사용자 등록 API는 없고 기존 Room 등록을 유지한다. 최초 통신 준비는 [연동 준비](../docs/android/backend-api-preparation-2026-11-13.md), 현재 캐시 범위는 [법령 카드 동기화](../docs/android/law-card-sync-2026-11-15.md)를 따른다.
 - 설계 기준은 [erd.data.mjs](../docs/db/erd.data.mjs)다. 구현 후 Room Entity/Flyway SQL과 함께 유지한다. 생성물 `ERD.drawio`를 직접 수정하지 않는다.
 - [001](../docs/decisions/001-remove-driving-context.md)~[005](../docs/decisions/005-screen-check-v5-2.md)는 채택된 결정이다. [006](../docs/decisions/006-topic-primary-card.md)은 서버 대표 topic UQ 유지 결정이며 [007](../docs/decisions/007-remove-favorite-place.md)은 여전히 초안이다.
 - 서버 `rule_card.topic`의 UNIQUE 유지 정책은 바꾸지 않는다. `is_primary`/`topic_group` 도입과 `favorite_place` 삭제를 임의로 확정하지 않는다. 앱 Room `cached_card.topic`에는 UNIQUE를 두지 않는다. 회수된 사본에는 이전 topic이 남을 수 있으므로 대표 조회는 `WHERE topic = ? AND is_retired = 0`을 따른다([앱 API v1](../docs/api/app-api.md)).
-- [008](../docs/android/decisions/008-android-guidance-architecture.md)은 Android 구조 결정이다. 기존 제품/데이터 결정을 바꾸지 않으며 실제 주행 안내 엔진·SDK host는 아직 구현 전이다.
-- [009](../docs/android/decisions/009-local-profile-and-ui-demo.md)는 현재 로컬 프로필·테마와 샘플 UI의 범위를 정한다. debug의 주차 상태 가정·법령 표시 샘플은 release에서 사용하지 않는다.
+- [008](../docs/android/decisions/008-android-guidance-architecture.md)은 화면과 안내 실행 수명을 분리하는 Android 구조 결정이다. 실제 신호 host는 010, 우회전 판단·로컬 시도 예약은 [011](../docs/android/decisions/011-event-guidance-policy.md)로 구체화했다.
+- [009](../docs/android/decisions/009-local-profile-and-ui-demo.md)는 로컬 프로필·테마와 샘플 UI의 기준이다. 당시 기본 debug 주차 가정은 현재 기본 모드가 아니다. 주차 UI·합성 이벤트 시연은 명시적 Debug 샘플 옵션으로만 사용하고 release에는 넣지 않는다.
+- [010](../docs/android/decisions/010-vehicle-signal-host.md)에 따라 기본 Debug와 Release 모두 실제 CarUxRestrictions와 차량·내비 신호 host를 사용한다. 구현 경계와 미검증 항목은 [차량·백그라운드 연결](../docs/android/vehicle-background-integration-2026-11-15.md), Navi 계약은 [신호 근거](../docs/android/navigation-signals-evidence-2026-11-15.md)를 따른다. 이번 작업에는 기기 실행을 포함하지 않는다.
+
+2026-11-15에 `GuidanceSpeechOutput`과 Pleos 온디바이스 TTS·오디오 포커스 adapter, Debug 샘플의 자동 종료 배너를 연결했다. 시연은 `-PdriveRuleSampleMode=true`에서만 실행한다. 타 앱 전면에서는 시스템 EVENT 알림을 사용하며 HUN 노출을 보장하지 않는다. 실제 차량·내비 신호와 release host는 연결했지만 이 신호로 검수 법령을 선택·발화하는 판단은 아직 없다. 음성 출력 경계는 [음성·배너 기록](../docs/android/voice-and-transient-guidance-2026-11-15.md)을 따른다.
 
 ## 3. Android 기술 및 코드 규칙 — 신규 개발 기준
 
@@ -50,20 +53,25 @@ DRIVE RULE은 검수한 교통 법령 정보를 운전 상황에 맞춰 미리 �
 
 이 표는 기존 구현 조사 결과가 아니라 이번에 채택하는 기본 구조다. Compose와 Pleos 요구사항이 충돌하면 공식 API에 필요한 부분만 View 연동으로 분리한다. 처음에는 `:app` 하나로 시작하고 실제 경계가 생겼을 때 모듈을 나눈다.
 
-**프로젝트에 맞춘 분리:** 화면은 MVVM/UDF, 이벤트·안내 판단은 순수 Kotlin, 실행 수명·타이머·음성/카드 호출은 `app/guidance` coordinator, 실제 SDK 접근은 `core/platform` adapter가 맡는다. coordinator는 domain 인터페이스에 의존하고 화면 ViewModel의 scope에 속하지 않는다. 구체 실행 host는 플랫폼 검증 후 정한다. 이름 등록 같은 단순 화면은 명시적 함수로 처리하며 범용 MVI 프레임워크·BaseViewModel·전역 event bus·형식적인 UseCase를 추가하지 않는다. 의존성, 상태 전이와 구현 순서는 [구조 문서](../docs/android/architecture.md)에 있다.
+**프로젝트에 맞춘 분리:** 화면은 MVVM/UDF, 이벤트·안내 판단은 순수 Kotlin, 실행 수명·타이머·음성/카드 호출은 `app/guidance` coordinator, 실제 SDK 접근은 `core/platform` adapter가 맡는다. coordinator는 domain 인터페이스에 의존하고 화면 ViewModel의 scope에 속하지 않는다. 실제 신호 수명은 `VehicleMonitoringRuntime`과 `VehicleMonitoringService`가 관리하며 이 host를 법령 판단과 구분한다. 플랫폼·기기 검증은 구현과 별개다. 이름 등록 같은 단순 화면은 명시적 함수로 처리하며 범용 MVI 프레임워크·BaseViewModel·전역 event bus·형식적인 UseCase를 추가하지 않는다. 의존성, 상태 전이와 구현 순서는 [구조 문서](../docs/android/architecture.md)에 있다.
 
 현재 기본 패키지 구조(비어 있는 기능은 역할 README로 위치를 보존):
 
 ```text
 app/src/main/java/com/jochana/driverule/
   app/              앱 조립, AppContainer
-  app/guidance/     향후 안내 coordinator, 실행 수명·타이머·출력 조정
+  app/guidance/     안내 coordinator·차량 runtime, 실행 수명·타이머·출력 조정
   domain/repository/ repository 인터페이스
-  domain/vehicle/    차량 UX 상태 인터페이스
+  domain/vehicle/    실제 차량·내비 관측과 UX 계약, 가용성·수명 정책
   domain/speech/     이름 음성 입력 engine 계약·오류
   core/model/       도메인 모델, 단위, 결과 타입
   core/data/        repository 구현, Room, API DTO와 mapper
+  core/data/local/law/ 법령 캐시 DB·병합·검증
   core/platform/   Pleos·AAOS·TTS·표시 surface adapter
+  core/platform/vehicle/ 실제 AAOS 차량·UX adapter
+  core/platform/pleos/ NaviHelper·FusedLocation 읽기 전용 신호 adapter
+  core/platform/background/ 실제 신호 FGS service·host
+  core/platform/sync/ WorkManager 카드 동기화 예약·실행
   core/platform/speech/ Pleos 온디바이스 이름 인식 adapter
   domain/event/    신호 정규화, 이벤트 판정, 중복·우선순위 정책
   domain/guidance/ 순수 카드 선택·정책·상태 전이, 안내/출력 port
@@ -93,15 +101,15 @@ app/src/main/java/com/jochana/driverule/
 5. 목적지가 없거나 조회에 실패하면 일반 출발 전 안내로 계속 진행한다. 경로 전체 API가 확인되지 않았으므로 ‘오늘 경로의 스쿨존 3곳’ 같은 전 구간 집계를 약속하지 않는다.
 6. 상세 근거, 긴 문장, 조건 토글, 이름 입력은 UX 제한이 해제된 경우에만 제공한다. 출발 전 화면 중 제한이 켜지면 입력·상세 조작을 중단한다.
 
-최초 등록·건너뛰기 후에는 권한 안내를 표시하고 ‘나중에’ 또는 ‘확인하고 시작’을 누르면 안내 완료를 저장한 뒤 홈으로 이동한다. 미완료 상태는 재시작 후에도 유지하며, 이후 추가 등록은 바로 홈으로 돌아간다. Room v2의 `local_onboarding_state`가 안내 완료를 보관한다. v1 기존 등록자는 migration에서 완료로 처리하고 프로필 없는 사용자는 첫 등록 후 안내를 진행한다. 이 안내 완료를 Android 권한 부여·철회 상태로 사용하지 않는다.
+최초 등록·건너뛰기 후에는 권한 안내를 표시한다. ‘확인하고 시작’은 기기에서 요청 가능한 `CAR_SPEED`와 API 33+ `POST_NOTIFICATIONS`를 요청하고, 거부·취소 후에도 안내를 완료할 수 있다. ‘나중에’는 OS 요청 없이 진행한다. 제한 전환·프로필/화면 변경 뒤 도착한 이전 callback은 안내를 완료시키지 않는다. 미완료 상태는 재시작 후에도 유지하며 이후 추가 등록은 바로 홈으로 돌아간다. Room v2의 `local_onboarding_state`는 안내 완료만 보관하고 실제 OS 권한은 별도 조회한다. v1 기존 등록자는 migration에서 완료로 처리한다. 홈에서 권한을 다시 요청할 수 있으며 알림 거부만으로 차량 신호 구독을 중단하지 않는다.
 
 최초·추가 등록의 빈 이름 화면은 RESUMED와 UX 허용 조건을 만족할 때 화면 세션당 한 번 이름 인식을 자동 시작한다. 직접 입력한 이름을 자동으로 덮어쓰지 않는다. 중간 결과와 최종 결과를 구분하고 최종 결과만 이름 입력란에 반영하며, ‘다음’으로 저장하기 전 수정할 수 있어야 한다. 취소·직접 입력·화면 종료·ON_PAUSE/ON_STOP·UX 제한 시 세션을 종료하고 늦은 결과를 무시한다. 같은 화면으로 복귀해도 자동 재개하지 않으며 중지·타임아웃 뒤에는 ‘다시 말하기’로 재시도한다. 준비 상한 45초와 첫 ready 이후 청취 상한 20초를 구분한다. 미지원·권한 실패·인식 실패 시 직접 입력을 유지한다. 앱은 원본 녹음을 저장하거나 질문 이력을 만들지 않는다.
 
-현재 샘플 홈은 `feature/home/HomePreviewEntry`와 debug fixture를 사용한다. 샘플의 시행 상태·시간·법령 제목을 실제 검수 데이터나 운전자 이력으로 저장하지 않는다. Room의 `local_profile_selection`과 `local_onboarding_state`는 Android 내부 상태이며 공유 ERD/백엔드 계약을 추가한 것이 아니다. 테마 선택은 DataStore에 `System/Light/Dark`로 저장한다. 알림·차량 속도/기어는 연동 준비 중이고 Gleo 질의는 후속 범위다. 상세 구현·미구현 범위는 결정 009와 현재 구조 문서를 함께 따른다.
+현재 샘플 홈은 `feature/home/HomePreviewEntry`와 debug fixture를 사용한다. 샘플의 시행 상태·시간·법령 제목을 실제 검수 데이터나 운전자 이력으로 저장하지 않는다. 기본 Debug의 실제 UX·host와 홈 표시 fixture를 혼동하지 않는다. Room의 `local_profile_selection`과 `local_onboarding_state`는 Android 내부 상태이며 공유 ERD/백엔드 계약을 추가한 것이 아니다. 테마 선택은 DataStore에 `System/Light/Dark`로 저장한다. 실제 차량/내비 수신과 선택적 알림 권한 처리는 구현했으며 Gleo 질의는 후속 범위다. 현재 범위는 결정 010과 구조 문서를 함께 따른다.
 
 ## 5. 이벤트 기반 사전 안내
 
-파이프라인은 아래 경계로 분리한다.
+4번에서 연결한 법령 안내 파이프라인은 아래 경계로 분리한다. 현재 감지는 RIGHT_TURN_CROSSWALK, SCHOOL_ZONE_ENTRY, PARKING_DESTINATION이며 [기존 출력 정책](../docs/android/event-guidance-2026-11-15.md)과 [위치 확장 결정012](../docs/android/decisions/012-school-and-destination-events.md)을 따른다.
 
 ```text
 Pleos/AAOS/Fake 신호 → 정규화·유효성 → 이벤트 후보
@@ -114,7 +122,7 @@ Pleos/AAOS/Fake 신호 → 정규화·유효성 → 이벤트 후보
 
 - 정규화한 신호에는 출처, 관측 시각, 유효 시간, 단위, 지원/권한 상태, 직접 관측/추정 여부를 보존한다.
 - `Unknown`, `Unavailable`, `PermissionDenied`, `Stale`을 `false`, 속도 0, 거리 0으로 치환하지 않는다.
-- 거리 m, 차속 m/s, 제한속도 km/h를 구분한다. 변환은 adapter 경계에서 명시한다.
+- 거리 m, 부호 있는 차속 m/s, 단위가 확인된 제한속도 km/h를 구분한다. 도로 제한속도 콜백의 불완전한 단위는 `rawReportedRoadSpeedLimit`로 유지하고 확인 전 비교·변환하지 않는다. 카메라 제한속도만 확인된 km/h로 보존한다.
 - 앱의 안정적인 `EventType`을 별도로 두고 SDK enum을 매핑한다. SDK enum 이름을 서버 계약으로 노출하지 않는다.
 - 내비 안내는 예정된 동작/지점의 신호다. 실제 회전이나 운전자의 위반을 확정한 증거가 아니다. 오른쪽 방향지시등 하나를 우회전 확정으로 처리하지 않는다.
 - 제한속도 30km/h만으로 스쿨존을 확정하지 않는다. 지오펜스 근접도 실제 보호구역 경계를 통과했다는 뜻으로 확대하지 않는다.
@@ -144,13 +152,16 @@ Pleos/AAOS/Fake 신호 → 정규화·유효성 → 이벤트 후보
 
 ## 6. Pleos·AAOS와 주행 UX
 
+- 현재 `AaosVehicleSignalSource`는 실제 UX·기어·속도·시동·주차 브레이크를 읽고 `PleosNavigationSignalSource`는 NaviHelper 3.0.5를 읽는다. UI·FGS 소유권은 `VehicleMonitoringRuntime`, 백그라운드 구독 수명은 `VehicleMonitoringService`가 관리한다. 차량 제어·좌표/목적지 저장은 추가하지 않는다.
+- 기본 Debug와 Release는 실제 UX와 host를 사용한다. `-PdriveRuleSampleMode=true`는 Debug에만 적용되며 기존 주차 UI·합성 이벤트 시연용이다. 샘플 계측은 이 옵션과 `backgroundSmoke=true`를 함께 요구한다. 현재 연결 검증은 옵션 없이 수행한다.
+- 보이는 Activity에서 FGS를 시작하며 사용자 중지를 영속화한다. 화면 밖에서 구독 유지 근거가 없는 상태가 유예 시간 동안 지속되면 정리한다. 부팅 receiver·sticky 복구·alarm·wake lock으로 자동 재시작하지 않는다. 구현된 자원 관리의 초기 임계값을 trip 경계·법령 이벤트 정책으로 재사용하지 않는다.
 - Pleos Connect와 AAOS Car API, CODA/SDV OS ADAS API를 구분한다. Rust/차량 OS API가 Android 일반 앱에서 호출된다고 가정하지 않는다.
 - NaviHelper·Vehicle 신호는 설치 SDK의 실제 타입·권한 문자열·지원 차종으로 확인한다. 첨부의 API명은 검색 출발점이며 컴파일 가능한 계약을 대신하지 않는다.
-- 위치는 Pleos FusedLocation의 전용 dangerous 권한과 런타임 처리가 필요하다. Android 위치 권한만 선언하면 된다고 가정하지 않는다. 세부 출처는 검증 기록을 따른다.
-- 차량 UX는 `CarUxRestrictions`를 구독해 제어한다. 신호가 없으면 상세 입력 UI를 잠근다. 도착·정차 추정은 플랫폼 제한 해제 근거가 아니다.
+- 위치는 Pleos FusedLocation 1.1.3의 전용 dangerous 권한과 런타임 처리가 필요하다. 현재 서비스는 Android 위치 권한·시스템 위치 활성화도 확인하고, 화면에 보일 때 location FGS 유형을 활성화한다. 백그라운드에서 새 위치 서비스 승격을 시도하지 않는다. 위치는 메모리만, 공개 학교 좌표 사본은 noBackup AtomicFile에 보관한다. 세부 출처는 결정012·위치 확장 검증 기록을 따른다.
+- 차량 UX는 실제 `CarUxRestrictions`를 구독해 제어하며 속도·기어 권한과 독립적으로 읽는다. 현재 비DO 입력·상세 화면은 requiresDistractionOptimization 또는 active restriction이 있으면 제한한다. 미수신·연결 유실은 Unknown이며 P/속도 0·도착 추정으로 제한을 해제하지 않는다.
 - **백그라운드 감지**, **백그라운드 음성**, **다른 앱 위 카드 표시**는 서로 다른 기능이다. 하나가 성공해도 나머지가 지원된다고 보고하지 않는다.
 - 사용자가 원하는 주행 중 카드의 정확한 표시 표면을 먼저 확인한다. 다른 앱 위 임의 `SYSTEM_ALERT_WINDOW`, 전체 화면 intent, 백그라운드 Activity 시작으로 구현을 밀어붙이지 않는다.
-- 포그라운드 서비스가 필요하면 허용되는 용도·service type·권한·시작 조건·알림을 확인한다. 서비스는 영구 실행이나 사용자 강제 종료 후 복구를 보장하지 않는다.
+- 현재 실제 host는 `specialUse`와 구체적 subtype, 상시 알림·중지 action을 사용한다. 이를 상황형 법령 안내의 Pleos 배포 승인으로 해석하지 않는다. 서비스는 영구 실행이나 사용자 강제 종료 후 복구를 보장하지 않는다. 자세한 수명과 실제 기능이 끝난 뒤 자원 회수 기준은 [현재 연결 기록](../docs/android/vehicle-background-integration-2026-11-15.md)을 따른다.
 - Pleos Navigation 앱 정책의 Background 안내 금지를 확인했다. 이를 우회하려고 내비 앱으로 등록하지 않는다. DRIVE RULE의 카테고리에서 상황형 법령 안내가 허용되는지는 별도 확인한다. 모든 앱의 TTS가 금지된다는 뜻으로 확대하지 않는다.
 - TTS on-device 지원은 문서에서 확인됐지만 한국어·오프라인·내비 동시 재생·초기화 실패는 장치에서 검증한다. 법령 TTS는 검수된 `tts_text`를 사용한다.
 - 이름 입력에는 [Pleos SpeechToText 3.3.1](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/intro)의 `Mode.ON_DEVICE`와 [`Locale.KOREA`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/set-locale)를 명시한다. 기본 HYBRID나 서버 인식으로 전환하지 않는다. [`STT_SERVICE`](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/declaring-permissions)는 대상 Pleos 환경의 normal 권한으로 별도 OS 팝업이 없으며, 앱 권한 안내 버튼을 시스템 권한 허용 결과로 표시하지 않는다. SDK API·빌드 확인과 실제 음성 인식 성공은 별도로 검증한다.
@@ -167,11 +178,11 @@ Pleos/AAOS/Fake 신호 → 정규화·유효성 → 이벤트 후보
 | 버전 | 카드 ID와 버전을 함께 추적한다. 명시적 서버 계약 없이 낮은 버전으로 덮어쓰거나 회수 카드를 되살리지 않는다. |
 | 검수 | 문구 변경은 재검수 대상. 법령 내용·금액·시행일을 생성형 모델의 추정으로 보완하지 않는다. |
 
-`decision_json`은 검수된 조건별 응답용이며 차량 이벤트 trigger DSL이 아니다. 현재 서버 계약은 [결정 009](../docs/decisions/009-core-features-v6-alignment.md)의 `schema:2`와 `tables[]`다. 후속 mapper는 미지원 schema/cardType을 해당 카드 단위로 제외하고, 분기 선택은 [공용 명세](../spec/rule-matching/README.md)와 cases.json을 검증한다. 통신 DTO에서 문자열 enum·decision JSON을 받는 것만으로 분기 검증이 완료되지는 않는다.
+`decision_json`은 검수된 조건별 응답용이며 차량 이벤트 trigger DSL이 아니다. 현재 서버 계약은 [결정 009](../docs/decisions/009-core-features-v6-alignment.md)의 `schema:2`와 `tables[]`다. `LawCardValidator`는 구조·조건 참조·조합의 유일한 포괄을 검증하고 미지원 schema/cardType을 해당 카드 단위로 안내 대상에서 제외한다. Gleo 분기 선택은 아직 구현하지 않았으며 후속 작업에서 [공용 명세](../spec/rule-matching/README.md)와 cases.json을 검증한다. 통신 DTO에서 문자열 enum·decision JSON을 받는 것만으로 카드 사용을 허용하지 않는다.
 
 현재 앱 API는 nullable `eventTag`를 제공한다. 새 값은 Unknown으로 취급하며 신호 판정·카드 매핑은 후속 도메인 검증을 거친다. 통신 DTO를 운영 이벤트 안내 기능으로 소개하지 않는다. `topic`, `card_type`, `stage`를 임의의 이벤트 코드로 재사용하지 않는다.
 
-동기화 첫 구현 전에 endpoint/인증, DTO, full/delta, cursor, 회수 목록과 보존 기간, 재게시 규칙, 재시도·신선도 정책을 문서화한다. 부분 실패 시 정상 캐시를 유지하며, 카드와 회수 정보는 원자적으로 반영한다. 오래 오프라인인 차량이 회수 목록을 놓치지 않게 전체 재동기화 조건도 정한다.
+현재 동기화는 전체·증분 모두 병합하며 응답에 없다는 이유로 사본을 삭제하지 않는다. 카드·회수·조건 목록·토큰은 한 트랜잭션으로 반영하고, `410/SYNC_TOKEN_EXPIRED`는 토큰 없이 한 번 복구한다. 앱 진입과 24시간 주기 예약, 재시도·지원 불가 카드 처리와 검증 범위는 [법령 카드 동기화](../docs/android/law-card-sync-2026-11-15.md)에 기록한다. 시동 관측은 3번에서 추가했지만 이를 동기화 trigger로 연결하지 않았다. 실제 안내는 성공 동기화24시간 이내 사본과 결정011·012의 입력·시점·중복 정책을 적용한다.
 
 기존 설계의 1일 1회 동기화는 실시간 회수 보장이 아니다. 오프라인에서는 새로운 회수 여부를 알 수 없다. 마지막 성공 시각과 데이터 유효 기간 정책을 분리하고, 유효성 판단이 불가능한 데이터로 새로운 법적 사실을 확정하지 않는다.
 
@@ -183,7 +194,7 @@ Pleos/AAOS/Fake 신호 → 정규화·유효성 → 이벤트 후보
 - 현재 앱 API 송신 값은 syncToken/ETag, 카드 ID·버전, 주제·조건이다. 이름·프로필 ID·기기 ID·VIN·위치·질문 원문은 붙이지 않는다. Gleo는 차량 사본으로 답하고 답변 보류 신고에는 주제·조건만 사용한다. 실제 Gleo 연동은 후속 범위다.
 - 개인 로컬 DB를 OS 백업 경로로 차 밖에 복제하지 않도록 Android 백업/전송 규칙을 명시적으로 검토한다.
 - HTTPS를 기본으로 하되 전달된 API의 현재 운영 주소 `http://13.124.175.42:8080/`에 한해 host별 평문 예외를 둔다. debug에만 개발 PC/loopback 주소를 추가한다. 앱 전체 평문 허용, 인증서 검사 무력화, 앱에 관리자 키 삽입은 금지한다.
-- 보호구역 파일은 API manifest 기준 상대 URL을 해석하고 허용된 origin/전송 정책 및 압축 해제 후 SHA-256을 검증한 뒤 한 트랜잭션으로 교체한다. 실패 시 이전 정상 사본을 유지한다. 현재는 manifest 통신만 준비했으며 다운로드·교체는 후속 구현이다.
+- 보호구역 파일은 API manifest 기준 상대 URL을 해석하고 허용된 origin/전송 정책 및 압축 해제 후 SHA-256을 검증한 뒤 완전한 사본을 원자 교체한다. 실패 시 이전 정상 사본을 유지한다. SchoolZoneRepository의 다운로드·검증·noBackup AtomicFile 교체와 WorkManager 예약은 결정012에 따라 구현했다.
 - `.env`, `local.properties`, 서명키·토큰은 Git에 넣지 않는다. mock 법령과 fake 차량 신호는 release 구성에서 활성화되지 않도록 분리한다.
 
 ## 9. 디자인과 첨부 이미지
@@ -239,20 +250,22 @@ Gradle 생성 후 `android/`에서:
 
 Android 검증은 `.github/workflows/android-ci.yml`에서 lint·JVM 테스트·debug APK 빌드를 수행하도록 구성했다. 서버 CI와 독립이며 원격 실행 결과는 별도 확인한다. 의도한 제출 단계에서만 서명 release APK를 `apk/조차나_DRIVERULE_release.apk`로 준비하며 서명키는 별도 관리한다.
 
-## 11. 첫 개발 순서와 아직 결정할 것
+## 11. 현재 작업 순서와 아직 결정할 것
 
-1. 독립 Android 프로젝트·버전·namespace를 정하고 최소 실행 화면을 만든다.
-2. 이름 등록·Room 프로필·테마·샘플 홈을 기반으로, 다음에는 검수된 카드 캐시와 출발 전 안내를 연결한다. 현재 UI용 더미 목록을 검수된 캐시로 간주하지 않는다.
-3. 가짜 이벤트로 사전 안내·중복 억제·음성/카드 종료·회수 취소를 검증한다.
-4. Pleos 신호/UX/TTS 및 승인된 카드 표시 표면을 작은 검증 앱으로 확인한다. 기능별 지원 결과를 남긴다.
-5. 확인된 adapter만 연결하고 실제 기기에서 내비·통신 단절·백그라운드 동작을 검증한다.
-6. 서버 계약을 합의해 fixture를 교체한다. Gleo 기능 2는 별도 작업으로 진행한다.
+이름 등록·Room 프로필·테마·샘플 홈을 기반으로 이어지는 작업 목록이다.
+
+1. **법령 데이터:** 별도 Room 캐시와 WorkManager 동기화 구현. 화면/이력과는 아직 분리돼 있다.
+2. **음성·짧은 안내:** 온디바이스 TTS·포커스·취소와 자동 종료 배너 구현. 명시적 Debug 샘플에서 시연하며 실제 음성·팝업은 기기 검증 대상이다.
+3. **차량·백그라운드:** 실제 차량/내비 수신·CarUxRestrictions·Release host 구현. 이번에는 기기를 실행하지 않으며 [연결 기록](../docs/android/vehicle-background-integration-2026-11-15.md)에 구현과 검증을 구분한다.
+4. **상황별 안내 판단:** 실제 우회전 후보·검수 카드 매칭·시점·중복·우선순위·회수 취소 구현. 150m/200m, 캐시24시간, 60초 간격/운전자별24시간2회는 검증 전 개발값이며 trip당 제한이 아니다. 학교·목적지 B/H는 결정012의 개발 거리·최초 inside 소비·해시/위치 연속성 재검증을 추가했다. 고속도로 A는 입력 부족으로 보류한다.
+5. **실제 화면·이력:** 샘플 목록을 검수 캐시로 전환하고 출발 전 안내·운전자별 확인/안내 이력을 연결한다.
+6. **설정·기기 검증:** 내비 동시 사용·UX·권한·통신 단절·백그라운드·실제 선행 시점을 확인한다. Gleo 기능 2는 별도 후속 범위다.
 
 출시 전 결정 항목: 앱 카테고리와 선제 음성 허용, 카드 표시 표면, 필요한 서비스/권한, 첫 지원 이벤트, 이벤트-카드 매핑, 각 신호 유효 시간, cooldown/표시 시간/주행 상한, trip 경계, 법령 캐시 유효 기간, 프로필/이력 보관·삭제 정책. 구현 가능한 부분을 진행하되 미확정 값을 제품 사실로 숨기지 않는다.
 
 새 Android 전용 결정은 `docs/android/decisions/`에 날짜·상태·이유·영향을 적는다. 기존 공유 `docs/decisions/`는 공통 계약의 참고 원본으로 유지한다. 작업 완료 보고는 변경/검증/미검증 사항을 구분한다. GitHub 인증이나 Figma 접근 확인을 앱 빌드·기기 검증 성공으로 대신하지 않는다.
 
 
-### 2026-11-13 백그라운드 샘플 구현 범위
+### 2026-11-13 백그라운드 샘플 구현 범위 — 과거 기록
 
-`GuidanceCoordinator`와 debug 전용 `SampleGuidanceService`를 추가했다. 앱 실행 시 10분 세션을 시작하고 다른 앱에서도 타이머 샘플 이벤트를 처리한다. 수신·백그라운드 수신·알림 게시를 구분하며 알림 거부가 수신을 막지 않는다. 실제 차량 이벤트·TTS·법령 정책·외부 사용자 정의 카드 지원은 검증 전이다. 자세한 범위와 공식 근거는 [백그라운드 이벤트 기록](../docs/android/background-events-2026-11-13.md)을 따른다.
+당시 `GuidanceCoordinator`와 debug 전용 `SampleGuidanceService`를 추가해 앱 실행 시 10분 타이머 샘플 세션을 시작했다. 수신·백그라운드 수신·알림 게시를 구분했고 알림 거부가 수신을 막지 않았다. 실제 차량·TTS가 미연결이던 당시 범위와 검증은 [2026-11-13 기록](../docs/android/background-events-2026-11-13.md)에 보존한다. 현재 기본 실행은 실제 host이며 샘플은 `-PdriveRuleSampleMode=true`로만 활성화한다.

@@ -32,9 +32,8 @@ internal class SampleGuidanceNotifications(private val context: Context) {
 
     fun allowed(): Boolean = (Build.VERSION.SDK_INT < 33 || ContextCompat.checkSelfPermission(
         context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) &&
-        manager.areNotificationsEnabled() && listOf(SESSION_CHANNEL, CARD_CHANNEL).all {
-            manager.getNotificationChannel(it)?.importance != NotificationManager.IMPORTANCE_NONE
-        }
+        manager.areNotificationsEnabled() &&
+        manager.getNotificationChannel(CARD_CHANNEL)?.importance != NotificationManager.IMPORTANCE_NONE
 
     fun ongoing(): Notification = base(SESSION_CHANNEL)
         .setContentTitle(context.getString(R.string.bg_ongoing_title))
@@ -48,14 +47,15 @@ internal class SampleGuidanceNotifications(private val context: Context) {
 
     /** Accepted by NotificationManager, not proof of a heads-up display or user exposure. */
     @SuppressLint("MissingPermission") // Explicit permission/app/channel check immediately before notify.
-    fun post(event: GuidanceEvent): Boolean {
-        if (!allowed()) return false
+    fun post(event: GuidanceEvent, remainingMs: Long): Boolean {
+        if (remainingMs <= 0 || !allowed()) return false
         return try {
             manager.notify(CARD_ID, base(CARD_CHANNEL)
                 .setContentTitle(event.title).setContentText(event.message)
                 // Honest category: AAOS does not promise EVENT heads-up notifications.
                 .setCategory(NotificationCompat.CATEGORY_EVENT)
-                .setTimeoutAfter(8_000).setAutoCancel(true).build())
+                .setSilent(true).setOnlyAlertOnce(true)
+                .setTimeoutAfter(remainingMs).setAutoCancel(true).build())
             true
         } catch (_: SecurityException) { false }
     }

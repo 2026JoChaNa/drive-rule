@@ -11,6 +11,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +30,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.CompositionLocalProvider
@@ -79,6 +81,9 @@ fun DriveRuleApp(
     appContainer: AppContainer,
     onThemeChanged: (Boolean) -> Unit = {},
     backgroundControls: @Composable () -> Unit = {},
+    backgroundBanner: @Composable (Modifier) -> Unit = {},
+    onGuidanceSpeechAllowed: (Boolean) -> Unit = {},
+    onRequestPermissions: (onComplete: () -> Unit) -> Unit = { it() },
 ) {
     val factory = remember(appContainer) {
         viewModelFactory {
@@ -99,10 +104,15 @@ fun DriveRuleApp(
     SideEffect { onThemeChanged(dark) }
     DriveRuleTheme(darkTheme = dark) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            DriverFlowContent(state, model, appContainer.previewEntries,
-                Modifier.safeDrawingPadding().imePadding().fillMaxSize(), speechEngineFactory,
-                backgroundControls, appContainer.cardDetails, appContainer.cardErrorReportRepository,
-                appContainer.ruleChanges, appContainer.preDepartureAlertGate)
+            Box(Modifier.fillMaxSize()) {
+                DriverFlowContent(state, model, appContainer.previewEntries,
+                    Modifier.safeDrawingPadding().imePadding().fillMaxSize(), speechEngineFactory,
+                    backgroundControls, appContainer.cardDetails, appContainer.cardErrorReportRepository,
+                    appContainer.ruleChanges, appContainer.preDepartureAlertGate,
+                    onGuidanceSpeechAllowed, onRequestPermissions)
+                backgroundBanner(Modifier.align(Alignment.BottomCenter)
+                    .safeDrawingPadding().imePadding().padding(16.dp))
+            }
         }
     }
 }
@@ -119,7 +129,21 @@ internal fun DriverFlowContent(
     cardErrorReports: CardErrorReportRepository = CardErrorReportRepository { CardReportOutcome.RetryLater },
     ruleChanges: List<RuleChangePreview> = emptyList(),
     preDepartureAlertGate: PreDepartureAlertGate = remember { PreDepartureAlertGate() },
+    onGuidanceSpeechAllowed: (Boolean) -> Unit = {},
+    onRequestPermissions: (onComplete: () -> Unit) -> Unit = { it() },
 ) {
+    val speechAllowed = when {
+        state.storageError -> false
+        state.loading -> null
+        else -> state.activeProfile != null && !state.addingProfile && !state.permissionGuidePending
+    }
+    // Publish a known setup state before child name-entry effects start STT. Loading during
+    // recreation is not evidence that setup became incomplete; retain the service's last value.
+    // Readiness belongs to the service session, not this Activity/composition's lifetime.
+    DisposableEffect(speechAllowed, onGuidanceSpeechAllowed) {
+        speechAllowed?.let(onGuidanceSpeechAllowed)
+        onDispose { }
+    }
     if (state.vehicleUxState != VehicleUxState.Unrestricted) {
         StatusScreen(stringResource(if (state.vehicleUxState == VehicleUxState.Restricted)
             R.string.predeparture_driving_restricted else R.string.predeparture_vehicle_unavailable), modifier)
@@ -138,7 +162,7 @@ internal fun DriverFlowContent(
     }
     // Conditional scope removes dialogs and input focus immediately when UX becomes restricted.
     AllowedDriverContent(state, model, entries, modifier, speechEngineFactory, backgroundControls,
-        cardDetails, cardErrorReports, ruleChanges, preDepartureAlertGate)
+        cardDetails, cardErrorReports, ruleChanges, preDepartureAlertGate, onRequestPermissions)
 }
 
 @Composable
@@ -146,7 +170,8 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
     entries: List<HomePreviewEntry>, modifier: Modifier, speechEngineFactory: (() -> NameSpeechEngine)?,
     backgroundControls: @Composable () -> Unit, cardDetails: Map<String, CardDetailPreview>,
     cardErrorReports: CardErrorReportRepository, ruleChanges: List<RuleChangePreview>,
-    preDepartureAlertGate: PreDepartureAlertGate) {
+    preDepartureAlertGate: PreDepartureAlertGate,
+    onRequestPermissions: (onComplete: () -> Unit) -> Unit) {
     var showTheme by remember { mutableStateOf(false) }
     var showDrivers by remember { mutableStateOf(false) }
     var showGleo by remember { mutableStateOf(false) }
@@ -197,11 +222,10 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
                         onThemeClick = { showTheme = true }, themeLabel = themeLabel,
                         engineFactory = speechEngineFactory, modifier = Modifier.fillMaxSize(),
                     )
-                    AppScreen.PermissionGuide -> PermissionGuideScreen(
-                        onAllow = model::completePermissionGuide,
-                        onLater = model::completePermissionGuide,
+                    AppScreen.PermissionGuide -> PermissionGuideRoute(
+                        state = state, model = model, onRequestPermissions = onRequestPermissions,
                         onThemeClick = { showTheme = true }, themeLabel = themeLabel,
-                        busy = state.saving, error = error, modifier = Modifier.fillMaxSize(),
+                        error = error, modifier = Modifier.fillMaxSize(),
                     )
                     // Closing returns to the screen that opened it (home or the monthly list).
                     is AppScreen.Card -> cardDetails[target.id]?.let { card ->
@@ -299,6 +323,60 @@ private fun AllowedDriverContent(state: DriverFlowUiState, model: DriverFlowView
             }
         }
     }
+}
+
+@Composable
+private fun PermissionGuideRoute(
+    state: DriverFlowUiState,
+    model: DriverFlowViewModel,
+    onRequestPermissions: (onComplete: () -> Unit) -> Unit,
+    onThemeClick: () -> Unit,
+    themeLabel: String,
+    error: String?,
+    modifier: Modifier,
+) {
+    val profileId = state.activeProfile?.id
+    val session = remember(profileId) { PermissionGuideRequestSession() }
+    var requesting by remember(profileId) { mutableStateOf(false) }
+    DisposableEffect(session) {
+        onDispose { session.active = false; session.generation++ }
+    }
+    PermissionGuideScreen(
+        onAllow = {
+            val current = model.uiState.value
+            if (!requesting && !current.saving && current.interactionAllowed &&
+                current.permissionGuidePending && profileId != null && current.activeProfile?.id == profileId) {
+                requesting = true
+                val requestGeneration = ++session.generation
+                onRequestPermissions {
+                    // Activity/UX/profile changes can outlive the system permission dialog.
+                    // Only this still-visible setup request may mark its guide complete.
+                    if (session.active && session.generation == requestGeneration) {
+                        session.generation++
+                        requesting = false
+                        val latest = model.uiState.value
+                        if (latest.permissionGuidePending && latest.activeProfile?.id == profileId &&
+                            !latest.addingProfile && latest.interactionAllowed) {
+                            // A denied or cancelled runtime request still finishes the explanation.
+                            // Permission access remains a live platform check, never this Room flag.
+                            model.completePermissionGuide()
+                        }
+                    }
+                }
+            }
+        },
+        onLater = model::completePermissionGuide,
+        onThemeClick = onThemeClick,
+        themeLabel = themeLabel,
+        busy = state.saving || requesting,
+        error = error,
+        modifier = modifier,
+    )
+}
+
+private class PermissionGuideRequestSession {
+    var active = true
+    var generation = 0L
 }
 
 @Composable

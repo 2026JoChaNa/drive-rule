@@ -1,24 +1,18 @@
 package com.jochana.driverule.app
 
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.Composable
-
-import com.jochana.driverule.core.platform.vehicle.UnavailableUxRestrictionProvider
+import com.jochana.driverule.core.platform.background.VehicleBackgroundGuidanceHost
 import com.jochana.driverule.domain.vehicle.UxRestrictionProvider
 import com.jochana.driverule.feature.card.CardDetailPreview
 import com.jochana.driverule.feature.changes.RuleChangePreview
 import com.jochana.driverule.feature.home.HomePreviewEntry
 
-/** A verified vehicle adapter is required before release can expose parked interaction. */
+/** Actual platform state only. Unknown/restricted states keep detailed interaction locked. */
 object AppEnvironment {
 
-    fun createBackgroundHost(activity: ComponentActivity): BackgroundGuidanceHost = object : BackgroundGuidanceHost {
-        override fun onVisible() = Unit
-        override fun onHidden() = Unit
-        @Composable override fun Controls() = Unit
-    }
+    fun createBackgroundHost(activity: ComponentActivity): BackgroundGuidanceHost = VehicleBackgroundGuidanceHost(activity)
 
-    fun createUxProvider(): UxRestrictionProvider = UnavailableUxRestrictionProvider()
+    fun createUxProvider(actual: UxRestrictionProvider): UxRestrictionProvider = actual
     fun previewEntries(): List<HomePreviewEntry> = emptyList()
     fun cardDetails(): Map<String, CardDetailPreview> = emptyMap()
     fun ruleChanges(): List<RuleChangePreview> = emptyList()

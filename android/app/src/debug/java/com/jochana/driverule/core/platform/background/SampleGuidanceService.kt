@@ -11,14 +11,21 @@ import android.os.SystemClock
 import androidx.core.app.ServiceCompat
 import com.jochana.driverule.R
 import com.jochana.driverule.app.guidance.GuidanceCoordinator
-import com.jochana.driverule.domain.guidance.GuidanceCardOutput
+import com.jochana.driverule.core.platform.audio.PleosGuidanceSpeechOutput
 import com.jochana.driverule.domain.guidance.GuidanceEvent
 import com.jochana.driverule.domain.guidance.GuidanceSessionEndReason
+import com.jochana.driverule.domain.guidance.GuidanceSpeechOutput
+import com.jochana.driverule.domain.guidance.GuidanceSpeechResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /** Debug fixture host. No backend, vehicle signal, microphone, location or wake lock. */
@@ -26,24 +33,53 @@ class SampleGuidanceService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private lateinit var notifications: SampleGuidanceNotifications
     private lateinit var coordinator: GuidanceCoordinator
+    private lateinit var router: SampleGuidanceOutputRouter
+    private lateinit var speech: GuidanceSpeechOutput
     private var started = false
     private var finishing = false
     private var sequence = 0
+    private val hostChanged: () -> Unit = {
+        if (!finishing) {
+            if (SampleGuidanceRuntime.state.value.status != SampleStatus.Running) {
+                router.dismiss()
+                speech.stop()
+            } else {
+                router.setVisible(SampleGuidanceRuntime.appVisible)
+                if (!SampleGuidanceRuntime.state.value.speechAllowed) speech.stop()
+            }
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
         notifications = SampleGuidanceNotifications(this).also { it.createChannels() }
-        coordinator = GuidanceCoordinator(scope, object : GuidanceCardOutput {
-            override fun show(event: GuidanceEvent): Boolean {
-                val accepted = notifications.post(event)
-                if (accepted) SampleGuidanceRuntime.posted()
-                // Notification denial must not disable event detection (future voice output).
-                return accepted
+        router = SampleGuidanceOutputRouter(SystemClock::elapsedRealtime, SampleGuidanceRuntime::banner,
+            notifications::post, notifications::dismissCard, SampleGuidanceRuntime::posted,
+            initiallyVisible = SampleGuidanceRuntime.appVisible)
+        val adapter = PleosGuidanceSpeechOutput(applicationContext)
+        speech = object : GuidanceSpeechOutput {
+            override suspend fun speak(event: GuidanceEvent): GuidanceSpeechResult {
+                // No notification permission dependency. Setup STT wins; a suppressed event
+                // is not queued for later playback when the user leaves the name screen.
+                if (!SampleGuidanceRuntime.state.value.speechAllowed) return GuidanceSpeechResult.Unavailable
+                val result = adapter.speak(event)
+                currentCoroutineContext().ensureActive()
+                if (!finishing && result == GuidanceSpeechResult.Completed) SampleGuidanceRuntime.speechCompleted()
+                return result
             }
-            override fun dismiss() = notifications.dismissCard()
-        }, SystemClock::elapsedRealtime, Dispatchers.Main.immediate, onSessionEnded = { reason ->
+            override fun stop() = adapter.stop()
+            override fun close() = adapter.close()
+        }
+        coordinator = GuidanceCoordinator(scope, router,
+            SystemClock::elapsedRealtime, Dispatchers.Main.immediate, onSessionEnded = { reason ->
             finish(if (reason == GuidanceSessionEndReason.TimedOut) SampleStatus.Expired else SampleStatus.Stopped)
-        })
+        }, speechOutput = speech)
+        SampleGuidanceRuntime.attach(hostChanged)
+        scope.launch {
+            coordinator.state.map { it.speechState }.distinctUntilChanged().collect {
+                SampleGuidanceRuntime.speechState(it)
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -87,17 +123,24 @@ class SampleGuidanceService : Service() {
             1 -> R.string.bg_sample_turn
             else -> R.string.bg_sample_distance
         }
+        val spokenText = when ((sequence - 1) % 3) {
+            0 -> R.string.bg_sample_school_speech
+            1 -> R.string.bg_sample_turn_speech
+            else -> R.string.bg_sample_distance_speech
+        }
         SampleGuidanceRuntime.received(getString(title))
         android.util.Log.i("DriveRuleEvents", "source=timer_sample sequence=$sequence background=${!SampleGuidanceRuntime.appVisible}")
         coordinator.submit(GuidanceEvent("sample-$sequence", getString(title),
-            getString(R.string.bg_sample_body), SystemClock.elapsedRealtime() + 8_000))
+            getString(R.string.bg_sample_body), SystemClock.elapsedRealtime() + 8_000,
+            speechText = getString(spokenText)))
     }
 
     private fun finish(status: SampleStatus) {
         if (finishing) return
         finishing = true
         SampleGuidanceRuntime.status(status)
-        coordinator.stop()
+        SampleGuidanceRuntime.detach(hostChanged)
+        coordinator.close()
         scope.cancel()
         notifications.dismissAll()
         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -109,7 +152,8 @@ class SampleGuidanceService : Service() {
         finishing = true
         if (SampleGuidanceRuntime.state.value.status == SampleStatus.Running)
             SampleGuidanceRuntime.status(SampleStatus.Stopped)
-        coordinator.stop()
+        SampleGuidanceRuntime.detach(hostChanged)
+        coordinator.close()
         scope.cancel()
         notifications.dismissAll()
         stopForeground(STOP_FOREGROUND_REMOVE)

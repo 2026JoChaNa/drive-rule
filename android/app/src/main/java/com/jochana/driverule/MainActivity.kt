@@ -9,6 +9,8 @@ import androidx.activity.enableEdgeToEdge
 import com.jochana.driverule.app.DriveRuleApp
 import com.jochana.driverule.app.AppEnvironment
 import com.jochana.driverule.app.BackgroundGuidanceHost
+import com.jochana.driverule.core.platform.sync.LawCardSyncScheduler
+import com.jochana.driverule.core.platform.sync.SchoolZoneSyncScheduler
 
 class MainActivity : ComponentActivity() {
     private lateinit var backgroundGuidanceHost: BackgroundGuidanceHost
@@ -18,12 +20,17 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val appContainer = (application as DriveRuleApplication).appContainer
+        LawCardSyncScheduler.onAppEntered(applicationContext)
+        SchoolZoneSyncScheduler.onAppEntered(applicationContext)
         setContent {
             DriveRuleApp(appContainer = appContainer, onThemeChanged = { dark ->
                 val bars = if (dark) SystemBarStyle.dark(Color.TRANSPARENT)
                     else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
                 enableEdgeToEdge(statusBarStyle = bars, navigationBarStyle = bars)
-            }, backgroundControls = { backgroundGuidanceHost.Controls() })
+            }, backgroundControls = { backgroundGuidanceHost.Controls() },
+                backgroundBanner = { backgroundGuidanceHost.Banner(it) },
+                onGuidanceSpeechAllowed = backgroundGuidanceHost::onSpeechAllowed,
+                onRequestPermissions = backgroundGuidanceHost::requestPermissions)
         }
     }
 

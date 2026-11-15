@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vehicle_monitor_channel">주행 상황 연결</string>
+    <string name="vehicle_monitor_notification_title">드라이브룰 주행 상황 연결 중</string>
+    <string name="vehicle_monitor_notification_body">차량·내비·위치 신호를 확인합니다. 앱에서 중지할 수 있습니다.</string>
+    <string name="vehicle_monitor_start">연결 시작</string>
+    <string name="vehicle_monitor_stop">연결 중지</string>
+    <string name="vehicle_monitor_permissions">차량·위치·알림 권한</string>
+    <string name="vehicle_monitor_settings">앱 설정</string>
+    <string name="vehicle_monitor_settings_unavailable">이 환경에서 앱 설정을 열 수 없습니다</string>
+    <string name="vehicle_monitor_status">주행 상황 연결 · %1$s</string>
+    <string name="vehicle_monitor_sources">차량 %1$s · 내비 %2$s</string>
+    <string name="vehicle_monitor_location">위치 %1$s</string>
+    <string name="vehicle_monitor_idle">대기</string>
+    <string name="vehicle_monitor_starting">시작 중</string>
+    <string name="vehicle_monitor_running">수신 대기 중</string>
+    <string name="vehicle_monitor_stopped">중지됨</string>
+    <string name="vehicle_monitor_stopping">중지 중</string>
+    <string name="vehicle_source_connected">연결됨</string>
+    <string name="vehicle_source_connecting">연결 중</string>
+    <string name="vehicle_source_permission">권한 필요</string>
+    <string name="vehicle_source_stopped">대기</string>
+    <string name="vehicle_source_unavailable">사용할 수 없음</string>
+    <string name="vehicle_monitor_unavailable">지원 환경을 확인해 주세요</string>
+    <string name="vehicle_monitor_failed">연결을 시작하지 못했습니다</string>
+</resources>

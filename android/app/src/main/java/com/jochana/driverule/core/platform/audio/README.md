@@ -1,5 +1,7 @@
 # 음성 adapter
 
-검수된 tts_text를 재생하는 TTS 및 audio focus 구현 위치다. 자동 재생 허용 범위와 실제 SDK 초기화/취소/해제를 검증한 뒤 연결한다. 현재 음성 재생 없음.
+`PleosGuidanceSpeechOutput`이 `GuidanceSpeechOutput`을 구현한다. TTS 3.3.1의 ON_DEVICE 모드와 Locale.KOREA를 사용하며 오디오 포커스 허용 후에만 발화한다. SDK 연결·listener·focus 수명은 adapter, 이벤트 선택·기한·중복·취소는 coordinator가 맡는다.
 
-domain의 출력 port를 구현하고 요청 수락과 실제 시작·완료·실패를 구분한다. 안내 ID·실행 세대를 보존하고, 중단 시 자기 발화만 정리한다. 정책 재시도·재구독 재생·자동 복구는 adapter가 결정하지 않는다. 음성 포커스 변경을 coordinator에 알리고 플랫폼 규칙에 맞게 즉시 중단할 책임도 가진다.
+콜백에는 발화 ID가 없고 원격 stop은 package 단위다. 로컬 요청 격리뿐 아니라 이전 발화 중지 확인 뒤 다음 요청을 시작하는 경계가 필요하다. 초기화/포커스 실패로 speak하지 않은 경로에는 stop을 요청하지 않는다. 종료 확인 실패와 실제 기기 검증 범위는 `docs/android/voice-and-transient-guidance-2026-11-15.md`를 따른다.
+
+현재 debug 샘플 host에 연결했다. 재생 완료는 사용자 청취/확인이 아니며 실제 검수 법령 선택과 제품용 차량 실행 host는 후속 작업이다. 단순 UI 수집·복귀로 재생하지 않는다.

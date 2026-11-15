@@ -6,6 +6,9 @@ data class GuidanceEvent(
     val title: String,
     val message: String,
     val expiresAtElapsedMs: Long,
+    val speechText: String = message,
+    /** Editorial context kept separate from the server's unchanged legal text. */
+    val contextLabel: String? = null,
 )
 
 /**
@@ -24,4 +27,5 @@ data class GuidanceRuntimeState(
     val running: Boolean = false,
     val postedEvent: GuidanceEvent? = null,
     val sessionEndsAtElapsedMs: Long? = null,
+    val speechState: GuidanceSpeechState = GuidanceSpeechState(),
 )

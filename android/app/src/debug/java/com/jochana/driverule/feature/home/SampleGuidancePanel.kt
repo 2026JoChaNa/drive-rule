@@ -32,6 +32,8 @@ fun SampleGuidancePanel(
     receivedCount: Int,
     backgroundEventCount: Int,
     lastEventTitle: String?,
+    speechCompletedCount: Int,
+    speechStatus: String,
     onStart: () -> Unit,
     onStop: () -> Unit,
     onSample: () -> Unit,
@@ -86,6 +88,12 @@ fun SampleGuidancePanel(
                 style = layout.text(30f, 16f),
                 color = colors.textTertiary,
                 modifier = Modifier.testTag("background_posted_count"),
+            )
+            Text(
+                stringResource(R.string.background_panel_speech_count, speechCompletedCount, speechStatus),
+                style = layout.text(30f, 16f),
+                color = colors.textTertiary,
+                modifier = Modifier.testTag("background_speech_count"),
             )
         }
         Text(

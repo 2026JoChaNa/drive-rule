@@ -31,12 +31,18 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         buildConfigField("String", "API_BASE_URL", "\"$backendBaseUrl\"")
+        buildConfigField("boolean", "SAMPLE_GUIDANCE", "false")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets["androidTest"].assets.srcDir("$projectDir/schemas")
 
     buildTypes {
+        debug {
+            // Explicit opt-in UI/sample mode; release always reads actual platform state.
+            buildConfigField("boolean", "SAMPLE_GUIDANCE",
+                providers.gradleProperty("driveRuleSampleMode").orElse("false").get().toBooleanStrict().toString())
+        }
         release {
             isMinifyEnabled = true
             proguardFiles(
@@ -66,12 +72,16 @@ ksp {
 }
 
 dependencies {
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.okhttp)
     implementation(libs.retrofit)
     implementation(libs.retrofit.serialization)
     implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.okhttp.mockwebserver)
     implementation(libs.pleos.speech.to.text)
+    implementation(libs.pleos.text.to.speech)
+    implementation(libs.pleos.navi.helper)
+    implementation(libs.pleos.fused.location)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
@@ -85,8 +95,8 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.room.testing)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    // 확인용(debug 전용) AAOS 차량 속성 probe: 기기의 android.car 공유 라이브러리를 컴파일 시에만 참조한다.
-    debugCompileOnly(files(android.sdkDirectory.resolve("platforms/android-34/optional/android.car.jar")))
+    // Runtime implementation is the device's optional android.car shared library, never bundled.
+    compileOnly(files(android.sdkDirectory.resolve("platforms/android-34/optional/android.car.jar")))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)

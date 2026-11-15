@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Finite, visible debug demonstration; production event hosting needs separate approval. -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-    <!-- 확인용(debug 전용): AAOS 차량 속성 읽기 권한 검증. release에는 포함하지 않는다. -->
-    <uses-permission android:name="android.car.permission.CAR_POWERTRAIN" />
-    <uses-permission android:name="android.car.permission.CAR_SPEED" />
+    <!-- Sample mode is explicit opt-in. Real host and read permissions are declared in main. -->
     <application>
-        <uses-library android:name="android.car" android:required="false" />
         <!-- adb am start로만 실행하는 무화면 확인 Activity. 런처에 노출하지 않는다. -->
         <activity
             android:name=".core.platform.carprobe.CarProbeActivity"
@@ -20,7 +13,7 @@
             android:exported="false"
             android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Debug-only ten-minute event notification demonstration across app switches; no real driving data, sensors, or audio." />
+                android:value="Debug-only ten-minute synthetic event notification and local TTS demonstration across app switches; no real driving signals or legal guidance." />
         </service>
         <receiver android:name=".core.platform.background.StopSampleGuidanceReceiver"
             android:exported="false" />

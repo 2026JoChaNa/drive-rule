@@ -2,6 +2,8 @@ package com.jochana.driverule.app
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
+import com.jochana.driverule.BuildConfig
+import com.jochana.driverule.core.platform.background.VehicleBackgroundGuidanceHost
 
 import com.jochana.driverule.core.model.VehicleUxState
 import com.jochana.driverule.domain.vehicle.UxRestrictionProvider
@@ -22,9 +24,12 @@ import kotlinx.coroutines.flow.asStateFlow
 object AppEnvironment {
 
     fun createBackgroundHost(activity: ComponentActivity): BackgroundGuidanceHost =
-        com.jochana.driverule.core.platform.background.SampleBackgroundGuidanceHost(activity)
+        if (BuildConfig.SAMPLE_GUIDANCE)
+            com.jochana.driverule.core.platform.background.SampleBackgroundGuidanceHost(activity)
+        else VehicleBackgroundGuidanceHost(activity)
 
-    fun createUxProvider(): UxRestrictionProvider = object : UxRestrictionProvider {
+    fun createUxProvider(actual: UxRestrictionProvider): UxRestrictionProvider = if (!BuildConfig.SAMPLE_GUIDANCE) actual
+    else object : UxRestrictionProvider {
         override val state = MutableStateFlow(VehicleUxState.Unrestricted).asStateFlow()
     }
 
