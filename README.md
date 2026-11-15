@@ -8,7 +8,7 @@
 
 ```
 drive-rule/
-├── apk/       제출용 release APK (조차나_DRIVERULE_release.apk)
+├── apk/       제출용 release APK (조차나_드라이브룰_release.apk)
 ├── android/   차량 앱 (Pleos Connect, Kotlin) : Android Studio로 이 폴더만 연다
 └── server/    백엔드 (Spring Boot 4, Java 21, MySQL) : IntelliJ로 이 폴더만 연다
 ```
@@ -85,4 +85,4 @@ Testcontainers가 MySQL 8.4 컨테이너를 띄워 테스트한다. Docker Deskt
 
 ## APK 위치
 
-`apk/조차나_DRIVERULE_release.apk`
+`apk/조차나_드라이브룰_release.apk`
