@@ -43,6 +43,8 @@ import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import com.jochana.driverule.R
 import com.jochana.driverule.ui.theme.AstaSans
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import com.jochana.driverule.ui.theme.LocalDriveRuleColors
 
 /** Figma coordinates describe a 1687 px app window; Android controls remain adaptive. */
@@ -243,12 +245,20 @@ private fun ThemeAction(label: String, onClick: () -> Unit) {
     }
 }
 
+/**
+ * Whether on-screen "sample" labels are shown. Always true except in the debug demo build used to
+ * record the demo video, where a single caption in the video states that the data is sample data.
+ */
+val LocalSampleLabelsVisible = staticCompositionLocalOf { true }
+
 @Composable
 fun DemoLabel(modifier: Modifier = Modifier) {
+    // Hidden labels keep their space so the demo recording has the same layout as the sample build.
+    val visible = LocalSampleLabelsVisible.current
     Text(
         stringResource(R.string.ui_demo_label),
-        modifier = modifier,
-        color = LocalDriveRuleColors.current.textTertiary,
+        modifier = if (visible) modifier else modifier.clearAndSetSemantics { },
+        color = if (visible) LocalDriveRuleColors.current.textTertiary else Color.Transparent,
         style = LocalDriveRuleLayout.current.text(26f, 14f),
     )
 }

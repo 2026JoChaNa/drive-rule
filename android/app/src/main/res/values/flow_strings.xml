@@ -21,5 +21,6 @@
     <string name="profile_error_not_found">선택한 운전자를 찾을 수 없습니다. 다시 선택해 주세요.</string>
     <string name="profile_error_storage">저장하지 못했습니다. 잠시 후 다시 시도해 주세요.</string>
     <string name="driver_guidance_sample">들은 안내 %1$d건 · 샘플</string>
+    <string name="driver_guidance_count">들은 안내 %1$d건</string>
     <string name="driver_guidance_unavailable">안내 이력 준비 중</string>
 </resources>

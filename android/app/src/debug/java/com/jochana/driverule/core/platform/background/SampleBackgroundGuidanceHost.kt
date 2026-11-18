@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jochana.driverule.BuildConfig
 import com.jochana.driverule.R
 import com.jochana.driverule.app.BackgroundGuidanceHost
 import com.jochana.driverule.feature.home.SampleGuidancePanel
@@ -30,7 +31,8 @@ class SampleBackgroundGuidanceHost(private val activity: ComponentActivity) : Ba
     override fun onVisible() {
         visible = true
         SampleGuidanceRuntime.appVisible = true
-        if (SampleGuidanceRuntime.autoStartAttempted) return
+        // Demo recording: events come only from scripts/demo-event.ps1, never the 30 s timer.
+        if (BuildConfig.DEMO_MODE || SampleGuidanceRuntime.autoStartAttempted) return
         SampleGuidanceRuntime.autoStartAttempted = true
         if (preferences.getBoolean("stopped_by_user", false)) {
             SampleGuidanceRuntime.status(SampleStatus.Stopped)
@@ -64,6 +66,7 @@ class SampleBackgroundGuidanceHost(private val activity: ComponentActivity) : Ba
     }
 
     @Composable override fun Controls() {
+        if (BuildConfig.DEMO_MODE) return // The test panel is not part of the recorded app.
         val state by SampleGuidanceRuntime.state.collectAsStateWithLifecycle()
         val text = when (state.status) {
             SampleStatus.Idle -> R.string.bg_status_idle

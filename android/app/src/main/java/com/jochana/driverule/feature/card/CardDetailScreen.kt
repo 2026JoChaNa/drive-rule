@@ -66,6 +66,7 @@ import com.jochana.driverule.ui.components.DriveRuleWindow
 import com.jochana.driverule.ui.components.FigmaIcon
 import com.jochana.driverule.ui.components.FigmaImage
 import com.jochana.driverule.ui.components.LocalDriveRuleLayout
+import com.jochana.driverule.ui.components.LocalSampleLabelsVisible
 import com.jochana.driverule.ui.theme.LocalDriveRuleColors
 
 /**
@@ -139,7 +140,7 @@ fun CardDetailScreen(
                     color = LocalDriveRuleColors.current.textPrimary,
                 )
                 CardScene(card)
-                if (sample) {
+                if (sample && LocalSampleLabelsVisible.current) {
                     Text(
                         stringResource(R.string.card_sample_label),
                         modifier = Modifier.testTag("card_sample_label"),

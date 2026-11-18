@@ -1,6 +1,8 @@
 package com.jochana.driverule.app
 
+import android.content.Intent
 import androidx.activity.ComponentActivity
+import kotlinx.coroutines.flow.Flow
 import androidx.compose.runtime.Composable
 import com.jochana.driverule.BuildConfig
 import com.jochana.driverule.core.platform.background.VehicleBackgroundGuidanceHost
@@ -22,6 +24,12 @@ import kotlinx.coroutines.flow.asStateFlow
 
 /** UI fixtures only: never packaged in release and never recorded as actual heard guidance. */
 object AppEnvironment {
+
+    /** Demo build only: adb-triggered card events (see [DemoEvents]). */
+    val cardOpenRequests: Flow<String> get() = DemoEvents.cardOpenRequests
+    /** The demo recording states "sample data" in a caption instead of on every screen. */
+    val sampleLabelsVisible: Boolean get() = !BuildConfig.DEMO_MODE
+    fun handleLaunchIntent(activity: ComponentActivity, intent: Intent?) = DemoEvents.handle(activity, intent)
 
     fun createBackgroundHost(activity: ComponentActivity): BackgroundGuidanceHost =
         if (BuildConfig.SAMPLE_GUIDANCE)
