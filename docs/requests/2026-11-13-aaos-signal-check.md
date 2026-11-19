@@ -7,7 +7,7 @@ Pleos Connect 에뮬레이터에서 **기어 · 시동 · 주차 브레이크 ·
 ## 왜 필요한가
 
 - 기획 v6 이벤트 ② '주정차 · 고속도로'(시연 카드 A)는 **고속도로에서 기어가 P로 바뀔 때**를 판정합니다
-- 기어는 Pleos SDK에 없고 Android Automotive 표준 API(`CarPropertyManager`)로만 읽습니다. Pleos 차가 일반 앱에 이 값을 열어 주는지는 Pleos 문서에 없습니다 ([SDK 상황 신호 정리](android/references/pleos-sdk-signals-2026-11-11.md) '11/18 기술 검증 항목')
+- 기어는 Pleos SDK에 없고 Android Automotive 표준 API(`CarPropertyManager`)로만 읽습니다. Pleos 차가 일반 앱에 이 값을 열어 주는지는 Pleos 문서에 없습니다 ([SDK 상황 신호 정리](../android/references/pleos-sdk-signals-2026-11-11.md) '11/18 기술 검증 항목')
 - 결과에 따라 서버가 고속도로 노선 좌표를 준비할지, 이벤트 판정 방식을 바꿀지(기획 v6 6장 '기획에서 정할 것' 2 · 3번)가 갈립니다
 - 시동 · 주차 브레이크는 '주행 1회'의 경계와 '주차 후' 화면 진입에도 쓰입니다
 - 백엔드 PC는 디스크 공간이 부족해 에뮬레이터를 설치하지 못했습니다
@@ -435,7 +435,7 @@ I DriveRuleCarProbe: GEAR callback: value=4 (P) status=0 timestampNs=9638745705
   - 기어 변경 콜백을 등록하고, 값이 올 때마다 남깁니다. 출력은 logcat 태그 `DriveRuleCarProbe`로만 나갑니다
 - `android/app/src/debug/AndroidManifest.xml` — `CAR_POWERTRAIN` · `CAR_SPEED` 권한, `android.car` 라이브러리(`required="false"`), 확인용 Activity
 - `android/app/build.gradle.kts` — `debugCompileOnly`로 SDK의 `platforms/android-34/optional/android.car.jar`만 참조
-- 기존 화면 · ViewModel · 안내 구조(결정 008)와 release 소스는 고치지 않았습니다
+- 기존 화면 · ViewModel · 안내 구조(Android 결정 A01)와 release 소스는 고치지 않았습니다
 
 빌드 확인 (2026-11-13, JDK 17): `.\gradlew.bat :app:assembleDebug :app:assembleRelease :app:lintDebug :app:testDebugUnitTest` 성공. lint 오류 0건, 경고 46건 중 확인용 코드에서 나온 것은 없습니다. 컴파일 경고 2건은 `CarPropertyValue.status` deprecated입니다. release APK의 dex와 병합 매니페스트에는 `CarProbeActivity` · `CAR_POWERTRAIN`이 없습니다. 2026-11-14에 같은 브랜치로 debug APK를 다시 빌드해 에뮬레이터에 설치했습니다.
 

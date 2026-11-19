@@ -2,7 +2,7 @@
 
 - 날짜: 2026-11-11
 - 상태: 결정 (MVP 범위) — 기획 회신 반영, ERD 변경 없음
-- 요청: `docs/ERD 보완 요청 · 화면 대조 결과 (v5.2 기준).md` 6번
+- 요청: `docs/requests/2026-11-11-erd-screen-check-v5-2.md` 6번
 - 관련: `rule_card.topic`(UQ) · `cached_card.topic` · [004](004-card-lifecycle.md)
 
 ## 배경

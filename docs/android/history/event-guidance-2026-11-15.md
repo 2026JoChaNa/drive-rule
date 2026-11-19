@@ -4,9 +4,9 @@
 
 작성일: 2026-11-15 · 상태: **구현 반영·JVM/lint/APK 빌드 통과 / 기기 미실행**
 
-이번 작업은 실제 차량·내비 신호에서 우회전 후보를 만들고, 로컬에 동기화한 검수 카드의 문구를 선택해 기존 음성·짧은 시각 안내로 연결하는 범위다. 공식 입력 계약과 최종 코드의 경계를 기록한다. 개발 정책은 [결정 011](decisions/011-event-guidance-policy.md)에 명시하며 기기 동작 성공과 구분한다.
+이번 작업은 실제 차량·내비 신호에서 우회전 후보를 만들고, 로컬에 동기화한 검수 카드의 문구를 선택해 기존 음성·짧은 시각 안내로 연결하는 범위다. 공식 입력 계약과 최종 코드의 경계를 기록한다. 개발 정책은 [결정 A04](../decisions/A04-event-guidance-policy.md)에 명시하며 기기 동작 성공과 구분한다.
 
-선행 구현은 [법령 캐시·동기화](law-card-sync-2026-11-15.md), [음성·배너 출력](voice-and-transient-guidance-2026-11-15.md), [차량·백그라운드 host](vehicle-background-integration-2026-11-15.md), [내비 신호 계약](navigation-signals-evidence-2026-11-15.md)을 따른다. 서버 계약은 [앱 API](../api/app-api.md), 공유 기획은 [결정 009](../decisions/009-core-features-v6-alignment.md)와 [학교 좌표 결정 010](../decisions/010-school-zone-dataset.md)을 참고한다.
+선행 구현은 [법령 캐시·동기화](law-card-sync-2026-11-15.md), [음성·배너 출력](voice-and-transient-guidance-2026-11-15.md), [차량·백그라운드 host](vehicle-background-integration-2026-11-15.md), [내비 신호 계약](navigation-signals-evidence-2026-11-15.md)을 따른다. 서버 계약은 [앱 API](../../api/app-api.md), 공유 기획은 [결정 009](../../decisions/009-core-features-v6-alignment.md)와 [학교 좌표 결정 010](../../decisions/010-school-zone-dataset.md)을 참고한다.
 
 ## 1. 이번에 연결하는 범위
 
@@ -49,7 +49,7 @@ NaviHelper `3.0.5`의 공개 데이터 의존성은 `navi-data:3.0.4`다. `TBTIn
 - `audience=GENERAL`, 정확한 `eventTag=RIGHT_TURN_CROSSWALK`, 유효한 검수 사본과 `ttsText`를 기준으로 선택한다. `LIMITED`, 이벤트 없는 카드, 지원하지 않는 형식, 회수된 카드를 제외한다.
 - 음성과 화면은 같은 카드 ID·version·사본에 근거한다. 출력 직전과 대기·표시·발화 중 캐시 변경 시 회수·교체 여부를 확인하는 것이 검증 기준이다. 선택 후 회수된 카드가 이전 사본으로 계속 안내되지 않아야 한다.
 - 선제 음성은 API의 최상위 `ttsText`를 그대로 사용한다. 앱이나 AI가 시행일·처벌·법령 문장을 생성하거나, 짧게 만들기 위해 임의로 잘라 법적 의미를 바꾸지 않는다. 문구가 현재 안내 시간에 맞지 않으면 출력 정책에서 보류해야 한다.
-- `decision.tables[].rows[].tts`는 Gleo 질의응답용 조건 분기다. [rule-matching 명세](../../spec/rule-matching/README.md)의 사용자/Gleo 조건을 차량 신호로 임의 채우지 않는다.
+- `decision.tables[].rows[].tts`는 Gleo 질의응답용 조건 분기다. [rule-matching 명세](../../../spec/rule-matching/README.md)의 사용자/Gleo 조건을 차량 신호로 임의 채우지 않는다.
 - `effectiveOn`이 미래인 카드와 시행 중인 카드를 혼동하지 않는다. `OPERATION` 카드는 법령 개정으로 표시하지 않고 API의 출처 기관·현장 표지판 우선 표시 계약을 유지한다.
 - 화면 전환·재구독·같은 신호의 반복 전달만으로 새 음성을 시작하지 않는다. 발화/자동 종료를 사용자 확인이나 영구적인 미확인 해제로 기록하지 않는다.
 
@@ -90,7 +90,7 @@ NaviHelper `3.0.5`의 공개 데이터 의존성은 `navi-data:3.0.4`다. `TBTIn
 | 검증 | 상태 |
 | --- | --- |
 | 서버 이벤트·카드·학교 좌표 계약, 공식 SDK 소스 확인 | 확인. 위 출처와 선행 근거 문서 참조 |
-| 최종 코드와 이 문서의 정책 수치·동작 대조 | 확인. 위 표 및 결정011의 개발값과 일치 |
+| 최종 코드와 이 문서의 정책 수치·동작 대조 | 확인. 위 표 및 결정 A04의 개발값과 일치 |
 | 이벤트 경계·재무장·중복·회수·순서·만료 JVM 테스트 | 전체297개 통과(실패/오류/skip 0). 이번 정책32·예약15·실행조정14·출력라우터6개 추가 |
 | lint·Debug/Release 빌드 및 회귀 테스트 | lint 오류0/기존 경고49. Debug·Release(R8)·Debug AndroidTest APK 컴파일 모두 성공 |
 | 에뮬레이터·실차 실행 | **이번 작업에서 실행하지 않음. 2026-11-16 검증 예정** |

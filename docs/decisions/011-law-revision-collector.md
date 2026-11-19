@@ -3,7 +3,7 @@
 - 날짜: 2026-11-13
 - 상태: **채택** (서버). 운영 연결은 인증값(OC) 발급 · IP 등록 뒤
 - 기준: Notion 「🚦 기획 v6」 기능 ⑦ (법령 개정 → 일반 운전자 해당분만 카드로), 결정 [001](001-remove-driving-context.md) · [004](004-card-lifecycle.md) · [008](008-server-api-v1.md) 3번 ('Open API 연동은 이번 범위 밖 — CMS 가 손으로 등록')
-- 관련: [docs/content/pt-cards-legal-check.md](../content/pt-cards-legal-check.md) — 사람이 개정을 찾아 대조한 기록 (2026-11-12)
+- 관련: [docs/legal-check/pt-cards-legal-check.md](../legal-check/pt-cards-legal-check.md) — 사람이 개정을 찾아 대조한 기록 (2026-11-12)
 
 ## 배경
 
